@@ -113,7 +113,8 @@ TOKEN:
 {
     <BALLOONS: "#balloons">
     | <CHIPS: "#chips">
-    | <BACK: "#left">
+    | <BACK: "#back">
+    | <FRONT: "#front">
     | <LEFT: "#left">
     | <RIGHT: "#right">
     | <AROUND: "#around">
@@ -139,17 +140,31 @@ boolean command(Console sistema):
 {
 	(
 		<MOVE> ":" x=expr() "." { world.moveForward(x, false); salida = "Command: Move"; }
-		| <MOVE> ":" x=expr() < INDIR > <EAST > "." { world.moveHorizontally(x, false); salida = "Command: Move"; }
-		| <MOVE> ":" x=expr() < INDIR > <WEST > "." { world.moveHorizontally(-x, false); salida = "Command: Move"; }
-		| <MOVE> ":" x=expr() < INDIR > <NORTH > "." { world.moveVertically(-x, false); salida = "Command: Move"; }
-		| <MOVE> ":" x=expr() < INDIR > <SOUTH > "." { world.moveVertically(x, false); salida = "Command: Move"; } 
+		| <MOVE> ":" x=expr() < INDIR > <EAST > "." { world.moveHorizontally(x, false); changeFace(2); salida = "Command: Move East"; }
+		| <MOVE> ":" x=expr() < INDIR > <WEST > "." { world.moveHorizontally(-x, false); changeFace(3); salida = "Command: Move West"; }
+		| <MOVE> ":" x=expr() < INDIR > <NORTH > "." { world.moveVertically(-x, false); changeFace(0); salida = "Command: Move North"; }
+		| <MOVE> ":" x=expr() < INDIR > <SOUTH > "." { world.moveVertically(x, false); changeFace(1); salida = "Command: Move South"; }
+		| <MOVE> ":" x=expr() < TOTHE > moveDirectionLRFB(x)  "." { salida = "Command: Move"; }
+		
 		| <TURN> ":" direction() "." { world.turn(token.image); salida = "Command: Turn"; }
-		| <FACE> ":" direction() "." { world.face(token.image); salida = "Command: Face"; }
+		
+		| <FACE> ":" <WEST > "." { changeFace(3); salida = "Command: Face west"; }
+		| <FACE> ":" <EAST > "." { changeFace(2); salida = "Command: Face east"; }
+		| <FACE> ":" <NORTH > "." { changeFace(0); salida = "Command: Face north"; }
+		| <FACE> ":" <SOUTH > "." { changeFace(1); salida = "Command: Face south"; }
+		
 		| <PUT> ":" n=expr() "ofType:" objType() "." { world.put(n, token.image); salida = "Command: Put"; }
 		| <PICK> ":" n=expr() "ofType:" objType() "." { world.pick(n, token.image); salida = "Command: Pick"; }
 		| <POP> ":" n=expr() "." { world.popBalloons(n); salida = "Command: Pop"; }
 		| <GOTO> ":" x=expr() "with:" y=expr() "." { world.setPosition(x, y); salida = "Command: GoTo"; }
-		| <JUMP> ":" n=expr() "toThe:" direction() "." { world.jump(n, token.image); salida = "Command: Jump"; }
+		
+		| <JUMP> ":" n=expr() < TOTHE > jumpDirectionLRFB(x) "." { salida = "Command: Jump"; }
+		| <JUMP> ":" x=expr() < INDIR > <EAST > "." { world.moveHorizontally(x, true); changeFace(2); salida = "Command: Jump East"; }
+		| <JUMP> ":" x=expr() < INDIR > <WEST > "." { world.moveHorizontally(-x, true); changeFace(3);  salida = "Command: Jump West"; }
+		| <JUMP> ":" x=expr() < INDIR > <NORTH > "." { world.moveVertically(-x, true); changeFace(0); salida = "Command: Jump North"; }
+		| <JUMP> ":" x=expr() < INDIR > <SOUTH > "." { world.moveVertically(x, true); changeFace(1); salida = "Command: Jump South"; }
+
+		
 		| <NOP> "." { salida = "Command: NOP"; }
 		| procedure()
 		| variable_declaration()
@@ -205,14 +220,92 @@ void directionLRFB():
     <LEFT> | <RIGHT> | <FRONT> | <BACK>
 }
 
-void directionLRFBCheck():
+void moveDirectionLRFB(int x):
 {
+  int x=0;
 }
 {
-    <LEFT> { if (world.isLeft()) throw new Error("No se puede mover más la izquierda. "; }
-    | <RIGHT> { if (world.isRight()) throw new Error("No se puede mover más la derecha. "; }
-    | <FRONT> { if (world.isDown()) throw new Error("No se puede mover más hacia abajo. "; }
-    | <BACK> { if (world.isUp()) throw new Error("No se puede mover más hacia atras. "; }
+    <LEFT>
+	    {
+	      if (world.getFacing()==0)
+	      	world.moveHorizontally(-x, false) ;
+	      else if (world.getFacing()==1)
+	      	world.moveHorizontally(x, false) ;
+	      else if (world.getFacing()==2)
+	      	world.moveVertically(-x, false) ;
+	      else 
+	      	world.moveVertically(x, false) ;
+	     }
+    | <RIGHT>
+	    {
+	      if (world.getFacing()==0)
+	      	world.moveHorizontally(x, false) ;
+	      else if (world.getFacing()==1)
+	      	world.moveHorizontally(-x, false) ;
+	      else if (world.getFacing()==2)
+	      	world.moveVertically(x, false) ;
+	      else 
+	      	world.moveVertically(-x, false) ;
+	     }
+    | <FRONT>
+	     {
+	       world.moveForward(x, false) ;
+	     }
+    | <BACK>
+	    {
+	      if (world.getFacing()==0)
+	      	world.moveVertically(-x, false) ;
+	      else if (world.getFacing()==1)
+	      world.moveVertically(x, false) ;
+	      else if (world.getFacing()==2)
+	      	world.moveHorizontally(x, false) ;
+	      else 
+	      	world.moveHorizontally(-x, false) ;
+	     }
+}
+
+void jumpDirectionLRFB(int x):
+{
+  int x=0;
+}
+{
+    <LEFT>
+	    {
+	      if (world.getFacing()==0)
+	      	world.moveHorizontally(-x, true) ;
+	      else if (world.getFacing()==1)
+	      	world.moveHorizontally(x, true) ;
+	      else if (world.getFacing()==2)
+	      	world.moveVertically(-x, true) ;
+	      else 
+	      	world.moveVertically(x, true) ;
+	     }
+    | <RIGHT>
+	    {
+	      if (world.getFacing()==0)
+	      	world.moveHorizontally(x, true) ;
+	      else if (world.getFacing()==1)
+	      	world.moveHorizontally(-x, true) ;
+	      else if (world.getFacing()==2)
+	      	world.moveVertically(x, true) ;
+	      else 
+	      	world.moveVertically(-x, true) ;
+	     }
+    | <FRONT>
+	     {
+	       world.moveForward(x, true) ;
+	     }
+    | <BACK>
+	    {
+	      if (world.getFacing()==0)
+	      	world.moveVertically(-x, true) ;
+	      else if (world.getFacing()==1)
+	      world.moveVertically(x, true) ;
+	      else if (world.getFacing()==2)
+	      	world.moveHorizontally(x, true) ;
+	      else 
+	      	world.moveHorizontally(-x, true) ;
+	     }
 }
 
 void directionNSEW():
@@ -272,3 +365,13 @@ int expr():
 	{ return total; }
 }
 
+void changeFace(int dir):
+{
+	int dir=0;
+}
+{
+	{
+	  while (world.getFacing()!=dir)
+		world.turnRight();
+	}
+}
