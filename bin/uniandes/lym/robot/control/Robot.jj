@@ -82,14 +82,14 @@ TOKEN:
 
 TOKEN: /* Comandos actualizados según el enunciado */
 {
-    <MOVE: "move"> 
-    | <TURN: "turn">
-    | <FACE: "face">
-    | <PUT: "put">
-    | <PICK: "pick">
+    <MOVE: "move:"> 
+    | <TURN: "turn:">
+    | <FACE: "face:">
+    | <PUT: "put:">
+    | <PICK: "pick:">
     | <POP: "pop">
-    | <GOTO: "goto">
-    | <JUMP: "jump">
+    | <GOTO: "goto:">
+    | <JUMP: "jump:">
     | <NOP: "nop">
     | <PROC: "proc">
     | <ASSIGN: ":=">
@@ -100,6 +100,10 @@ TOKEN: /* Comandos actualizados según el enunciado */
     | <DO: "do:">
     | <REPEAT: "repeatTimes:">
     | <FOR: "for:">
+    | <WITH: "with:">
+    | <INDIR: "inDir:">
+    | <TOTHE: "toThe:">
+    | <OFTYPE: "ofType:">
     | <REPEAT_BLOCK: "repeat:">
     | <ID: <LETTER> (<LETTER> | <DIGIT> | "_")* >
     | <CONSTANT: "#balloons" | "#chips" | "#red" | "#green" | "#blue"> 
@@ -109,6 +113,7 @@ TOKEN:
 {
     <BALLOONS: "#balloons">
     | <CHIPS: "#chips">
+    | <BACK: "#left">
     | <LEFT: "#left">
     | <RIGHT: "#right">
     | <AROUND: "#around">

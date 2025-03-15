@@ -3,7 +3,6 @@
 package uniandes.lym.robot.control;
 
 /** Token Manager Error. */
-@SuppressWarnings("all") 
 public class TokenMgrError extends Error
 {
 
@@ -107,7 +106,7 @@ public class TokenMgrError extends Error
     return("Lexical error at line " + //
           errorLine + ", column " + //
           errorColumn + ".  Encountered: " + //
-          (EOFSeen ? "<EOF>" : ("'" + addEscapes(String.valueOf((char) curChar)) + "' (" + curChar + "),")) + //
+          (EOFSeen ? "<EOF>" : ("'" + addEscapes(String.valueOf(curChar)) + "' (" + curChar + "),")) + //
           (errorAfter == null || errorAfter.length() == 0 ? "" : " after prefix \"" + addEscapes(errorAfter) + "\"")) + //
           (lexState == 0 ? "" : " (in lexical state " + lexState + ")");
   }
@@ -145,4 +144,4 @@ public class TokenMgrError extends Error
     this(LexicalErr(EOFSeen, lexState, errorLine, errorColumn, errorAfter, curChar), reason);
   }
 }
-/* JavaCC - OriginalChecksum=81147ff33f6bba914e32eb081cc66953 (do not edit this line) */
+/* JavaCC - OriginalChecksum=a8a72315fa96deffc694e85101230718 (do not edit this line) */
