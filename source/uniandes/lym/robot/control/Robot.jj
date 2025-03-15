@@ -1,0 +1,231 @@
+/*
+Gramatica actualizada para el Robot:
+Adaptado para nueva sintaxis de comandos, variables, procedimientos y estructuras de control
+Autor original: Alejandro Arango
+Modificado por: Silvia Takahashi, Juan Pablo Morales
+Actualizado por: [Tu Nombre]
+*/
+
+options 
+{
+	LOOKAHEAD=1; 
+	IGNORE_CASE=true;
+	STATIC = false;
+}
+
+PARSER_BEGIN(Robot)
+
+package uniandes.lym.robot.control;
+
+import uniandes.lym.robot.kernel.*;
+import uniandes.lym.robot.view.Console;
+
+import java.awt.Point;
+import java.io.*;
+import java.util.Vector;
+import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+
+@SuppressWarnings("serial")
+public class Robot 
+{
+	private RobotWorldDec world;
+	private HashMap<String, Integer> variables = new HashMap<>();
+	private HashMap<String, Procedure> procedures = new HashMap<>();
+
+	void setWorld(RobotWorld w) {
+		world = (RobotWorldDec) w;	
+	}
+
+	String salida = new String();
+
+	class Procedure {
+		String name;
+		List<String> parameters;
+		List<String> body;
+
+		Procedure(String name, List<String> parameters, List<String> body) {
+			this.name = name;
+			this.parameters = parameters;
+			this.body = body;
+		}
+	}
+}
+PARSER_END(Robot)
+
+SKIP:
+{
+	" "
+	| "\r"
+	| "\t"
+	| "\n"
+}
+
+TOKEN:
+{
+    <#LETTER: ["a"-"z", "A"-"Z"]>
+    | <#DIGIT: ["0"-"9"]>
+}
+
+TOKEN: /* Comandos actualizados según el enunciado */
+{
+    <MOVE: "move"> 
+    | <TURN: "turn">
+    | <FACE: "face">
+    | <PUT: "put">
+    | <PICK: "pick">
+    | <POP: "pop">
+    | <GOTO: "goto">
+    | <JUMP: "jump">
+    | <NOP: "nop">
+    | <PROC: "proc">
+    | <ASSIGN: ":=">
+    | <IF: "if:">
+    | <THEN: "then:">
+    | <ELSE: "else:">
+    | <WHILE: "while:">
+    | <DO: "do:">
+    | <REPEAT: "repeatTimes:">
+    | <FOR: "for:">
+    | <REPEAT_BLOCK: "repeat:">
+    | <ID: <LETTER> (<LETTER> | <DIGIT> | "_")* >
+    | <CONSTANT: "#balloons" | "#chips" | "#red" | "#green" | "#blue"> 
+}
+
+TOKEN:
+{
+    <LEFT: "#left">
+    | <RIGHT: "#right">
+    | <AROUND: "#around">
+    | <NORTH: "#north">
+    | <SOUTH: "#south">
+    | <WEST: "#west">
+    | <EAST: "#east">
+}
+
+
+
+TOKEN:
+{
+    <NUM: (["0"-"9"])+ >
+}
+
+
+
+boolean command(Console sistema):
+{
+	int x, y, n;
+	salida = new String();
+}
+{
+	(
+		<MOVE> ":" x=expr() "." { world.moveForward(x, false); salida = "Command: Move"; }
+		| <TURN> ":" direction() "." { world.turn(token.image); salida = "Command: Turn"; }
+		| <FACE> ":" direction() "." { world.face(token.image); salida = "Command: Face"; }
+		| <PUT> ":" n=expr() "ofType:" objType() "." { world.put(n, token.image); salida = "Command: Put"; }
+		| <PICK> ":" n=expr() "ofType:" objType() "." { world.pick(n, token.image); salida = "Command: Pick"; }
+		| <POP> ":" n=expr() "." { world.popBalloons(n); salida = "Command: Pop"; }
+		| <GOTO> ":" x=expr() "with:" y=expr() "." { world.setPosition(x, y); salida = "Command: GoTo"; }
+		| <JUMP> ":" n=expr() "toThe:" direction() "." { world.jump(n, token.image); salida = "Command: Jump"; }
+		| <NOP> "." { salida = "Command: NOP"; }
+		| procedure()
+		| variable_declaration()
+		| assignment()
+		| conditional()
+		| loop()
+	) 
+	{
+		try {
+			Thread.sleep(900);
+		} catch (InterruptedException e) {
+			System.err.format("IOException: %s%n", e);
+		}
+
+		sistema.printOutput(salida);
+		return true;
+	} 
+	| <EOF> { return false; }
+}
+
+void procedure():
+{
+	String procName;
+	List<String> params = new ArrayList<>();
+	List<String> body = new ArrayList<>();
+}
+{	
+	<PROC> procName=<ID> ("[" paramList() "]")? "[" ( command() )* "]" {
+    procedures.put(procName, new Procedure(procName, params, body));
+}
+	
+}
+
+void paramList():
+{
+	String param;
+}
+{
+	param=<ID> { params.add(param); } ( "and:" param=<ID> { params.add(param); } )*
+}
+
+
+void direction():
+{
+}
+{
+    <NORTH> | <SOUTH> | <EAST> | <WEST> | <LEFT> | <RIGHT> | <AROUND>
+}
+
+void objType():
+{
+}
+{
+    <BALLOONS> | <CHIPS>
+}
+
+void variable_declaration():
+{
+}
+{
+    <ID> ("," <ID>)* ":=" expr() "."
+}
+
+void assignment():
+{
+}
+{
+    LOOKAHEAD(3) <ID> ":=" expr() "."
+}
+
+
+void conditional():
+{
+}
+{
+    LOOKAHEAD(2) <IF> expr() <THEN> "[" (command())* "]" (<ELSE> "[" (command())* "]")?
+}
+
+
+void loop():
+{
+}
+{
+    LOOKAHEAD(2) <WHILE> expr() <DO> "[" (command())* "]"
+    | LOOKAHEAD(2) <REPEAT> expr() <REPEAT_BLOCK> "[" (command())* "]"
+}
+
+
+
+int expr():
+{
+	int total = 1;
+}
+{
+	( <NUM> { total = Integer.parseInt(token.image); }
+	| <ID> { if (!variables.containsKey(token.image)) throw new Error("Variable no definida: " + token.image); total = variables.get(token.image); }
+	)
+	{ return total; }
+}
+	

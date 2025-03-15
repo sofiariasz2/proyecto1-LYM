@@ -1,0 +1,6 @@
+
+t1 := 3 .
+move: t1 .
+if: canMove: 1 inDir: #north then: [ move: 1 inDir: #north . ] else: [ nop . ]
+proc myMethod: param1 [ move: param1 . ]
+myMethod: 2 .
