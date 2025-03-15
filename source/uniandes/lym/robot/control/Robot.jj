@@ -100,6 +100,10 @@ TOKEN: /* Comandos actualizados según el enunciado */
     | <DO: "do:">
     | <REPEAT: "repeatTimes:">
     | <FOR: "for:">
+    | <WITH: "with:">
+    | <INDIR: "inDir:">
+    | <TOTHE: "toThe:">
+    | <OFTYPE: "ofType:">
     | <REPEAT_BLOCK: "repeat:">
     | <ID: <LETTER> (<LETTER> | <DIGIT> | "_")* >
     | <CONSTANT: "#balloons" | "#chips" | "#red" | "#green" | "#blue"> 
@@ -109,6 +113,7 @@ TOKEN:
 {
     <BALLOONS: "#balloons">
     | <CHIPS: "#chips">
+    | <BACK: "#left">
     | <LEFT: "#left">
     | <RIGHT: "#right">
     | <AROUND: "#around">
@@ -134,6 +139,10 @@ boolean command(Console sistema):
 {
 	(
 		<MOVE> ":" x=expr() "." { world.moveForward(x, false); salida = "Command: Move"; }
+		| <MOVE> ":" x=expr() < INDIR > <EAST > "." { world.moveHorizontally(x, false); salida = "Command: Move"; }
+		| <MOVE> ":" x=expr() < INDIR > <WEST > "." { world.moveHorizontally(-x, false); salida = "Command: Move"; }
+		| <MOVE> ":" x=expr() < INDIR > <NORTH > "." { world.moveVertically(-x, false); salida = "Command: Move"; }
+		| <MOVE> ":" x=expr() < INDIR > <SOUTH > "." { world.moveVertically(x, false); salida = "Command: Move"; } 
 		| <TURN> ":" direction() "." { world.turn(token.image); salida = "Command: Turn"; }
 		| <FACE> ":" direction() "." { world.face(token.image); salida = "Command: Face"; }
 		| <PUT> ":" n=expr() "ofType:" objType() "." { world.put(n, token.image); salida = "Command: Put"; }
@@ -182,12 +191,35 @@ void paramList():
 	param=<ID> { params.add(param); } ( "and:" param=<ID> { params.add(param); } )*
 }
 
-
 void direction():
 {
 }
 {
     <NORTH> | <SOUTH> | <EAST> | <WEST> | <LEFT> | <RIGHT> | <AROUND>
+}
+
+void directionLRFB():
+{
+}
+{
+    <LEFT> | <RIGHT> | <FRONT> | <BACK>
+}
+
+void directionLRFBCheck():
+{
+}
+{
+    <LEFT> { if (world.isLeft()) throw new Error("No se puede mover más la izquierda. "; }
+    | <RIGHT> { if (world.isRight()) throw new Error("No se puede mover más la derecha. "; }
+    | <FRONT> { if (world.isDown()) throw new Error("No se puede mover más hacia abajo. "; }
+    | <BACK> { if (world.isUp()) throw new Error("No se puede mover más hacia atras. "; }
+}
+
+void directionNSEW():
+{
+}
+{
+    <NORTH> | <SOUTH> | <EAST> | <WEST> 
 }
 
 void objType():
@@ -229,7 +261,6 @@ void loop():
     
 }
 
-
 int expr():
 {
 	int total = 1;
@@ -240,4 +271,4 @@ int expr():
 	)
 	{ return total; }
 }
-	
+
