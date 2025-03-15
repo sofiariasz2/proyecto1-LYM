@@ -3,7 +3,18 @@ Gramatica actualizada para el Robot:
 Adaptado para nueva sintaxis de comandos, variables, procedimientos y estructuras de control
 Autor original: Alejandro Arango
 Modificado por: Silvia Takahashi, Juan Pablo Morales
-Actualizado por: [Tu Nombre]
+
+
+
+
+
+
+---------------------------------------------------------
+Parser con instrucciones del robot modificadas por Sofi.
+---------------------------------------------------------
+
+
+
 */
 
 options 
@@ -96,7 +107,9 @@ TOKEN: /* Comandos actualizados según el enunciado */
 
 TOKEN:
 {
-    <LEFT: "#left">
+    <BALLOONS: "#balloons">
+    | <CHIPS: "#chips">
+    | <LEFT: "#left">
     | <RIGHT: "#right">
     | <AROUND: "#around">
     | <NORTH: "#north">
@@ -104,7 +117,6 @@ TOKEN:
     | <WEST: "#west">
     | <EAST: "#east">
 }
-
 
 
 TOKEN:
@@ -196,26 +208,26 @@ void assignment():
 {
 }
 {
-    LOOKAHEAD(3) <ID> ":=" expr() "."
+    <ID> ":=" expr() "."
 }
-
 
 void conditional():
 {
 }
 {
-    LOOKAHEAD(2) <IF> expr() <THEN> "[" (command())* "]" (<ELSE> "[" (command())* "]")?
+    <IF> expr() <THEN> "[" (command())* "]" (<ELSE> "[" (command())* "]")?
+    
 }
-
 
 void loop():
 {
 }
 {
-    LOOKAHEAD(2) <WHILE> expr() <DO> "[" (command())* "]"
-    | LOOKAHEAD(2) <REPEAT> expr() <REPEAT_BLOCK> "[" (command())* "]"
-}
+  <WHILE> expr() <DO> "[" (command())* "]"
 
+    | <REPEAT> expr() <REPEAT_BLOCK> "[" (command())* "]"
+    
+}
 
 
 int expr():
