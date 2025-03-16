@@ -373,7 +373,7 @@ void conditional(Console sistema):
 {
 }
 {
-    <IF> conditions() <THEN> "[" (command(sistema))* "]" (<ELSE> "[" (command(sistema))* "]")?
+    <IF> (<NOT>)* conditions() <THEN> "[" (command(sistema))* "]" (<ELSE> "[" (command(sistema))* "]")?
     
 }
 
@@ -381,22 +381,428 @@ void loop(Console sistema):
 {
 }
 {
-  <WHILE> conditions() <DO> "[" (command(sistema))* "]"
+  <WHILE> (<NOT>)* conditions() <DO> "[" (command(sistema))* "]"
 
     | <REPEAT> expr() <REPEAT_BLOCK> "[" (command(sistema))* "]"
     
 }
 
-void conditions():
+boolean conditions():
+{
+  int x=0;
+}
+{	  <CANMOVE> x=expr() canMoveInDirToTheCondition(x)
+	  |  <FACING> facingCondition()
+	  |  <CANPUT> x=expr() < OFTYPE > canPutCondition( x)
+	  |  <CANPICK> x=expr() < OFTYPE > canPickCondition( x)
+	  |  <CANJUMP> x=expr() canJumpInDirToTheCondition(x)
+	
+}
+
+boolean canJumpInDirToTheCondition(int x):
 {
 }
 {
-	 <CANMOVE>
-  |  <FACING>
-  |  <CANPUT>
-  |  <CANPICK>
-  |  <CANJUMP>
-  |  <NOT> 
+	< INDIR > bool=canJumpNESWCondition(int x) { return bool }
+	| < TOTHE > bool=canJumpLRFBCondition(int x) { return bool }
+}
+
+boolean canJumpNESWCondition(int steps):
+{
+  Point pos;
+  int newY;
+  int newX;
+}
+{
+	<SOUTH >
+		{
+		  pos=world.getPosition();
+		  newY=pos.y+steps;
+		  if (newY > world.getN() ||  world.isBlocked(new Point(pos.x, newY)))
+		  	return false; 
+		  else
+		  	return true;
+		  
+		}
+	|< NORTH >
+		{
+		  pos=world.getPosition();
+		  newY=pos.y- steps;
+		  if (newY< 1 || world.isBlocked(new Point(pos.x, newY)))
+		  	return false; 
+		  else
+		  	return true;
+		  
+		}
+	| < EAST >
+		{
+		  pos=world.getPosition();
+		  newX=pos.x+ steps;
+		  if (newX > world.getN() || world.isBlocked(new Point(newX, pos.y)))
+		  	return false; 
+		  else
+		  	return true;
+		  
+		}
+	| < WEST >
+		{
+		  pos=world.getPosition();
+		  newX=pos.x- steps;
+		  if (newX< 1 || world.isBlocked(new Point(newX, pos.y)))
+		  	return false; 
+		  else
+		  	return true;	  
+		}
+}
+
+boolean canJumpLRFBCondition(int steps):
+{
+  Point pos;
+  Point newPos;
+  int newP;
+  int cardinalDir;
+}
+{
+	<LEFT >
+		{
+		  pos=world.getPosition();
+		  newPos= getNewPos( steps, "LEFT");
+		  
+		  if (newPos.x==pos.x)
+		  	newP=newPos.y;
+		  else
+		  	newP=newPos.x;
+		 
+		  if (newP > world.getN() || newP<1  || world.isBlocked(newPos) )
+		  	return false; 
+		  else
+		  	return true;
+		  
+		}
+	|< RIGHT >
+		{
+		  pos=world.getPosition();
+		  newPos= getNewPos( steps, "RIGHT");
+		  
+		  if (newPos.x==pos.x)
+		  	newP=newPos.y;
+		  else
+		  	newP=newPos.x;
+		 
+		  if (newP > world.getN() || newP<1 || world.isBlocked(newPos) )
+		  	return false; 
+		  else
+		  	return true;
+		  
+		}
+	| < FRONT >
+		{
+		  pos=world.getPosition();
+		  newPos= getNewPos( steps, "FRONT");
+		  
+		  if (newPos.x==pos.x)
+		  	newP=newPos.y;
+		  else
+		  	newP=newPos.x;
+		 
+		  if (newP > world.getN() || newP<1 || world.isBlocked(newPos) )
+		  	return false; 
+		  else
+		  	return true;
+		  
+		}
+	| < BACK >
+		{
+		  pos=world.getPosition();
+		  newPos= getNewPos( steps, "BACK");
+		  
+		  if (newPos.x==pos.x)
+		  	newP=newPos.y;
+		  else
+		  	newP=newPos.x;
+		 
+		  if (newP > world.getN() || newP<1  || world.isBlocked(newPos) )
+		  	return false; 
+		  else
+		  	return true;
+		  
+		}
+}
+
+
+boolean canMoveNESWCondition(int steps):
+{
+  Point pos;
+  int newY;
+  int newX;
+}
+{
+	<SOUTH >
+		{
+		  pos=world.getPosition();
+		  newY=pos.y+steps;
+		  if (newY > world.getN() || world.blockedInRange(pos.x, pos.y, newY, SOUTH) || world.isBlocked(new Point(pos.x, newY)))
+		  	return false; 
+		  else
+		  	return true;
+		  
+		}
+	|< NORTH >
+		{
+		  pos=world.getPosition();
+		  newY=pos.y- steps;
+		  if (newY< 1 || world.blockedInRange(pos.x, pos.y, newY, NORTH) || world.isBlocked(new Point(pos.x, newY)))
+		  	return false; 
+		  else
+		  	return true;
+		  
+		}
+	| < EAST >
+		{
+		  pos=world.getPosition();
+		  newX=pos.x+ steps;
+		  if (newX > world.getN() || world.blockedInRange(pos.x, pos.y, newX, EAST) || world.isBlocked(new Point(newX, pos.y)))
+		  	return false; 
+		  else
+		  	return true;
+		  
+		}
+	| < WEST >
+		{
+		  pos=world.getPosition();
+		  newX=pos.x- steps;
+		  if (newX< 1 || world.blockedInRange(pos.x, pos.y, newX, WEST) || world.isBlocked(new Point(newX, pos.y)))
+		  	return false; 
+		  else
+		  	return true;	  
+		}
+}
+
+boolean canMoveLRFBCondition(int steps):
+{
+  Point pos;
+  Point newPos;
+  int newP;
+  int cardinalDir;
+}
+{
+	<LEFT >
+		{
+		  pos=world.getPosition();
+		  newPos= getNewPos( steps, "LEFT");
+		  
+		  if (newPos.x==pos.x)
+		  	newP=newPos.y;
+		  else
+		  	newP=newPos.x;
+
+		 cardinalDir= getCardinalDirHeaded("LEFT");
+		 
+		  if (newP > world.getN() || newP<1 || world.blockedInRange(pos.x, pos.y, newP, cardinalDir) || world.isBlocked(newPos) )
+		  	return false; 
+		  else
+		  	return true;
+		  
+		}
+	|< RIGHT >
+		{
+		  pos=world.getPosition();
+		  newPos= getNewPos( steps, "RIGHT");
+		  
+		  if (newPos.x==pos.x)
+		  	newP=newPos.y;
+		  else
+		  	newP=newPos.x;
+
+		 cardinalDir= getCardinalDirHeaded("RIGHT");
+		 
+		  if (newP > world.getN() || newP<1 || world.blockedInRange(pos.x, pos.y, newP, cardinalDir) || world.isBlocked(newPos) )
+		  	return false; 
+		  else
+		  	return true;
+		  
+		}
+	| < FRONT >
+		{
+		  pos=world.getPosition();
+		  newPos= getNewPos( steps, "FRONT");
+		  
+		  if (newPos.x==pos.x)
+		  	newP=newPos.y;
+		  else
+		  	newP=newPos.x;
+
+		 cardinalDir= getCardinalDirHeaded("FRONT");
+		 
+		  if (newP > world.getN() || newP<1 || world.blockedInRange(pos.x, pos.y, newP, cardinalDir) || world.isBlocked(newPos) )
+		  	return false; 
+		  else
+		  	return true;
+		  
+		}
+	| < BACK >
+		{
+		  pos=world.getPosition();
+		  newPos= getNewPos( steps, "BACK");
+		  
+		  if (newPos.x==pos.x)
+		  	newP=newPos.y;
+		  else
+		  	newP=newPos.x;
+
+		 cardinalDir= getCardinalDirHeaded("BACK");
+		 
+		  if (newP > world.getN() || newP<1 || world.blockedInRange(pos.x, pos.y, newP, cardinalDir) || world.isBlocked(newPos) )
+		  	return false; 
+		  else
+		  	return true;
+		  
+		}
+}
+
+int getCardinalDirHeaded(String dir):
+{
+  if (dir=="FRONT")
+	return world.getFacing();
+
+  else if (dir=="BACK")
+  {
+	if (facing==0)
+		return 1;
+	else if (facing==1)
+		return 0;
+	else if (facing==2)
+		return 3;
+	else
+		return 2;
+  }
+
+  else if (dir=="LEFT")
+  {
+	if (facing==0)
+		return 3;
+	else if (facing==1)
+		return 2;
+	else if (facing==2)
+		return 1;
+	else 
+		return 0;
+		
+  }
+  
+  else 
+  {
+	if (facing==0)
+		return 2;
+	else if (facing==1)
+		return 3;
+	else if (facing==2)
+		return 0;
+	else 
+		return 1;
+		
+  }
+  
+}
+{
+}
+
+Point getNewPos( int steps, String dir):
+{
+  Point newPos;
+  Point oldPos= world.getPosition();
+  int facing = world.getFacing();
+
+  if (dir=="FRONT")
+  {
+	if (facing==0)
+		newPos= new Point (oldPos.x, oldPos.y-steps);
+	else if (facing==1)
+		newPos=new Point (oldPos.x, oldPos.y+steps);
+	else if (facing==2)
+		newPos=new Point (oldPos.x+steps, oldPos.y);
+	else if (facing==3)
+		newPos=new Point (oldPos.x-steps, oldPos.y);
+		
+  }
+
+  else if (dir=="BACK")
+  {
+	if (facing==0)
+		newPos= new Point (oldPos.x, oldPos.y+steps);
+	else if (facing==1)
+		newPos=new Point (oldPos.x, oldPos.y-steps);
+	else if (facing==2)
+		newPos=new Point (oldPos.x-steps, oldPos.y);
+	else if (facing==3)
+		newPos=new Point (oldPos.x+steps, oldPos.y);
+		
+  }
+
+  else if (dir=="LEFT")
+  {
+	if (facing==0)
+		newPos= new Point (oldPos.x-steps, oldPos.y);
+	else if (facing==1)
+		newPos=new Point (oldPos.x+steps, oldPos.y);
+	else if (facing==2)
+		newPos=new Point (oldPos.x, oldPos.y+steps);
+	else if (facing==3)
+		newPos=new Point (oldPos.x, oldPos.y-steps);
+		
+  }
+  
+  else if (dir=="RIGHT")
+  {
+	if (facing==0)
+		newPos= new Point (oldPos.x+steps, oldPos.y);
+	else if (facing==1)
+		newPos=new Point (oldPos.x-steps, oldPos.y);
+	else if (facing==2)
+		newPos=new Point (oldPos.x, oldPos.y-steps);
+	else if (facing==3)
+		newPos=new Point (oldPos.x, oldPos.y+steps);
+		
+  }
+  
+  return newPos;
+  
+}
+{
+}
+
+boolean canMoveInDirToTheCondition(int x):
+{
+}
+{
+	< INDIR > bool=canMoveNESWCondition(int x) { return bool }
+	| < TOTHE > bool=canMoveLRFBCondition(int x) { return bool }
+}
+
+boolean canPutCondition(int x):
+{
+}
+{
+  < BALLOONS > {if ( world.getMyBalloons()< x) return false; else return true; }
+	|  < CHIPS > { if (x > world.freeSpacesForChips() ||  world.getMyChips()< x) return false; else return true;}
+}
+
+boolean canPickCondition(int x):
+{
+}
+{
+  < BALLOONS > { if (x > world.countBalloons()) return false; else return true;}
+	|  < CHIPS > { if (x > world.chipsToPick()) return false; else return true;}
+}
+
+boolean facingCondition():
+{
+}
+{
+	< NORTH > { return world.facingNorth() }
+	| < SOUTH > { return world.facingSouth() }
+	| < EAST > { return world.facingEast() }
+	| < WEST > { return world.facingWest() }
 }
 
 int expr():
@@ -412,12 +818,10 @@ int expr():
 
 void changeFace(int dir):
 {
+  while (world.getFacing()!=dir)
+	world.turnRight();
 }
 {
-	{
-	  while (world.getFacing()!=dir)
-		world.turnRight();
-	}
 }
 
 void faceDirections():
