@@ -57,181 +57,79 @@ public class Robot implements RobotConstants {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case MOVE:{
         jj_consume_token(MOVE);
-        jj_consume_token(44);
+        jj_consume_token(50);
         x = expr();
-        jj_consume_token(45);
-world.moveForward(x, false); salida = "Command: Move";
-        break;
-        }{
-        jj_consume_token(MOVE);
-        jj_consume_token(44);
-        x = expr();
-        jj_consume_token(INDIR);
-        jj_consume_token(EAST);
-        jj_consume_token(45);
-world.moveHorizontally(x, false); changeFace(2); salida = "Command: Move East";
-        break;
-        }{
-        jj_consume_token(MOVE);
-        jj_consume_token(44);
-        x = expr();
-        jj_consume_token(INDIR);
-        jj_consume_token(WEST);
-        jj_consume_token(45);
-world.moveHorizontally(-x, false); changeFace(3); salida = "Command: Move West";
-        break;
-        }{
-        jj_consume_token(MOVE);
-        jj_consume_token(44);
-        x = expr();
-        jj_consume_token(INDIR);
-        jj_consume_token(NORTH);
-        jj_consume_token(45);
-world.moveVertically(-x, false); changeFace(0); salida = "Command: Move North";
-        break;
-        }{
-        jj_consume_token(MOVE);
-        jj_consume_token(44);
-        x = expr();
-        jj_consume_token(INDIR);
-        jj_consume_token(SOUTH);
-        jj_consume_token(45);
-world.moveVertically(x, false); changeFace(1); salida = "Command: Move South";
-        break;
-        }{
-        jj_consume_token(MOVE);
-        jj_consume_token(44);
-        x = expr();
-        jj_consume_token(TOTHE);
-        moveDirectionLRFB(x);
-        jj_consume_token(45);
+        moveIndirTothe(x);
+        jj_consume_token(51);
 salida = "Command: Move";
         break;
         }
       case TURN:{
         jj_consume_token(TURN);
-        jj_consume_token(44);
-        direction();
-        jj_consume_token(45);
-world.turn(token.image); salida = "Command: Turn";
+        jj_consume_token(50);
+        turnDirections();
+        jj_consume_token(51);
+salida = "Command: Turn";
         break;
         }
       case FACE:{
         jj_consume_token(FACE);
-        jj_consume_token(44);
-        jj_consume_token(WEST);
-        jj_consume_token(45);
-changeFace(3); salida = "Command: Face west";
-        break;
-        }{
-        jj_consume_token(FACE);
-        jj_consume_token(44);
-        jj_consume_token(EAST);
-        jj_consume_token(45);
-changeFace(2); salida = "Command: Face east";
-        break;
-        }{
-        jj_consume_token(FACE);
-        jj_consume_token(44);
-        jj_consume_token(NORTH);
-        jj_consume_token(45);
-changeFace(0); salida = "Command: Face north";
-        break;
-        }{
-        jj_consume_token(FACE);
-        jj_consume_token(44);
-        jj_consume_token(SOUTH);
-        jj_consume_token(45);
-changeFace(1); salida = "Command: Face south";
+        jj_consume_token(50);
+        faceDirections();
+        jj_consume_token(51);
+salida = "Command: Face";
         break;
         }
       case PUT:{
         jj_consume_token(PUT);
-        jj_consume_token(44);
+        jj_consume_token(50);
         n = expr();
         jj_consume_token(OFTYPE);
         objType();
-        jj_consume_token(45);
+        jj_consume_token(51);
 world.put(n, token.image); salida = "Command: Put";
         break;
         }
       case PICK:{
         jj_consume_token(PICK);
-        jj_consume_token(44);
+        jj_consume_token(50);
         n = expr();
         jj_consume_token(OFTYPE);
         objType();
-        jj_consume_token(45);
+        jj_consume_token(51);
 world.pick(n, token.image); salida = "Command: Pick";
         break;
         }
       case POP:{
         jj_consume_token(POP);
-        jj_consume_token(44);
+        jj_consume_token(50);
         n = expr();
-        jj_consume_token(45);
+        jj_consume_token(51);
 world.popBalloons(n); salida = "Command: Pop";
         break;
         }
       case GOTO:{
         jj_consume_token(GOTO);
-        jj_consume_token(44);
+        jj_consume_token(50);
         x = expr();
         jj_consume_token(WITH);
         y = expr();
-        jj_consume_token(45);
-world.setPosition(x, y); salida = "Command: GoTo";
+        jj_consume_token(51);
+world.setPostion(x, y); salida = "Command: GoTo";
         break;
         }
       case JUMP:{
         jj_consume_token(JUMP);
-        jj_consume_token(44);
+        jj_consume_token(50);
         n = expr();
-        jj_consume_token(TOTHE);
-        jumpDirectionLRFB(x);
-        jj_consume_token(45);
+        jumpIndirTothe(x);
+        jj_consume_token(51);
 salida = "Command: Jump";
-        break;
-        }{
-        jj_consume_token(JUMP);
-        jj_consume_token(44);
-        x = expr();
-        jj_consume_token(INDIR);
-        jj_consume_token(EAST);
-        jj_consume_token(45);
-world.moveHorizontally(x, true); changeFace(2); salida = "Command: Jump East";
-        break;
-        }{
-        jj_consume_token(JUMP);
-        jj_consume_token(44);
-        x = expr();
-        jj_consume_token(INDIR);
-        jj_consume_token(WEST);
-        jj_consume_token(45);
-world.moveHorizontally(-x, true); changeFace(3);  salida = "Command: Jump West";
-        break;
-        }{
-        jj_consume_token(JUMP);
-        jj_consume_token(44);
-        x = expr();
-        jj_consume_token(INDIR);
-        jj_consume_token(NORTH);
-        jj_consume_token(45);
-world.moveVertically(-x, true); changeFace(0); salida = "Command: Jump North";
-        break;
-        }{
-        jj_consume_token(JUMP);
-        jj_consume_token(44);
-        x = expr();
-        jj_consume_token(INDIR);
-        jj_consume_token(SOUTH);
-        jj_consume_token(45);
-world.moveVertically(x, true); changeFace(1); salida = "Command: Jump South";
         break;
         }
       case NOP:{
         jj_consume_token(NOP);
-        jj_consume_token(45);
+        jj_consume_token(51);
 salida = "Command: NOP";
         break;
         }
@@ -289,17 +187,17 @@ try {
     jj_consume_token(PROC);
     procName = jj_consume_token(ID);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case 46:{
-      jj_consume_token(46);
+    case 52:{
+      jj_consume_token(52);
       paramList();
-      jj_consume_token(47);
+      jj_consume_token(53);
       break;
       }
     default:
       jj_la1[2] = jj_gen;
       ;
     }
-    jj_consume_token(46);
+    jj_consume_token(52);
     label_1:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -327,7 +225,7 @@ try {
       }
       command();
     }
-    jj_consume_token(47);
+    jj_consume_token(53);
 procedures.put(procName, new Procedure(procName, params, body));
 }
 
@@ -337,7 +235,7 @@ params.add(param);
     label_2:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case 48:{
+      case 54:{
         ;
         break;
         }
@@ -345,7 +243,7 @@ params.add(param);
         jj_la1[4] = jj_gen;
         break label_2;
       }
-      jj_consume_token(48);
+      jj_consume_token(54);
       param = jj_consume_token(ID);
 params.add(param);
     }
@@ -413,7 +311,7 @@ params.add(param);
     }
 }
 
-  final public void moveDirectionLRFB(int x) throws ParseException {int x=0;
+  final public void moveDirectionLRFB(int x) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case LEFT:{
       jj_consume_token(LEFT);
@@ -463,7 +361,103 @@ if (world.getFacing()==0)
     }
 }
 
-  final public void jumpDirectionLRFB(int x) throws ParseException {int x=0;
+  final public void moveDirectionNESW(int x) throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case EAST:{
+      jj_consume_token(EAST);
+world.moveHorizontally(x, false); changeFace(2);
+      break;
+      }
+    case WEST:{
+      jj_consume_token(WEST);
+world.moveHorizontally(-x, false); changeFace(3);
+      break;
+      }
+    case NORTH:{
+      jj_consume_token(NORTH);
+world.moveVertically(-x, false); changeFace(0);
+      break;
+      }
+    case SOUTH:{
+      jj_consume_token(SOUTH);
+world.moveVertically(x, false); changeFace(1);
+      break;
+      }
+    default:
+      jj_la1[8] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+}
+
+  final public void moveIndirTothe(int x) throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case INDIR:{
+      jj_consume_token(INDIR);
+      moveDirectionLRFB(x);
+      break;
+      }
+    case TOTHE:{
+      jj_consume_token(TOTHE);
+      moveDirectionNESW(x);
+      break;
+      }
+    default:
+      jj_la1[9] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+}
+
+  final public void jumpIndirTothe(int x) throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case INDIR:{
+      jj_consume_token(INDIR);
+      jumpDirectionLRFB(x);
+      break;
+      }
+    case TOTHE:{
+      jj_consume_token(TOTHE);
+      jumpDirectionNESW(x);
+      break;
+      }
+    default:
+      jj_la1[10] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+}
+
+  final public void jumpDirectionNESW(int x) throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case EAST:{
+      jj_consume_token(EAST);
+world.moveHorizontally(x, true); changeFace(2);
+      break;
+      }
+    case WEST:{
+      jj_consume_token(WEST);
+world.moveHorizontally(-x, true); changeFace(3);
+      break;
+      }
+    case NORTH:{
+      jj_consume_token(NORTH);
+world.moveVertically(-x, true); changeFace(0);
+      break;
+      }
+    case SOUTH:{
+      jj_consume_token(SOUTH);
+world.moveVertically(x, true); changeFace(1);
+      break;
+      }
+    default:
+      jj_la1[11] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+}
+
+  final public void jumpDirectionLRFB(int x) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case LEFT:{
       jj_consume_token(LEFT);
@@ -507,7 +501,7 @@ if (world.getFacing()==0)
       break;
       }
     default:
-      jj_la1[8] = jj_gen;
+      jj_la1[12] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -532,7 +526,7 @@ if (world.getFacing()==0)
       break;
       }
     default:
-      jj_la1[9] = jj_gen;
+      jj_la1[13] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -549,7 +543,7 @@ if (world.getFacing()==0)
       break;
       }
     default:
-      jj_la1[10] = jj_gen;
+      jj_la1[14] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -560,34 +554,34 @@ if (world.getFacing()==0)
     label_3:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case 49:{
+      case 55:{
         ;
         break;
         }
       default:
-        jj_la1[11] = jj_gen;
+        jj_la1[15] = jj_gen;
         break label_3;
       }
-      jj_consume_token(49);
+      jj_consume_token(55);
       jj_consume_token(ID);
     }
     jj_consume_token(ASSIGN);
     expr();
-    jj_consume_token(45);
+    jj_consume_token(51);
 }
 
   final public void assignment() throws ParseException {
     jj_consume_token(ID);
     jj_consume_token(ASSIGN);
     expr();
-    jj_consume_token(45);
+    jj_consume_token(51);
 }
 
   final public void conditional() throws ParseException {
     jj_consume_token(IF);
     expr();
     jj_consume_token(THEN);
-    jj_consume_token(46);
+    jj_consume_token(52);
     label_4:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -610,16 +604,16 @@ if (world.getFacing()==0)
         break;
         }
       default:
-        jj_la1[12] = jj_gen;
+        jj_la1[16] = jj_gen;
         break label_4;
       }
       command();
     }
-    jj_consume_token(47);
+    jj_consume_token(53);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case ELSE:{
       jj_consume_token(ELSE);
-      jj_consume_token(46);
+      jj_consume_token(52);
       label_5:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -642,16 +636,16 @@ if (world.getFacing()==0)
           break;
           }
         default:
-          jj_la1[13] = jj_gen;
+          jj_la1[17] = jj_gen;
           break label_5;
         }
         command();
       }
-      jj_consume_token(47);
+      jj_consume_token(53);
       break;
       }
     default:
-      jj_la1[14] = jj_gen;
+      jj_la1[18] = jj_gen;
       ;
     }
 }
@@ -662,7 +656,7 @@ if (world.getFacing()==0)
       jj_consume_token(WHILE);
       expr();
       jj_consume_token(DO);
-      jj_consume_token(46);
+      jj_consume_token(52);
       label_6:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -685,19 +679,19 @@ if (world.getFacing()==0)
           break;
           }
         default:
-          jj_la1[15] = jj_gen;
+          jj_la1[19] = jj_gen;
           break label_6;
         }
         command();
       }
-      jj_consume_token(47);
+      jj_consume_token(53);
       break;
       }
     case REPEAT:{
       jj_consume_token(REPEAT);
       expr();
       jj_consume_token(REPEAT_BLOCK);
-      jj_consume_token(46);
+      jj_consume_token(52);
       label_7:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -720,16 +714,16 @@ if (world.getFacing()==0)
           break;
           }
         default:
-          jj_la1[16] = jj_gen;
+          jj_la1[20] = jj_gen;
           break label_7;
         }
         command();
       }
-      jj_consume_token(47);
+      jj_consume_token(53);
       break;
       }
     default:
-      jj_la1[17] = jj_gen;
+      jj_la1[21] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -748,7 +742,7 @@ if (!variables.containsKey(token.image)) {if (true) throw new Error("Variable no
       break;
       }
     default:
-      jj_la1[18] = jj_gen;
+      jj_la1[22] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -756,9 +750,62 @@ if (!variables.containsKey(token.image)) {if (true) throw new Error("Variable no
     throw new Error("Missing return statement in function");
 }
 
-  final public void changeFace(int dir) throws ParseException {int dir=0;
+  final public void changeFace(int dir) throws ParseException {
 while (world.getFacing()!=dir)
                 world.turnRight();
+}
+
+  final public void faceDirections() throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case WEST:{
+      jj_consume_token(WEST);
+changeFace(3);
+      break;
+      }
+    case EAST:{
+      jj_consume_token(EAST);
+changeFace(2);
+      break;
+      }
+    case NORTH:{
+      jj_consume_token(NORTH);
+changeFace(0);
+      break;
+      }
+    case SOUTH:{
+      jj_consume_token(SOUTH);
+changeFace(1);
+      break;
+      }
+    default:
+      jj_la1[23] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+}
+
+  final public void turnDirections() throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case RIGHT:{
+      jj_consume_token(RIGHT);
+world.turnRight();
+      break;
+      }
+    case LEFT:{
+      jj_consume_token(LEFT);
+world.turnRight(); world.turnRight(); world.turnRight();
+      break;
+      }
+    case AROUND:{
+      jj_consume_token(AROUND);
+world.turnRight(); world.turnRight();
+      break;
+      }
+    default:
+      jj_la1[24] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
 }
 
   /** Generated Token Manager. */
@@ -770,7 +817,7 @@ while (world.getFacing()!=dir)
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[19];
+  final private int[] jj_la1 = new int[25];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -778,10 +825,10 @@ while (world.getFacing()!=dir)
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x40a5ff80,0x40a5ff81,0x0,0x40a5ff81,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40a5ff81,0x40a5ff81,0x100000,0x40a5ff81,0x40a5ff81,0xa00000,0x40000000,};
+	   jj_la1_0 = new int[] {0x40a5ff80,0x40a5ff81,0x0,0x40a5ff81,0x0,0x0,0x0,0x0,0x0,0xc000000,0xc000000,0x0,0x0,0x0,0x0,0x0,0x40a5ff81,0x40a5ff81,0x100000,0x40a5ff81,0x40a5ff81,0xa00000,0x40000000,0x0,0x0,};
 	}
 	private static void jj_la1_init_1() {
-	   jj_la1_1 = new int[] {0x0,0x0,0x4000,0x0,0x10000,0x7f0,0x3c,0x3c,0x3c,0x780,0x3,0x20000,0x0,0x0,0x0,0x0,0x0,0x0,0x800,};
+	   jj_la1_1 = new int[] {0x0,0x0,0x100000,0x0,0x400000,0x7f0,0x3c,0x3c,0x780,0x0,0x0,0x780,0x3c,0x780,0x3,0x800000,0x0,0x0,0x0,0x0,0x0,0x0,0x800,0x780,0x70,};
 	}
 
   /** Constructor with InputStream. */
@@ -795,7 +842,7 @@ while (world.getFacing()!=dir)
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 19; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -809,7 +856,7 @@ while (world.getFacing()!=dir)
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 19; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -819,7 +866,7 @@ while (world.getFacing()!=dir)
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 19; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -837,7 +884,7 @@ while (world.getFacing()!=dir)
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 19; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -846,7 +893,7 @@ while (world.getFacing()!=dir)
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 19; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -855,7 +902,7 @@ while (world.getFacing()!=dir)
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 19; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -906,12 +953,12 @@ while (world.getFacing()!=dir)
   /** Generate ParseException. */
   public ParseException generateParseException() {
 	 jj_expentries.clear();
-	 boolean[] la1tokens = new boolean[50];
+	 boolean[] la1tokens = new boolean[56];
 	 if (jj_kind >= 0) {
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
 	 }
-	 for (int i = 0; i < 19; i++) {
+	 for (int i = 0; i < 25; i++) {
 	   if (jj_la1[i] == jj_gen) {
 		 for (int j = 0; j < 32; j++) {
 		   if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -923,7 +970,7 @@ while (world.getFacing()!=dir)
 		 }
 	   }
 	 }
-	 for (int i = 0; i < 50; i++) {
+	 for (int i = 0; i < 56; i++) {
 	   if (la1tokens[i]) {
 		 jj_expentry = new int[1];
 		 jj_expentry[0] = i;
