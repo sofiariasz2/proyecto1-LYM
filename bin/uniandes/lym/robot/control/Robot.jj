@@ -106,7 +106,7 @@ TOKEN: /* Comandos actualizados según el enunciado */
     | <OFTYPE: "ofType:">
     | <REPEAT_BLOCK: "repeat:">
     | <ID: <LETTER> (<LETTER> | <DIGIT> | "_")* >
-    | <CONSTANT: "#balloons" | "#chips" | "#red" | "#green" | "#blue"> 
+    | <CONSTANT:  "#red" | "#green" | "#blue"> 
 }
 
 TOKEN:
