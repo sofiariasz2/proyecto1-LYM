@@ -185,12 +185,12 @@ salida = "Command: NOP";
         break;
         }
       case IF:{
-        conditional();
+        conditional(sistema);
         break;
         }
       case WHILE:
       case REPEAT:{
-        loop();
+        loop(sistema);
         break;
         }
       default:
@@ -600,12 +600,25 @@ if (world.getFacing()==0)
     jj_consume_token(51);
 }
 
-  final public void conditional() throws ParseException {
+  final public void conditional(Console sistema) throws ParseException {
     jj_consume_token(IF);
-    expr();
+    label_4:
+    while (true) {
+      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case NOT:{
+        ;
+        break;
+        }
+      default:
+        jj_la1[16] = jj_gen;
+        break label_4;
+      }
+      jj_consume_token(NOT);
+    }
+    conditions();
     jj_consume_token(THEN);
     jj_consume_token(52);
-    label_4:
+    label_5:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case 0:
@@ -627,58 +640,15 @@ if (world.getFacing()==0)
         break;
         }
       default:
-        jj_la1[16] = jj_gen;
-        break label_4;
+        jj_la1[17] = jj_gen;
+        break label_5;
       }
-      command();
+      command(sistema);
     }
     jj_consume_token(53);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case ELSE:{
       jj_consume_token(ELSE);
-      jj_consume_token(52);
-      label_5:
-      while (true) {
-        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-        case 0:
-        case MOVE:
-        case TURN:
-        case FACE:
-        case PUT:
-        case PICK:
-        case POP:
-        case GOTO:
-        case JUMP:
-        case NOP:
-        case PROC:
-        case IF:
-        case WHILE:
-        case REPEAT:
-        case ID:{
-          ;
-          break;
-          }
-        default:
-          jj_la1[17] = jj_gen;
-          break label_5;
-        }
-        command();
-      }
-      jj_consume_token(53);
-      break;
-      }
-    default:
-      jj_la1[18] = jj_gen;
-      ;
-    }
-}
-
-  final public void loop() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case WHILE:{
-      jj_consume_token(WHILE);
-      expr();
-      jj_consume_token(DO);
       jj_consume_token(52);
       label_6:
       while (true) {
@@ -702,20 +672,41 @@ if (world.getFacing()==0)
           break;
           }
         default:
-          jj_la1[19] = jj_gen;
+          jj_la1[18] = jj_gen;
           break label_6;
         }
-        command();
+        command(sistema);
       }
       jj_consume_token(53);
       break;
       }
-    case REPEAT:{
-      jj_consume_token(REPEAT);
-      expr();
-      jj_consume_token(REPEAT_BLOCK);
-      jj_consume_token(52);
+    default:
+      jj_la1[19] = jj_gen;
+      ;
+    }
+}
+
+  final public void loop(Console sistema) throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case WHILE:{
+      jj_consume_token(WHILE);
       label_7:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+        case NOT:{
+          ;
+          break;
+          }
+        default:
+          jj_la1[20] = jj_gen;
+          break label_7;
+        }
+        jj_consume_token(NOT);
+      }
+      conditions();
+      jj_consume_token(DO);
+      jj_consume_token(52);
+      label_8:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case 0:
@@ -737,19 +728,587 @@ if (world.getFacing()==0)
           break;
           }
         default:
-          jj_la1[20] = jj_gen;
-          break label_7;
+          jj_la1[21] = jj_gen;
+          break label_8;
         }
-        command();
+        command(sistema);
+      }
+      jj_consume_token(53);
+      break;
+      }
+    case REPEAT:{
+      jj_consume_token(REPEAT);
+      expr();
+      jj_consume_token(REPEAT_BLOCK);
+      jj_consume_token(52);
+      label_9:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+        case 0:
+        case MOVE:
+        case TURN:
+        case FACE:
+        case PUT:
+        case PICK:
+        case POP:
+        case GOTO:
+        case JUMP:
+        case NOP:
+        case PROC:
+        case IF:
+        case WHILE:
+        case REPEAT:
+        case ID:{
+          ;
+          break;
+          }
+        default:
+          jj_la1[22] = jj_gen;
+          break label_9;
+        }
+        command(sistema);
       }
       jj_consume_token(53);
       break;
       }
     default:
-      jj_la1[21] = jj_gen;
+      jj_la1[23] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+}
+
+  final public boolean conditions() throws ParseException {int x=0;
+  boolean bool;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case CANMOVE:{
+      jj_consume_token(CANMOVE);
+      x = expr();
+      bool = canMoveInDirToTheCondition(x);
+{if ("" != null) return bool;}
+      break;
+      }
+    case FACING:{
+      jj_consume_token(FACING);
+      bool = facingCondition();
+{if ("" != null) return bool;}
+      break;
+      }
+    case CANPUT:{
+      jj_consume_token(CANPUT);
+      x = expr();
+      jj_consume_token(OFTYPE);
+      bool = canPutCondition(x);
+{if ("" != null) return bool;}
+      break;
+      }
+    case CANPICK:{
+      jj_consume_token(CANPICK);
+      x = expr();
+      jj_consume_token(OFTYPE);
+      bool = canPickCondition(x);
+{if ("" != null) return bool;}
+      break;
+      }
+    case CANJUMP:{
+      jj_consume_token(CANJUMP);
+      x = expr();
+      bool = canJumpInDirToTheCondition(x);
+{if ("" != null) return bool;}
+      break;
+      }
+    default:
+      jj_la1[24] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+}
+
+  final public boolean canJumpInDirToTheCondition(int x) throws ParseException {boolean bool;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case INDIR:{
+      jj_consume_token(INDIR);
+      bool = canJumpNESWCondition(x);
+{if ("" != null) return bool;}
+      break;
+      }
+    case TOTHE:{
+      jj_consume_token(TOTHE);
+      bool = canJumpLRFBCondition(x);
+{if ("" != null) return bool;}
+      break;
+      }
+    default:
+      jj_la1[25] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+}
+
+  final public boolean canJumpNESWCondition(int steps) throws ParseException {Point pos;
+  int newY;
+  int newX;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case SOUTH:{
+      jj_consume_token(SOUTH);
+pos=world.getPosition();
+                  newY=pos.y+steps;
+                  if (newY > world.getN() ||  world.isBlocked(new Point(pos.x, newY)))
+                        {if ("" != null) return false;}
+                  else
+                        {if ("" != null) return true;}
+      break;
+      }
+    case NORTH:{
+      jj_consume_token(NORTH);
+pos=world.getPosition();
+                  newY=pos.y- steps;
+                  if (newY< 1 || world.isBlocked(new Point(pos.x, newY)))
+                        {if ("" != null) return false;}
+                  else
+                        {if ("" != null) return true;}
+      break;
+      }
+    case EAST:{
+      jj_consume_token(EAST);
+pos=world.getPosition();
+                  newX=pos.x+ steps;
+                  if (newX > world.getN() || world.isBlocked(new Point(newX, pos.y)))
+                        {if ("" != null) return false;}
+                  else
+                        {if ("" != null) return true;}
+      break;
+      }
+    case WEST:{
+      jj_consume_token(WEST);
+pos=world.getPosition();
+                  newX=pos.x- steps;
+                  if (newX< 1 || world.isBlocked(new Point(newX, pos.y)))
+                        {if ("" != null) return false;}
+                  else
+                        {if ("" != null) return true;}
+      break;
+      }
+    default:
+      jj_la1[26] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+}
+
+  final public boolean canJumpLRFBCondition(int steps) throws ParseException {Point pos;
+  Point newPos;
+  int newP;
+  int cardinalDir;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case LEFT:{
+      jj_consume_token(LEFT);
+pos=world.getPosition();
+                  newPos= getNewPos( steps, "LEFT");
+
+                  if (newPos.x==pos.x)
+                        newP=newPos.y;
+                  else
+                        newP=newPos.x;
+
+                  if (newP > world.getN() || newP<1  || world.isBlocked(newPos) )
+                        {if ("" != null) return false;}
+                  else
+                        {if ("" != null) return true;}
+      break;
+      }
+    case RIGHT:{
+      jj_consume_token(RIGHT);
+pos=world.getPosition();
+                  newPos= getNewPos( steps, "RIGHT");
+
+                  if (newPos.x==pos.x)
+                        newP=newPos.y;
+                  else
+                        newP=newPos.x;
+
+                  if (newP > world.getN() || newP<1 || world.isBlocked(newPos) )
+                        {if ("" != null) return false;}
+                  else
+                        {if ("" != null) return true;}
+      break;
+      }
+    case FRONT:{
+      jj_consume_token(FRONT);
+pos=world.getPosition();
+                  newPos= getNewPos( steps, "FRONT");
+
+                  if (newPos.x==pos.x)
+                        newP=newPos.y;
+                  else
+                        newP=newPos.x;
+
+                  if (newP > world.getN() || newP<1 || world.isBlocked(newPos) )
+                        {if ("" != null) return false;}
+                  else
+                        {if ("" != null) return true;}
+      break;
+      }
+    case BACK:{
+      jj_consume_token(BACK);
+pos=world.getPosition();
+                  newPos= getNewPos( steps, "BACK");
+
+                  if (newPos.x==pos.x)
+                        newP=newPos.y;
+                  else
+                        newP=newPos.x;
+
+                  if (newP > world.getN() || newP<1  || world.isBlocked(newPos) )
+                        {if ("" != null) return false;}
+                  else
+                        {if ("" != null) return true;}
+      break;
+      }
+    default:
+      jj_la1[27] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+}
+
+  final public boolean canMoveNESWCondition(int steps) throws ParseException {Point pos;
+  int newY;
+  int newX;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case SOUTH:{
+      jj_consume_token(SOUTH);
+pos=world.getPosition();
+                  newY=pos.y+steps;
+                  if (newY > world.getN() || world.blockedInRange(pos.x, pos.y, newY, SOUTH) || world.isBlocked(new Point(pos.x, newY)))
+                        {if ("" != null) return false;}
+                  else
+                        {if ("" != null) return true;}
+      break;
+      }
+    case NORTH:{
+      jj_consume_token(NORTH);
+pos=world.getPosition();
+                  newY=pos.y- steps;
+                  if (newY< 1 || world.blockedInRange(pos.x, pos.y, newY, NORTH) || world.isBlocked(new Point(pos.x, newY)))
+                        {if ("" != null) return false;}
+                  else
+                        {if ("" != null) return true;}
+      break;
+      }
+    case EAST:{
+      jj_consume_token(EAST);
+pos=world.getPosition();
+                  newX=pos.x+ steps;
+                  if (newX > world.getN() || world.blockedInRange(pos.x, pos.y, newX, EAST) || world.isBlocked(new Point(newX, pos.y)))
+                        {if ("" != null) return false;}
+                  else
+                        {if ("" != null) return true;}
+      break;
+      }
+    case WEST:{
+      jj_consume_token(WEST);
+pos=world.getPosition();
+                  newX=pos.x- steps;
+                  if (newX< 1 || world.blockedInRange(pos.x, pos.y, newX, WEST) || world.isBlocked(new Point(newX, pos.y)))
+                        {if ("" != null) return false;}
+                  else
+                        {if ("" != null) return true;}
+      break;
+      }
+    default:
+      jj_la1[28] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+}
+
+  final public boolean canMoveLRFBCondition(int steps) throws ParseException {Point pos;
+  Point newPos;
+  int newP;
+  int cardinalDir;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case LEFT:{
+      jj_consume_token(LEFT);
+pos=world.getPosition();
+                  newPos= getNewPos( steps, "LEFT");
+
+                  if (newPos.x==pos.x)
+                        newP=newPos.y;
+                  else
+                        newP=newPos.x;
+
+                 cardinalDir= getCardinalDirHeaded("LEFT");
+
+                  if (newP > world.getN() || newP<1 || world.blockedInRange(pos.x, pos.y, newP, cardinalDir) || world.isBlocked(newPos) )
+                        {if ("" != null) return false;}
+                  else
+                        {if ("" != null) return true;}
+      break;
+      }
+    case RIGHT:{
+      jj_consume_token(RIGHT);
+pos=world.getPosition();
+                  newPos= getNewPos( steps, "RIGHT");
+
+                  if (newPos.x==pos.x)
+                        newP=newPos.y;
+                  else
+                        newP=newPos.x;
+
+                 cardinalDir= getCardinalDirHeaded("RIGHT");
+
+                  if (newP > world.getN() || newP<1 || world.blockedInRange(pos.x, pos.y, newP, cardinalDir) || world.isBlocked(newPos) )
+                        {if ("" != null) return false;}
+                  else
+                        {if ("" != null) return true;}
+      break;
+      }
+    case FRONT:{
+      jj_consume_token(FRONT);
+pos=world.getPosition();
+                  newPos= getNewPos( steps, "FRONT");
+
+                  if (newPos.x==pos.x)
+                        newP=newPos.y;
+                  else
+                        newP=newPos.x;
+
+                 cardinalDir= getCardinalDirHeaded("FRONT");
+
+                  if (newP > world.getN() || newP<1 || world.blockedInRange(pos.x, pos.y, newP, cardinalDir) || world.isBlocked(newPos) )
+                        {if ("" != null) return false;}
+                  else
+                        {if ("" != null) return true;}
+      break;
+      }
+    case BACK:{
+      jj_consume_token(BACK);
+pos=world.getPosition();
+                  newPos= getNewPos( steps, "BACK");
+
+                  if (newPos.x==pos.x)
+                        newP=newPos.y;
+                  else
+                        newP=newPos.x;
+
+                 cardinalDir= getCardinalDirHeaded("BACK");
+
+                  if (newP > world.getN() || newP<1 || world.blockedInRange(pos.x, pos.y, newP, cardinalDir) || world.isBlocked(newPos) )
+                        {if ("" != null) return false;}
+                  else
+                        {if ("" != null) return true;}
+      break;
+      }
+    default:
+      jj_la1[29] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+}
+
+  final public int getCardinalDirHeaded(String dir) throws ParseException {int facing;
+facing=world.getFacing();
+  if (dir=="FRONT")
+        {if ("" != null) return world.getFacing();}
+
+  else if (dir=="BACK")
+  {
+        if (facing==0)
+                {if ("" != null) return 1;}
+        else if (facing==1)
+                {if ("" != null) return 0;}
+        else if (facing==2)
+                {if ("" != null) return 3;}
+        else
+                {if ("" != null) return 2;}
+  }
+
+  else if (dir=="LEFT")
+  {
+        if (facing==0)
+                {if ("" != null) return 3;}
+        else if (facing==1)
+                {if ("" != null) return 2;}
+        else if (facing==2)
+                {if ("" != null) return 1;}
+        else
+                {if ("" != null) return 0;}
+
+  }
+
+  else
+  {
+        if (facing==0)
+                {if ("" != null) return 2;}
+        else if (facing==1)
+                {if ("" != null) return 3;}
+        else if (facing==2)
+                {if ("" != null) return 0;}
+        else
+                {if ("" != null) return 1;}
+
+  }
+    throw new Error("Missing return statement in function");
+}
+
+  final public Point getNewPos(int steps, String dir) throws ParseException {
+Point newPos= new Point(1,1);
+  Point oldPos= world.getPosition();
+  int facing = world.getFacing();
+
+  if (dir=="FRONT")
+  {
+        if (facing==0)
+                newPos= new Point (oldPos.x, oldPos.y-steps);
+        else if (facing==1)
+                newPos=new Point (oldPos.x, oldPos.y+steps);
+        else if (facing==2)
+                newPos=new Point (oldPos.x+steps, oldPos.y);
+        else if (facing==3)
+                newPos=new Point (oldPos.x-steps, oldPos.y);
+
+  }
+
+  else if (dir=="BACK")
+  {
+        if (facing==0)
+                newPos= new Point (oldPos.x, oldPos.y+steps);
+        else if (facing==1)
+                newPos=new Point (oldPos.x, oldPos.y-steps);
+        else if (facing==2)
+                newPos=new Point (oldPos.x-steps, oldPos.y);
+        else if (facing==3)
+                newPos=new Point (oldPos.x+steps, oldPos.y);
+
+  }
+
+  else if (dir=="LEFT")
+  {
+        if (facing==0)
+                newPos= new Point (oldPos.x-steps, oldPos.y);
+        else if (facing==1)
+                newPos=new Point (oldPos.x+steps, oldPos.y);
+        else if (facing==2)
+                newPos=new Point (oldPos.x, oldPos.y+steps);
+        else if (facing==3)
+                newPos=new Point (oldPos.x, oldPos.y-steps);
+
+  }
+
+  else
+  {
+        if (facing==0)
+                newPos= new Point (oldPos.x+steps, oldPos.y);
+        else if (facing==1)
+                newPos=new Point (oldPos.x-steps, oldPos.y);
+        else if (facing==2)
+                newPos=new Point (oldPos.x, oldPos.y-steps);
+        else if (facing==3)
+                newPos=new Point (oldPos.x, oldPos.y+steps);
+
+  }
+
+  {if ("" != null) return newPos;}
+    throw new Error("Missing return statement in function");
+}
+
+  final public boolean canMoveInDirToTheCondition(int x) throws ParseException {boolean bool;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case INDIR:{
+      jj_consume_token(INDIR);
+      bool = canMoveNESWCondition(x);
+{if ("" != null) return bool;}
+      break;
+      }
+    case TOTHE:{
+      jj_consume_token(TOTHE);
+      bool = canMoveLRFBCondition(x);
+{if ("" != null) return bool ;}
+      break;
+      }
+    default:
+      jj_la1[30] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+}
+
+  final public boolean canPutCondition(int x) throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case BALLOONS:{
+      jj_consume_token(BALLOONS);
+if ( world.getMyBalloons()< x) {if ("" != null) return false;} else {if ("" != null) return true;}
+      break;
+      }
+    case CHIPS:{
+      jj_consume_token(CHIPS);
+if (x > world.freeSpacesForChips() ||  world.getMyChips()< x) {if ("" != null) return false;} else {if ("" != null) return true;}
+      break;
+      }
+    default:
+      jj_la1[31] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+}
+
+  final public boolean canPickCondition(int x) throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case BALLOONS:{
+      jj_consume_token(BALLOONS);
+if (x > world.countBalloons()) {if ("" != null) return false;} else {if ("" != null) return true;}
+      break;
+      }
+    case CHIPS:{
+      jj_consume_token(CHIPS);
+if (x > world.chipsToPick()) {if ("" != null) return false;} else {if ("" != null) return true;}
+      break;
+      }
+    default:
+      jj_la1[32] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+}
+
+  final public boolean facingCondition() throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case NORTH:{
+      jj_consume_token(NORTH);
+{if ("" != null) return world.facingNorth();}
+      break;
+      }
+    case SOUTH:{
+      jj_consume_token(SOUTH);
+{if ("" != null) return world.facingSouth();}
+      break;
+      }
+    case EAST:{
+      jj_consume_token(EAST);
+{if ("" != null) return world.facingEast();}
+      break;
+      }
+    case WEST:{
+      jj_consume_token(WEST);
+{if ("" != null) return world.facingWest();}
+      break;
+      }
+    default:
+      jj_la1[33] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
 }
 
   final public int expr() throws ParseException {int total = 1;
@@ -765,7 +1324,7 @@ if (!variables.containsKey(token.image)) {if (true) throw new Error("Variable no
       break;
       }
     default:
-      jj_la1[22] = jj_gen;
+      jj_la1[34] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -801,7 +1360,7 @@ changeFace(1);
       break;
       }
     default:
-      jj_la1[23] = jj_gen;
+      jj_la1[35] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -825,7 +1384,7 @@ world.turnRight(); world.turnRight();
       break;
       }
     default:
-      jj_la1[24] = jj_gen;
+      jj_la1[36] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -840,7 +1399,7 @@ world.turnRight(); world.turnRight();
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[25];
+  final private int[] jj_la1 = new int[37];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -848,10 +1407,10 @@ world.turnRight(); world.turnRight();
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x0,0x40a5ff80,0x40a5ff81,0x0,0x40a5ff81,0x0,0x0,0x0,0x0,0x0,0xc000000,0xc000000,0x0,0x0,0x0,0x0,0x40a5ff81,0x40a5ff81,0x100000,0x40a5ff81,0x40a5ff81,0xa00000,0x40000000,0x0,0x0,};
+	   jj_la1_0 = new int[] {0x40a5ff80,0x40a5ff81,0x0,0x40a5ff81,0x0,0x0,0x0,0x0,0x0,0xc000000,0xc000000,0x0,0x0,0x0,0x0,0x0,0x0,0x40a5ff81,0x40a5ff81,0x100000,0x0,0x40a5ff81,0x40a5ff81,0xa00000,0x0,0xc000000,0x0,0x0,0x0,0x0,0xc000000,0x0,0x0,0x0,0x40000000,0x0,0x0,};
 	}
 	private static void jj_la1_init_1() {
-	   jj_la1_1 = new int[] {0x3,0x0,0x0,0x100000,0x0,0x400000,0x7f0,0x3c,0x3c,0x780,0x0,0x0,0x780,0x3c,0x780,0x800000,0x0,0x0,0x0,0x0,0x0,0x0,0x800,0x780,0x70,};
+	   jj_la1_1 = new int[] {0x0,0x0,0x100000,0x0,0x400000,0x7f0,0x3c,0x3c,0x780,0x0,0x0,0x780,0x3c,0x780,0x3,0x800000,0x20000,0x0,0x0,0x0,0x20000,0x0,0x0,0x0,0x1f000,0x0,0x780,0x3c,0x780,0x3c,0x0,0x3,0x3,0x780,0x800,0x780,0x70,};
 	}
 
   /** Constructor with InputStream. */
@@ -865,7 +1424,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -879,7 +1438,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -889,7 +1448,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -907,7 +1466,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -916,7 +1475,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -925,7 +1484,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -981,7 +1540,7 @@ world.turnRight(); world.turnRight();
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
 	 }
-	 for (int i = 0; i < 25; i++) {
+	 for (int i = 0; i < 37; i++) {
 	   if (jj_la1[i] == jj_gen) {
 		 for (int j = 0; j < 32; j++) {
 		   if ((jj_la1_0[i] & (1<<j)) != 0) {
