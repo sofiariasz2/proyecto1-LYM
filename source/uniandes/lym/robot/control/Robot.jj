@@ -403,8 +403,8 @@ boolean canJumpInDirToTheCondition(int x):
 {
 }
 {
-	< INDIR > bool=canJumpNESWCondition(int x) { return bool }
-	| < TOTHE > bool=canJumpLRFBCondition(int x) { return bool }
+	< INDIR > bool=canJumpNESWCondition(x) { return bool; }
+	| < TOTHE > bool=canJumpLRFBCondition(x) { return bool; }
 }
 
 boolean canJumpNESWCondition(int steps):
@@ -661,7 +661,9 @@ boolean canMoveLRFBCondition(int steps):
 }
 
 int getCardinalDirHeaded(String dir):
+{}
 {
+  { 
   if (dir=="FRONT")
 	return world.getFacing();
 
@@ -703,12 +705,12 @@ int getCardinalDirHeaded(String dir):
 		
   }
   
-}
-{
-}
+} }
 
 Point getNewPos( int steps, String dir):
+{}
 {
+  {
   Point newPos;
   Point oldPos= world.getPosition();
   int facing = world.getFacing();
@@ -768,15 +770,14 @@ Point getNewPos( int steps, String dir):
   return newPos;
   
 }
-{
 }
 
 boolean canMoveInDirToTheCondition(int x):
 {
 }
 {
-	< INDIR > bool=canMoveNESWCondition(int x) { return bool }
-	| < TOTHE > bool=canMoveLRFBCondition(int x) { return bool }
+	< INDIR > bool=canMoveNESWCondition( x) { return bool; }
+	| < TOTHE > bool=canMoveLRFBCondition( x) { return bool ;}
 }
 
 boolean canPutCondition(int x):
@@ -799,10 +800,10 @@ boolean facingCondition():
 {
 }
 {
-	< NORTH > { return world.facingNorth() }
-	| < SOUTH > { return world.facingSouth() }
-	| < EAST > { return world.facingEast() }
-	| < WEST > { return world.facingWest() }
+	< NORTH > { return world.facingNorth(); }
+	| <SOUTH> { return world.facingSouth(); }
+	| < EAST > { return world.facingEast(); }
+	| < WEST > { return world.facingWest(); }
 }
 
 int expr():
@@ -818,10 +819,12 @@ int expr():
 
 void changeFace(int dir):
 {
-  while (world.getFacing()!=dir)
-	world.turnRight();
 }
 {
+  {
+    while (world.getFacing()!=dir)
+		world.turnRight();
+  }
 }
 
 void faceDirections():
