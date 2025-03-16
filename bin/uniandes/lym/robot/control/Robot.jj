@@ -130,6 +130,15 @@ TOKEN:
     <NUM: (["0"-"9"])+ >
 }
 
+Token objType():
+{
+    Token t;
+}
+{
+    t = <BALLOONS> | <CHIPS> 
+    { return t; }
+}
+
 TOKEN:
 {
     <CANMOVE: "canMove:">
@@ -154,8 +163,39 @@ boolean command(Console sistema):
 		
 		| <FACE> ":" faceDirections() "." { salida = "Command: Face"; }
 		
-		| <PUT> ":" n=expr() "ofType:" objType() "." { world.put(n, token.image); salida = "Command: Put"; }
-		| <PICK> ":" n=expr() "ofType:" objType() "." { world.pick(n, token.image); salida = "Command: Pick"; }
+		| <PUT> ":" n=expr() <OFTYPE> t=objType() "." 
+		    { 
+		        if (n <= 0) {
+		        
+		            throw new Error("PUT error: n debe ser mayor que 0");
+		        }
+		        if (t.image.equals("#chips")) {
+		            world.putChips(n);
+		            salida = "Command: Put " + n + " chips"; 
+		        } else if (t.image.equals("#balloons")) {
+		            world.putBalloons(n);
+		            salida = "Command: Put " + n + " balloons"; 
+		        }
+		    }
+
+		| <PICK> ":" n=expr() <OFTYPE> t=objType() "." 
+		
+		    { 
+		        
+		        if (n <= 0) {
+		        
+		            throw new Error("PICK error: n debe ser mayor que 0");
+		        }
+		        
+		        if (t.image.equals("#chips")) {
+		            world.pickChips(n);
+		            salida = "Command: Pick " + n + " chips"; 
+		        } else if (t.image.equals("#balloons")) {
+		            world.grabBalloons(n);
+		            salida = "Command: Pick " + n + " balloons"; 
+		        }
+		    }
+		    
 		| <POP> ":" n=expr() "." { world.popBalloons(n); salida = "Command: Pop"; }
 		| <GOTO> ":" x=expr() "with:" y=expr() "." { world.setPostion(x, y); salida = "Command: GoTo"; }
 		
@@ -348,12 +388,7 @@ void directionNSEW():
     <NORTH> | <SOUTH> | <EAST> | <WEST> 
 }
 
-void objType():
-{
-}
-{
-    <BALLOONS> | <CHIPS>
-}
+
 
 void variable_declaration():
 {

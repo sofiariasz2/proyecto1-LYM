@@ -37,6 +37,25 @@ public class Robot implements RobotConstants {
                 }
         }
 
+  final public Token objType() throws ParseException {Token t;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case BALLOONS:{
+      t = jj_consume_token(BALLOONS);
+      break;
+      }
+    case CHIPS:{
+      jj_consume_token(CHIPS);
+{if ("" != null) return t;}
+      break;
+      }
+    default:
+      jj_la1[0] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+}
+
   final public boolean command(Console sistema) throws ParseException {int x, y, n;
         salida = new String();
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -85,9 +104,19 @@ salida = "Command: Face";
         jj_consume_token(50);
         n = expr();
         jj_consume_token(OFTYPE);
-        objType();
+        t = objType();
         jj_consume_token(51);
-world.put(n, token.image); salida = "Command: Put";
+if (n <= 0) {
+
+                            {if (true) throw new Error("PUT error: n debe ser mayor que 0");}
+                        }
+                        if (t.image.equals("#chips")) {
+                            world.putChips(n);
+                            salida = "Command: Put " + n + " chips";
+                        } else if (t.image.equals("#balloons")) {
+                            world.putBalloons(n);
+                            salida = "Command: Put " + n + " balloons";
+                        }
         break;
         }
       case PICK:{
@@ -95,9 +124,20 @@ world.put(n, token.image); salida = "Command: Put";
         jj_consume_token(50);
         n = expr();
         jj_consume_token(OFTYPE);
-        objType();
+        t = objType();
         jj_consume_token(51);
-world.pick(n, token.image); salida = "Command: Pick";
+if (n <= 0) {
+
+                            {if (true) throw new Error("PICK error: n debe ser mayor que 0");}
+                        }
+
+                        if (t.image.equals("#chips")) {
+                            world.pickChips(n);
+                            salida = "Command: Pick " + n + " chips";
+                        } else if (t.image.equals("#balloons")) {
+                            world.grabBalloons(n);
+                            salida = "Command: Pick " + n + " balloons";
+                        }
         break;
         }
       case POP:{
@@ -154,7 +194,7 @@ salida = "Command: NOP";
         break;
         }
       default:
-        jj_la1[0] = jj_gen;
+        jj_la1[1] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -174,7 +214,7 @@ try {
       break;
       }
     default:
-      jj_la1[1] = jj_gen;
+      jj_la1[2] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -194,7 +234,7 @@ try {
       break;
       }
     default:
-      jj_la1[2] = jj_gen;
+      jj_la1[3] = jj_gen;
       ;
     }
     jj_consume_token(52);
@@ -220,7 +260,7 @@ try {
         break;
         }
       default:
-        jj_la1[3] = jj_gen;
+        jj_la1[4] = jj_gen;
         break label_1;
       }
       command();
@@ -240,7 +280,7 @@ params.add(param);
         break;
         }
       default:
-        jj_la1[4] = jj_gen;
+        jj_la1[5] = jj_gen;
         break label_2;
       }
       jj_consume_token(54);
@@ -280,7 +320,7 @@ params.add(param);
       break;
       }
     default:
-      jj_la1[5] = jj_gen;
+      jj_la1[6] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -305,7 +345,7 @@ params.add(param);
       break;
       }
     default:
-      jj_la1[6] = jj_gen;
+      jj_la1[7] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -355,7 +395,7 @@ if (world.getFacing()==0)
       break;
       }
     default:
-      jj_la1[7] = jj_gen;
+      jj_la1[8] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -384,7 +424,7 @@ world.moveVertically(x, false); changeFace(1);
       break;
       }
     default:
-      jj_la1[8] = jj_gen;
+      jj_la1[9] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -403,7 +443,7 @@ world.moveVertically(x, false); changeFace(1);
       break;
       }
     default:
-      jj_la1[9] = jj_gen;
+      jj_la1[10] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -422,7 +462,7 @@ world.moveVertically(x, false); changeFace(1);
       break;
       }
     default:
-      jj_la1[10] = jj_gen;
+      jj_la1[11] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -451,7 +491,7 @@ world.moveVertically(x, true); changeFace(1);
       break;
       }
     default:
-      jj_la1[11] = jj_gen;
+      jj_la1[12] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -501,7 +541,7 @@ if (world.getFacing()==0)
       break;
       }
     default:
-      jj_la1[12] = jj_gen;
+      jj_la1[13] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -523,23 +563,6 @@ if (world.getFacing()==0)
       }
     case WEST:{
       jj_consume_token(WEST);
-      break;
-      }
-    default:
-      jj_la1[13] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
-    }
-}
-
-  final public void objType() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case BALLOONS:{
-      jj_consume_token(BALLOONS);
-      break;
-      }
-    case CHIPS:{
-      jj_consume_token(CHIPS);
       break;
       }
     default:
