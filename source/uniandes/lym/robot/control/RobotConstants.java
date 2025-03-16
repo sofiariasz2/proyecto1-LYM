@@ -47,59 +47,57 @@ public interface RobotConstants {
   /** RegularExpression Id. */
   int DO = 22;
   /** RegularExpression Id. */
-  int REPEAT = 23;
+  int FOR = 23;
   /** RegularExpression Id. */
-  int FOR = 24;
+  int WITH = 24;
   /** RegularExpression Id. */
-  int WITH = 25;
+  int INDIR = 25;
   /** RegularExpression Id. */
-  int INDIR = 26;
+  int TOTHE = 26;
   /** RegularExpression Id. */
-  int TOTHE = 27;
+  int OFTYPE = 27;
   /** RegularExpression Id. */
-  int OFTYPE = 28;
+  int REPEAT_BLOCK = 28;
   /** RegularExpression Id. */
-  int REPEAT_BLOCK = 29;
+  int ID = 29;
   /** RegularExpression Id. */
-  int ID = 30;
+  int CONSTANT = 30;
   /** RegularExpression Id. */
-  int CONSTANT = 31;
+  int BALLOONS = 31;
   /** RegularExpression Id. */
-  int BALLOONS = 32;
+  int CHIPS = 32;
   /** RegularExpression Id. */
-  int CHIPS = 33;
+  int BACK = 33;
   /** RegularExpression Id. */
-  int BACK = 34;
+  int FRONT = 34;
   /** RegularExpression Id. */
-  int FRONT = 35;
+  int LEFT = 35;
   /** RegularExpression Id. */
-  int LEFT = 36;
+  int RIGHT = 36;
   /** RegularExpression Id. */
-  int RIGHT = 37;
+  int AROUND = 37;
   /** RegularExpression Id. */
-  int AROUND = 38;
+  int NORTH = 38;
   /** RegularExpression Id. */
-  int NORTH = 39;
+  int SOUTH = 39;
   /** RegularExpression Id. */
-  int SOUTH = 40;
+  int WEST = 40;
   /** RegularExpression Id. */
-  int WEST = 41;
+  int EAST = 41;
   /** RegularExpression Id. */
-  int EAST = 42;
+  int NUM = 42;
   /** RegularExpression Id. */
-  int NUM = 43;
+  int CANMOVE = 43;
   /** RegularExpression Id. */
-  int CANMOVE = 44;
+  int FACING = 44;
   /** RegularExpression Id. */
-  int FACING = 45;
+  int CANPUT = 45;
   /** RegularExpression Id. */
-  int CANPUT = 46;
+  int CANPICK = 46;
   /** RegularExpression Id. */
-  int CANPICK = 47;
+  int CANJUMP = 47;
   /** RegularExpression Id. */
-  int CANJUMP = 48;
-  /** RegularExpression Id. */
-  int NOT = 49;
+  int NOT = 48;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -129,7 +127,6 @@ public interface RobotConstants {
     "\"else:\"",
     "\"while:\"",
     "\"do:\"",
-    "\"repeatTimes:\"",
     "\"for:\"",
     "\"with:\"",
     "\"inDir:\"",
