@@ -139,30 +139,18 @@ boolean command(Console sistema):
 }
 {
 	(
-		<MOVE> ":" x=expr() "." { world.moveForward(x, false); salida = "Command: Move"; }
-		| <MOVE> ":" x=expr() < INDIR > <EAST > "." { world.moveHorizontally(x, false); changeFace(2); salida = "Command: Move East"; }
-		| <MOVE> ":" x=expr() < INDIR > <WEST > "." { world.moveHorizontally(-x, false); changeFace(3); salida = "Command: Move West"; }
-		| <MOVE> ":" x=expr() < INDIR > <NORTH > "." { world.moveVertically(-x, false); changeFace(0); salida = "Command: Move North"; }
-		| <MOVE> ":" x=expr() < INDIR > <SOUTH > "." { world.moveVertically(x, false); changeFace(1); salida = "Command: Move South"; }
-		| <MOVE> ":" x=expr() < TOTHE > moveDirectionLRFB(x)  "." { salida = "Command: Move"; }
+		<MOVE> ":" x=expr() moveIndirTothe(x) "." { salida = "Command: Move"; }
 		
-		| <TURN> ":" direction() "." { world.turn(token.image); salida = "Command: Turn"; }
+		| <TURN> ":" turnDirections() "." { salida = "Command: Turn"; }
 		
-		| <FACE> ":" <WEST > "." { changeFace(3); salida = "Command: Face west"; }
-		| <FACE> ":" <EAST > "." { changeFace(2); salida = "Command: Face east"; }
-		| <FACE> ":" <NORTH > "." { changeFace(0); salida = "Command: Face north"; }
-		| <FACE> ":" <SOUTH > "." { changeFace(1); salida = "Command: Face south"; }
+		| <FACE> ":" faceDirections() "." { salida = "Command: Face"; }
 		
 		| <PUT> ":" n=expr() "ofType:" objType() "." { world.put(n, token.image); salida = "Command: Put"; }
 		| <PICK> ":" n=expr() "ofType:" objType() "." { world.pick(n, token.image); salida = "Command: Pick"; }
 		| <POP> ":" n=expr() "." { world.popBalloons(n); salida = "Command: Pop"; }
 		| <GOTO> ":" x=expr() "with:" y=expr() "." { world.setPosition(x, y); salida = "Command: GoTo"; }
 		
-		| <JUMP> ":" n=expr() < TOTHE > jumpDirectionLRFB(x) "." { salida = "Command: Jump"; }
-		| <JUMP> ":" x=expr() < INDIR > <EAST > "." { world.moveHorizontally(x, true); changeFace(2); salida = "Command: Jump East"; }
-		| <JUMP> ":" x=expr() < INDIR > <WEST > "." { world.moveHorizontally(-x, true); changeFace(3);  salida = "Command: Jump West"; }
-		| <JUMP> ":" x=expr() < INDIR > <NORTH > "." { world.moveVertically(-x, true); changeFace(0); salida = "Command: Jump North"; }
-		| <JUMP> ":" x=expr() < INDIR > <SOUTH > "." { world.moveVertically(x, true); changeFace(1); salida = "Command: Jump South"; }
+		| <JUMP> ":" n=expr() jumpIndirTothe(x) "." { salida = "Command: Jump"; }
 
 		
 		| <NOP> "." { salida = "Command: NOP"; }
@@ -262,6 +250,47 @@ void moveDirectionLRFB(int x):
 	      else 
 	      	world.moveHorizontally(-x, false) ;
 	     }
+}
+
+void moveDirectionNESW(int x):
+{
+  int x=0;
+}
+{
+		 <EAST > { world.moveHorizontally(x, false); changeFace(2); }
+		|  <WEST > { world.moveHorizontally(-x, false); changeFace(3); }
+		|  <NORTH >  { world.moveVertically(-x, false); changeFace(0); }
+		| <SOUTH > { world.moveVertically(x, false); changeFace(1); }
+}
+
+void moveIndirTothe(int x):
+{
+  int x =0;
+}
+{
+  < INDIR > moveDirectionLRFB(x)
+	| < TOTHE > moveDirectionNESW(x)
+}
+
+void jumpIndirTothe(int x):
+{
+  int x=0;
+}
+{
+  < INDIR > jumpDirectionLRFB(x)
+	| < TOTHE > jumpDirectionNESW(x)
+}
+
+
+void jumpDirectionNESW(int x):
+{
+  int x=0;
+}
+{
+		  <EAST >  { world.moveHorizontally(x, true); changeFace(2); }
+		| <WEST > { world.moveHorizontally(-x, true); changeFace(3); }
+		| <NORTH > { world.moveVertically(-x, true); changeFace(0); }
+		| <SOUTH >  { world.moveVertically(x, true); changeFace(1); }
 }
 
 void jumpDirectionLRFB(int x):
@@ -375,3 +404,28 @@ void changeFace(int dir):
 		world.turnRight();
 	}
 }
+
+void faceDirections():
+{
+}
+{
+ 		 <WEST >  { changeFace(3); }
+		|  <EAST >  { changeFace(2); }
+		|  <NORTH >  { changeFace(0); }
+		| <SOUTH >  { changeFace(1); }
+}
+
+void turnDirections():
+{
+}
+{
+  	 <RIGHT>  { world.turnRight();}
+  	| < LEFT >  { world.turnRight(); world.turnRight(); world.turnRight();}
+  	| < AROUND > { world.turnRight(); world.turnRight(); }
+}
+
+
+
+
+
+  
