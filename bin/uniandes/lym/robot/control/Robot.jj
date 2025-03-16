@@ -130,6 +130,15 @@ TOKEN:
     <NUM: (["0"-"9"])+ >
 }
 
+TOKEN:
+{
+    <CANMOVE: "canMove:">
+  |  <FACING: "facing:">
+  |  <CANPUT: "canPut:">
+  |  <CANPICK: "canPick:">
+  |  <CANJUMP: "canJump:">
+  |  <NOT: "not:">
+}
 
 
 boolean command(Console sistema):
@@ -148,7 +157,7 @@ boolean command(Console sistema):
 		| <PUT> ":" n=expr() "ofType:" objType() "." { world.put(n, token.image); salida = "Command: Put"; }
 		| <PICK> ":" n=expr() "ofType:" objType() "." { world.pick(n, token.image); salida = "Command: Pick"; }
 		| <POP> ":" n=expr() "." { world.popBalloons(n); salida = "Command: Pop"; }
-		| <GOTO> ":" x=expr() "with:" y=expr() "." { world.setPosition(x, y); salida = "Command: GoTo"; }
+		| <GOTO> ":" x=expr() "with:" y=expr() "." { world.setPostion(x, y); salida = "Command: GoTo"; }
 		
 		| <JUMP> ":" n=expr() jumpIndirTothe(x) "." { salida = "Command: Jump"; }
 
@@ -210,7 +219,6 @@ void directionLRFB():
 
 void moveDirectionLRFB(int x):
 {
-  int x=0;
 }
 {
     <LEFT>
@@ -254,7 +262,6 @@ void moveDirectionLRFB(int x):
 
 void moveDirectionNESW(int x):
 {
-  int x=0;
 }
 {
 		 <EAST > { world.moveHorizontally(x, false); changeFace(2); }
@@ -265,7 +272,6 @@ void moveDirectionNESW(int x):
 
 void moveIndirTothe(int x):
 {
-  int x =0;
 }
 {
   < INDIR > moveDirectionLRFB(x)
@@ -274,17 +280,16 @@ void moveIndirTothe(int x):
 
 void jumpIndirTothe(int x):
 {
-  int x=0;
 }
 {
-  < INDIR > jumpDirectionLRFB(x)
+   (     < INDIR > jumpDirectionLRFB(x)
 	| < TOTHE > jumpDirectionNESW(x)
+    )
 }
 
 
 void jumpDirectionNESW(int x):
 {
-  int x=0;
 }
 {
 		  <EAST >  { world.moveHorizontally(x, true); changeFace(2); }
@@ -295,7 +300,6 @@ void jumpDirectionNESW(int x):
 
 void jumpDirectionLRFB(int x):
 {
-  int x=0;
 }
 {
     <LEFT>
@@ -396,7 +400,6 @@ int expr():
 
 void changeFace(int dir):
 {
-	int dir=0;
 }
 {
 	{

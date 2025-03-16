@@ -88,6 +88,18 @@ public interface RobotConstants {
   int EAST = 42;
   /** RegularExpression Id. */
   int NUM = 43;
+  /** RegularExpression Id. */
+  int CANMOVE = 44;
+  /** RegularExpression Id. */
+  int FACING = 45;
+  /** RegularExpression Id. */
+  int CANPUT = 46;
+  /** RegularExpression Id. */
+  int CANPICK = 47;
+  /** RegularExpression Id. */
+  int CANJUMP = 48;
+  /** RegularExpression Id. */
+  int NOT = 49;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -138,6 +150,12 @@ public interface RobotConstants {
     "\"#west\"",
     "\"#east\"",
     "<NUM>",
+    "\"canMove:\"",
+    "\"facing:\"",
+    "\"canPut:\"",
+    "\"canPick:\"",
+    "\"canJump:\"",
+    "\"not:\"",
     "\":\"",
     "\".\"",
     "\"[\"",

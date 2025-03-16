@@ -57,79 +57,79 @@ public class Robot implements RobotConstants {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case MOVE:{
         jj_consume_token(MOVE);
-        jj_consume_token(44);
+        jj_consume_token(50);
         x = expr();
         moveIndirTothe(x);
-        jj_consume_token(45);
+        jj_consume_token(51);
 salida = "Command: Move";
         break;
         }
       case TURN:{
         jj_consume_token(TURN);
-        jj_consume_token(44);
+        jj_consume_token(50);
         turnDirections();
-        jj_consume_token(45);
+        jj_consume_token(51);
 salida = "Command: Turn";
         break;
         }
       case FACE:{
         jj_consume_token(FACE);
-        jj_consume_token(44);
+        jj_consume_token(50);
         faceDirections();
-        jj_consume_token(45);
+        jj_consume_token(51);
 salida = "Command: Face";
         break;
         }
       case PUT:{
         jj_consume_token(PUT);
-        jj_consume_token(44);
+        jj_consume_token(50);
         n = expr();
         jj_consume_token(OFTYPE);
         objType();
-        jj_consume_token(45);
+        jj_consume_token(51);
 world.put(n, token.image); salida = "Command: Put";
         break;
         }
       case PICK:{
         jj_consume_token(PICK);
-        jj_consume_token(44);
+        jj_consume_token(50);
         n = expr();
         jj_consume_token(OFTYPE);
         objType();
-        jj_consume_token(45);
+        jj_consume_token(51);
 world.pick(n, token.image); salida = "Command: Pick";
         break;
         }
       case POP:{
         jj_consume_token(POP);
-        jj_consume_token(44);
+        jj_consume_token(50);
         n = expr();
-        jj_consume_token(45);
+        jj_consume_token(51);
 world.popBalloons(n); salida = "Command: Pop";
         break;
         }
       case GOTO:{
         jj_consume_token(GOTO);
-        jj_consume_token(44);
+        jj_consume_token(50);
         x = expr();
         jj_consume_token(WITH);
         y = expr();
-        jj_consume_token(45);
-world.setPosition(x, y); salida = "Command: GoTo";
+        jj_consume_token(51);
+world.setPostion(x, y); salida = "Command: GoTo";
         break;
         }
       case JUMP:{
         jj_consume_token(JUMP);
-        jj_consume_token(44);
+        jj_consume_token(50);
         n = expr();
         jumpIndirTothe(x);
-        jj_consume_token(45);
+        jj_consume_token(51);
 salida = "Command: Jump";
         break;
         }
       case NOP:{
         jj_consume_token(NOP);
-        jj_consume_token(45);
+        jj_consume_token(51);
 salida = "Command: NOP";
         break;
         }
@@ -187,17 +187,17 @@ try {
     jj_consume_token(PROC);
     procName = jj_consume_token(ID);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case 46:{
-      jj_consume_token(46);
+    case 52:{
+      jj_consume_token(52);
       paramList();
-      jj_consume_token(47);
+      jj_consume_token(53);
       break;
       }
     default:
       jj_la1[2] = jj_gen;
       ;
     }
-    jj_consume_token(46);
+    jj_consume_token(52);
     label_1:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -225,7 +225,7 @@ try {
       }
       command();
     }
-    jj_consume_token(47);
+    jj_consume_token(53);
 procedures.put(procName, new Procedure(procName, params, body));
 }
 
@@ -235,7 +235,7 @@ params.add(param);
     label_2:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case 48:{
+      case 54:{
         ;
         break;
         }
@@ -243,7 +243,7 @@ params.add(param);
         jj_la1[4] = jj_gen;
         break label_2;
       }
-      jj_consume_token(48);
+      jj_consume_token(54);
       param = jj_consume_token(ID);
 params.add(param);
     }
@@ -311,7 +311,7 @@ params.add(param);
     }
 }
 
-  final public void moveDirectionLRFB(int x) throws ParseException {int x=0;
+  final public void moveDirectionLRFB(int x) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case LEFT:{
       jj_consume_token(LEFT);
@@ -361,7 +361,7 @@ if (world.getFacing()==0)
     }
 }
 
-  final public void moveDirectionNESW(int x) throws ParseException {int x=0;
+  final public void moveDirectionNESW(int x) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case EAST:{
       jj_consume_token(EAST);
@@ -390,7 +390,7 @@ world.moveVertically(x, false); changeFace(1);
     }
 }
 
-  final public void moveIndirTothe(int x) throws ParseException {int x =0;
+  final public void moveIndirTothe(int x) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case INDIR:{
       jj_consume_token(INDIR);
@@ -409,7 +409,7 @@ world.moveVertically(x, false); changeFace(1);
     }
 }
 
-  final public void jumpIndirTothe(int x) throws ParseException {int x=0;
+  final public void jumpIndirTothe(int x) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case INDIR:{
       jj_consume_token(INDIR);
@@ -428,7 +428,7 @@ world.moveVertically(x, false); changeFace(1);
     }
 }
 
-  final public void jumpDirectionNESW(int x) throws ParseException {int x=0;
+  final public void jumpDirectionNESW(int x) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case EAST:{
       jj_consume_token(EAST);
@@ -457,7 +457,7 @@ world.moveVertically(x, true); changeFace(1);
     }
 }
 
-  final public void jumpDirectionLRFB(int x) throws ParseException {int x=0;
+  final public void jumpDirectionLRFB(int x) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case LEFT:{
       jj_consume_token(LEFT);
@@ -554,7 +554,7 @@ if (world.getFacing()==0)
     label_3:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case 49:{
+      case 55:{
         ;
         break;
         }
@@ -562,26 +562,26 @@ if (world.getFacing()==0)
         jj_la1[15] = jj_gen;
         break label_3;
       }
-      jj_consume_token(49);
+      jj_consume_token(55);
       jj_consume_token(ID);
     }
     jj_consume_token(ASSIGN);
     expr();
-    jj_consume_token(45);
+    jj_consume_token(51);
 }
 
   final public void assignment() throws ParseException {
     jj_consume_token(ID);
     jj_consume_token(ASSIGN);
     expr();
-    jj_consume_token(45);
+    jj_consume_token(51);
 }
 
   final public void conditional() throws ParseException {
     jj_consume_token(IF);
     expr();
     jj_consume_token(THEN);
-    jj_consume_token(46);
+    jj_consume_token(52);
     label_4:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -609,11 +609,11 @@ if (world.getFacing()==0)
       }
       command();
     }
-    jj_consume_token(47);
+    jj_consume_token(53);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case ELSE:{
       jj_consume_token(ELSE);
-      jj_consume_token(46);
+      jj_consume_token(52);
       label_5:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -641,7 +641,7 @@ if (world.getFacing()==0)
         }
         command();
       }
-      jj_consume_token(47);
+      jj_consume_token(53);
       break;
       }
     default:
@@ -656,7 +656,7 @@ if (world.getFacing()==0)
       jj_consume_token(WHILE);
       expr();
       jj_consume_token(DO);
-      jj_consume_token(46);
+      jj_consume_token(52);
       label_6:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -684,14 +684,14 @@ if (world.getFacing()==0)
         }
         command();
       }
-      jj_consume_token(47);
+      jj_consume_token(53);
       break;
       }
     case REPEAT:{
       jj_consume_token(REPEAT);
       expr();
       jj_consume_token(REPEAT_BLOCK);
-      jj_consume_token(46);
+      jj_consume_token(52);
       label_7:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -719,7 +719,7 @@ if (world.getFacing()==0)
         }
         command();
       }
-      jj_consume_token(47);
+      jj_consume_token(53);
       break;
       }
     default:
@@ -750,7 +750,7 @@ if (!variables.containsKey(token.image)) {if (true) throw new Error("Variable no
     throw new Error("Missing return statement in function");
 }
 
-  final public void changeFace(int dir) throws ParseException {int dir=0;
+  final public void changeFace(int dir) throws ParseException {
 while (world.getFacing()!=dir)
                 world.turnRight();
 }
@@ -828,7 +828,7 @@ world.turnRight(); world.turnRight();
 	   jj_la1_0 = new int[] {0x40a5ff80,0x40a5ff81,0x0,0x40a5ff81,0x0,0x0,0x0,0x0,0x0,0xc000000,0xc000000,0x0,0x0,0x0,0x0,0x0,0x40a5ff81,0x40a5ff81,0x100000,0x40a5ff81,0x40a5ff81,0xa00000,0x40000000,0x0,0x0,};
 	}
 	private static void jj_la1_init_1() {
-	   jj_la1_1 = new int[] {0x0,0x0,0x4000,0x0,0x10000,0x7f0,0x3c,0x3c,0x780,0x0,0x0,0x780,0x3c,0x780,0x3,0x20000,0x0,0x0,0x0,0x0,0x0,0x0,0x800,0x780,0x70,};
+	   jj_la1_1 = new int[] {0x0,0x0,0x100000,0x0,0x400000,0x7f0,0x3c,0x3c,0x780,0x0,0x0,0x780,0x3c,0x780,0x3,0x800000,0x0,0x0,0x0,0x0,0x0,0x0,0x800,0x780,0x70,};
 	}
 
   /** Constructor with InputStream. */
@@ -953,7 +953,7 @@ world.turnRight(); world.turnRight();
   /** Generate ParseException. */
   public ParseException generateParseException() {
 	 jj_expentries.clear();
-	 boolean[] la1tokens = new boolean[50];
+	 boolean[] la1tokens = new boolean[56];
 	 if (jj_kind >= 0) {
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
@@ -970,7 +970,7 @@ world.turnRight(); world.turnRight();
 		 }
 	   }
 	 }
-	 for (int i = 0; i < 50; i++) {
+	 for (int i = 0; i < 56; i++) {
 	   if (la1tokens[i]) {
 		 jj_expentry = new int[1];
 		 jj_expentry[0] = i;
