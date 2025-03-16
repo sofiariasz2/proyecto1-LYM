@@ -98,7 +98,6 @@ TOKEN: /* Comandos actualizados según el enunciado */
     | <ELSE: "else:">
     | <WHILE: "while:">
     | <DO: "do:">
-    | <REPEAT: "repeatTimes:">
     | <FOR: "for:">
     | <WITH: "with:">
     | <INDIR: "inDir:">
@@ -130,15 +129,6 @@ TOKEN:
     <NUM: (["0"-"9"])+ >
 }
 
-Token objType():
-{
-    Token t;
-}
-{
-    t = <BALLOONS> | <CHIPS> 
-    { return t; }
-}
-
 TOKEN:
 {
     <CANMOVE: "canMove:">
@@ -150,10 +140,20 @@ TOKEN:
 }
 
 
+Token objType():
+{
+    Token t;
+}
+{
+    t = <BALLOONS> { return t; } | t = <CHIPS> { return t; }
+}
+
+
 boolean command(Console sistema):
 {
 	int x, y, n;
 	salida = new String();
+	Token t;
 }
 {
 	(
@@ -199,13 +199,13 @@ boolean command(Console sistema):
 		| <POP> ":" n=expr() "." { world.popBalloons(n); salida = "Command: Pop"; }
 		| <GOTO> ":" x=expr() "with:" y=expr() "." { world.setPostion(x, y); salida = "Command: GoTo"; }
 		
-		| <JUMP> ":" n=expr() jumpIndirTothe(x) "." { salida = "Command: Jump"; }
+		| <JUMP> ":" n=expr() jumpIndirTothe(n) "." { salida = "Command: Jump"; }
 
 		
 		| <NOP> "." { salida = "Command: NOP"; }
-		| procedure()
+		| procedure(sistema)
 		| variable_declaration()
-		| assignment()
+		//| assignment()
 		| conditional(sistema)
 		| loop(sistema)
 	) 
@@ -222,25 +222,25 @@ boolean command(Console sistema):
 	| <EOF> { return false; }
 }
 
-void procedure():
+void procedure(Console sistema):
 {
-	String procName;
+	Token procName;
 	List<String> params = new ArrayList<>();
 	List<String> body = new ArrayList<>();
 }
 {	
-	<PROC> procName=<ID> ("[" paramList() "]")? "[" ( command() )* "]" {
-    procedures.put(procName, new Procedure(procName, params, body));
+	<PROC> procName=<ID> ("[" paramList(params) "]")? "[" ( command(sistema) )* "]" {
+    procedures.put(procName.image, new Procedure(procName.image, params, body));
 }
 	
 }
 
-void paramList():
+void paramList(List<String > params):
 {
-	String param;
+	Token param;
 }
 {
-	param=<ID> { params.add(param); } ( "and:" param=<ID> { params.add(param); } )*
+	param=<ID> { params.add(param.image); } ( "and:" param=<ID> { params.add(param.image); } )*
 }
 
 void direction():
@@ -397,12 +397,14 @@ void variable_declaration():
     <ID> ("," <ID>)* ":=" expr() "."
 }
 
+/*
 void assignment():
 {
 }
 {
     <ID> ":=" expr() "."
 }
+*/
 
 void conditional(Console sistema):
 {
@@ -418,7 +420,7 @@ void loop(Console sistema):
 {
   <WHILE> (<NOT>)* conditions() <DO> "[" (command(sistema))* "]"
 
-    | <REPEAT> expr() <REPEAT_BLOCK> "[" (command(sistema))* "]"
+    | <FOR> expr() <REPEAT_BLOCK> "[" (command(sistema))* "]"
     
 }
 
