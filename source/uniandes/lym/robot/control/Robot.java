@@ -756,36 +756,42 @@ if (world.getFacing()==0)
 }
 
   final public boolean conditions() throws ParseException {int x=0;
+  boolean bool;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case CANMOVE:{
       jj_consume_token(CANMOVE);
       x = expr();
-      canMoveInDirToTheCondition(x);
+      bool = canMoveInDirToTheCondition(x);
+{if ("" != null) return bool;}
       break;
       }
     case FACING:{
       jj_consume_token(FACING);
-      facingCondition();
+      bool = facingCondition();
+{if ("" != null) return bool;}
       break;
       }
     case CANPUT:{
       jj_consume_token(CANPUT);
       x = expr();
       jj_consume_token(OFTYPE);
-      canPutCondition(x);
+      bool = canPutCondition(x);
+{if ("" != null) return bool;}
       break;
       }
     case CANPICK:{
       jj_consume_token(CANPICK);
       x = expr();
       jj_consume_token(OFTYPE);
-      canPickCondition(x);
+      bool = canPickCondition(x);
+{if ("" != null) return bool;}
       break;
       }
     case CANJUMP:{
       jj_consume_token(CANJUMP);
       x = expr();
-      canJumpInDirToTheCondition(x);
+      bool = canJumpInDirToTheCondition(x);
+{if ("" != null) return bool;}
       break;
       }
     default:
@@ -793,9 +799,10 @@ if (world.getFacing()==0)
       jj_consume_token(-1);
       throw new ParseException();
     }
+    throw new Error("Missing return statement in function");
 }
 
-  final public boolean canJumpInDirToTheCondition(int x) throws ParseException {
+  final public boolean canJumpInDirToTheCondition(int x) throws ParseException {boolean bool;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case INDIR:{
       jj_consume_token(INDIR);
@@ -1083,8 +1090,9 @@ pos=world.getPosition();
     throw new Error("Missing return statement in function");
 }
 
-  final public int getCardinalDirHeaded(String dir) throws ParseException {
-if (dir=="FRONT")
+  final public int getCardinalDirHeaded(String dir) throws ParseException {int facing;
+facing=world.getFacing();
+  if (dir=="FRONT")
         {if ("" != null) return world.getFacing();}
 
   else if (dir=="BACK")
@@ -1128,7 +1136,7 @@ if (dir=="FRONT")
 }
 
   final public Point getNewPos(int steps, String dir) throws ParseException {
-Point newPos;
+Point newPos= new Point(1,1);
   Point oldPos= world.getPosition();
   int facing = world.getFacing();
 
@@ -1171,7 +1179,7 @@ Point newPos;
 
   }
 
-  else if (dir=="RIGHT")
+  else
   {
         if (facing==0)
                 newPos= new Point (oldPos.x+steps, oldPos.y);
@@ -1188,7 +1196,7 @@ Point newPos;
     throw new Error("Missing return statement in function");
 }
 
-  final public boolean canMoveInDirToTheCondition(int x) throws ParseException {
+  final public boolean canMoveInDirToTheCondition(int x) throws ParseException {boolean bool;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case INDIR:{
       jj_consume_token(INDIR);

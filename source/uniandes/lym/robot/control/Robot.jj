@@ -390,17 +390,19 @@ void loop(Console sistema):
 boolean conditions():
 {
   int x=0;
+  boolean bool;
 }
-{	  <CANMOVE> x=expr() canMoveInDirToTheCondition(x)
-	  |  <FACING> facingCondition()
-	  |  <CANPUT> x=expr() < OFTYPE > canPutCondition( x)
-	  |  <CANPICK> x=expr() < OFTYPE > canPickCondition( x)
-	  |  <CANJUMP> x=expr() canJumpInDirToTheCondition(x)
+{	  <CANMOVE> x=expr() bool=canMoveInDirToTheCondition(x) { return bool; }
+	  |  <FACING>  bool=facingCondition() { return bool; }
+	  |  <CANPUT> x=expr() < OFTYPE >  bool=canPutCondition( x) { return bool; }
+	  |  <CANPICK> x=expr() < OFTYPE >  bool=canPickCondition( x) { return bool; }
+	  |  <CANJUMP> x=expr()  bool=canJumpInDirToTheCondition(x) { return bool; }
 	
 }
 
 boolean canJumpInDirToTheCondition(int x):
 {
+  boolean bool;
 }
 {
 	< INDIR > bool=canJumpNESWCondition(x) { return bool; }
@@ -661,9 +663,10 @@ boolean canMoveLRFBCondition(int steps):
 }
 
 int getCardinalDirHeaded(String dir):
-{}
+{int facing;}
 {
-  { 
+  {
+  facing=world.getFacing();
   if (dir=="FRONT")
 	return world.getFacing();
 
@@ -711,7 +714,7 @@ Point getNewPos( int steps, String dir):
 {}
 {
   {
-  Point newPos;
+  Point newPos= new Point(1,1);
   Point oldPos= world.getPosition();
   int facing = world.getFacing();
 
@@ -754,7 +757,7 @@ Point getNewPos( int steps, String dir):
 		
   }
   
-  else if (dir=="RIGHT")
+  else 
   {
 	if (facing==0)
 		newPos= new Point (oldPos.x+steps, oldPos.y);
@@ -773,7 +776,7 @@ Point getNewPos( int steps, String dir):
 }
 
 boolean canMoveInDirToTheCondition(int x):
-{
+{  boolean bool;
 }
 {
 	< INDIR > bool=canMoveNESWCondition( x) { return bool; }
