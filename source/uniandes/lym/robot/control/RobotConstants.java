@@ -49,55 +49,53 @@ public interface RobotConstants {
   /** RegularExpression Id. */
   int FOR = 23;
   /** RegularExpression Id. */
-  int WITH = 24;
+  int INDIR = 24;
   /** RegularExpression Id. */
-  int INDIR = 25;
+  int TOTHE = 25;
   /** RegularExpression Id. */
-  int TOTHE = 26;
+  int OFTYPE = 26;
   /** RegularExpression Id. */
-  int OFTYPE = 27;
+  int REPEAT_BLOCK = 27;
   /** RegularExpression Id. */
-  int REPEAT_BLOCK = 28;
+  int ID = 28;
   /** RegularExpression Id. */
-  int ID = 29;
+  int CONSTANT = 29;
   /** RegularExpression Id. */
-  int CONSTANT = 30;
+  int BALLOONS = 30;
   /** RegularExpression Id. */
-  int BALLOONS = 31;
+  int CHIPS = 31;
   /** RegularExpression Id. */
-  int CHIPS = 32;
+  int BACK = 32;
   /** RegularExpression Id. */
-  int BACK = 33;
+  int FRONT = 33;
   /** RegularExpression Id. */
-  int FRONT = 34;
+  int LEFT = 34;
   /** RegularExpression Id. */
-  int LEFT = 35;
+  int RIGHT = 35;
   /** RegularExpression Id. */
-  int RIGHT = 36;
+  int AROUND = 36;
   /** RegularExpression Id. */
-  int AROUND = 37;
+  int NORTH = 37;
   /** RegularExpression Id. */
-  int NORTH = 38;
+  int SOUTH = 38;
   /** RegularExpression Id. */
-  int SOUTH = 39;
+  int WEST = 39;
   /** RegularExpression Id. */
-  int WEST = 40;
+  int EAST = 40;
   /** RegularExpression Id. */
-  int EAST = 41;
+  int NUM = 41;
   /** RegularExpression Id. */
-  int NUM = 42;
+  int CANMOVE = 42;
   /** RegularExpression Id. */
-  int CANMOVE = 43;
+  int FACING = 43;
   /** RegularExpression Id. */
-  int FACING = 44;
+  int CANPUT = 44;
   /** RegularExpression Id. */
-  int CANPUT = 45;
+  int CANPICK = 45;
   /** RegularExpression Id. */
-  int CANPICK = 46;
+  int CANJUMP = 46;
   /** RegularExpression Id. */
-  int CANJUMP = 47;
-  /** RegularExpression Id. */
-  int NOT = 48;
+  int NOT = 47;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -128,7 +126,6 @@ public interface RobotConstants {
     "\"while:\"",
     "\"do:\"",
     "\"for:\"",
-    "\"with:\"",
     "\"inDir:\"",
     "\"toThe:\"",
     "\"ofType:\"",
@@ -155,9 +152,9 @@ public interface RobotConstants {
     "\"not:\"",
     "\":\"",
     "\".\"",
+    "\"with:\"",
     "\"[\"",
     "\"]\"",
-    "\"and:\"",
     "\",\"",
   };
 

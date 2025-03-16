@@ -99,7 +99,6 @@ TOKEN: /* Comandos actualizados según el enunciado */
     | <WHILE: "while:">
     | <DO: "do:">
     | <FOR: "for:">
-    | <WITH: "with:">
     | <INDIR: "inDir:">
     | <TOTHE: "toThe:">
     | <OFTYPE: "ofType:">
@@ -229,7 +228,7 @@ void procedure(Console sistema):
 	List<String> body = new ArrayList<>();
 }
 {	
-	<PROC> procName=<ID> ("[" paramList(params) "]")? "[" ( command(sistema) )* "]" {
+	<PROC> procName=<ID> ( ":" paramList(params) )* "[" ( command(sistema) )* "]" {
     procedures.put(procName.image, new Procedure(procName.image, params, body));
 }
 	
@@ -240,7 +239,7 @@ void paramList(List<String > params):
 	Token param;
 }
 {
-	param=<ID> { params.add(param.image); } ( "and:" param=<ID> { params.add(param.image); } )*
+	param=<ID> { params.add(param.image); } (  (<ID> ":" | "with:") param=<ID> { params.add(param.image); } )*
 }
 
 void direction():
@@ -290,13 +289,13 @@ void moveDirectionLRFB(int x):
     | <BACK>
 	    {
 	      if (world.getFacing()==0)
-	      	world.moveVertically(-x, false) ;
+	      	world.moveVertically(x, false) ;
 	      else if (world.getFacing()==1)
-	      world.moveVertically(x, false) ;
+	      world.moveVertically(-x, false) ;
 	      else if (world.getFacing()==2)
-	      	world.moveHorizontally(x, false) ;
-	      else 
 	      	world.moveHorizontally(-x, false) ;
+	      else 
+	      	world.moveHorizontally(x, false) ;
 	     }
 }
 
@@ -314,17 +313,18 @@ void moveIndirTothe(int x):
 {
 }
 {
-  < INDIR > moveDirectionLRFB(x)
-	| < TOTHE > moveDirectionNESW(x)
+  < INDIR > moveDirectionNESW(x)
+	| < TOTHE > moveDirectionLRFB(x)
+	| { world.moveForward(x, false); }
 }
 
 void jumpIndirTothe(int x):
 {
 }
 {
-   (     < INDIR > jumpDirectionLRFB(x)
-	| < TOTHE > jumpDirectionNESW(x)
-    )
+        < INDIR > jumpDirectionNESW(x)
+	| < TOTHE > jumpDirectionLRFB(x)
+    | { world.moveForward(x, true); }
 }
 
 
@@ -371,13 +371,13 @@ void jumpDirectionLRFB(int x):
     | <BACK>
 	    {
 	      if (world.getFacing()==0)
-	      	world.moveVertically(-x, true) ;
+	      	world.moveVertically(x, true) ;
 	      else if (world.getFacing()==1)
-	      world.moveVertically(x, true) ;
+	      world.moveVertically(-x, true) ;
 	      else if (world.getFacing()==2)
-	      	world.moveHorizontally(x, true) ;
-	      else 
 	      	world.moveHorizontally(-x, true) ;
+	      else 
+	      	world.moveHorizontally(x, true) ;
 	     }
 }
 
@@ -847,6 +847,17 @@ boolean facingCondition():
 }
 
 int expr():
+{
+	int total = 1;
+}
+{
+	( <NUM> { total = Integer.parseInt(token.image); }
+	| <ID> { if (!variables.containsKey(token.image)) throw new Error("Variable no definida: " + token.image); total = variables.get(token.image); }
+	)
+	{ return total; }
+}
+
+int expr(String procName):
 {
 	int total = 1;
 }
