@@ -384,13 +384,13 @@ world.moveForward(x, false) ;
     case BACK:{
       jj_consume_token(BACK);
 if (world.getFacing()==0)
-                world.moveVertically(-x, false) ;
+                world.moveVertically(x, false) ;
               else if (world.getFacing()==1)
-              world.moveVertically(x, false) ;
+              world.moveVertically(-x, false) ;
               else if (world.getFacing()==2)
-                world.moveHorizontally(x, false) ;
-              else
                 world.moveHorizontally(-x, false) ;
+              else
+                world.moveHorizontally(x, false) ;
       break;
       }
     default:
@@ -433,18 +433,17 @@ world.moveVertically(x, false); changeFace(1);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case INDIR:{
       jj_consume_token(INDIR);
-      moveDirectionLRFB(x);
+      moveDirectionNESW(x);
       break;
       }
     case TOTHE:{
       jj_consume_token(TOTHE);
-      moveDirectionNESW(x);
+      moveDirectionLRFB(x);
       break;
       }
     default:
       jj_la1[10] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+world.moveForward(x, false);
     }
 }
 
@@ -452,18 +451,17 @@ world.moveVertically(x, false); changeFace(1);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case INDIR:{
       jj_consume_token(INDIR);
-      jumpDirectionLRFB(x);
+      jumpDirectionNESW(x);
       break;
       }
     case TOTHE:{
       jj_consume_token(TOTHE);
-      jumpDirectionNESW(x);
+      jumpDirectionLRFB(x);
       break;
       }
     default:
       jj_la1[11] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+world.moveForward(x, true);
     }
 }
 
@@ -530,13 +528,13 @@ world.moveForward(x, true) ;
     case BACK:{
       jj_consume_token(BACK);
 if (world.getFacing()==0)
-                world.moveVertically(-x, true) ;
+                world.moveVertically(x, true) ;
               else if (world.getFacing()==1)
-              world.moveVertically(x, true) ;
+              world.moveVertically(-x, true) ;
               else if (world.getFacing()==2)
-                world.moveHorizontally(x, true) ;
-              else
                 world.moveHorizontally(-x, true) ;
+              else
+                world.moveHorizontally(x, true) ;
       break;
       }
     default:

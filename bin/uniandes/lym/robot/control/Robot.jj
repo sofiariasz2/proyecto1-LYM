@@ -290,13 +290,13 @@ void moveDirectionLRFB(int x):
     | <BACK>
 	    {
 	      if (world.getFacing()==0)
-	      	world.moveVertically(-x, false) ;
+	      	world.moveVertically(x, false) ;
 	      else if (world.getFacing()==1)
-	      world.moveVertically(x, false) ;
+	      world.moveVertically(-x, false) ;
 	      else if (world.getFacing()==2)
-	      	world.moveHorizontally(x, false) ;
-	      else 
 	      	world.moveHorizontally(-x, false) ;
+	      else 
+	      	world.moveHorizontally(x, false) ;
 	     }
 }
 
@@ -314,17 +314,18 @@ void moveIndirTothe(int x):
 {
 }
 {
-  < INDIR > moveDirectionLRFB(x)
-	| < TOTHE > moveDirectionNESW(x)
+  < INDIR > moveDirectionNESW(x)
+	| < TOTHE > moveDirectionLRFB(x)
+	| { world.moveForward(x, false); }
 }
 
 void jumpIndirTothe(int x):
 {
 }
 {
-   (     < INDIR > jumpDirectionLRFB(x)
-	| < TOTHE > jumpDirectionNESW(x)
-    )
+        < INDIR > jumpDirectionNESW(x)
+	| < TOTHE > jumpDirectionLRFB(x)
+    | { world.moveForward(x, true); }
 }
 
 
@@ -371,13 +372,13 @@ void jumpDirectionLRFB(int x):
     | <BACK>
 	    {
 	      if (world.getFacing()==0)
-	      	world.moveVertically(-x, true) ;
+	      	world.moveVertically(x, true) ;
 	      else if (world.getFacing()==1)
-	      world.moveVertically(x, true) ;
+	      world.moveVertically(-x, true) ;
 	      else if (world.getFacing()==2)
-	      	world.moveHorizontally(x, true) ;
-	      else 
 	      	world.moveHorizontally(-x, true) ;
+	      else 
+	      	world.moveHorizontally(x, true) ;
 	     }
 }
 
