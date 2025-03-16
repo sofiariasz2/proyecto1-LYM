@@ -166,8 +166,8 @@ boolean command(Console sistema):
 		| procedure()
 		| variable_declaration()
 		| assignment()
-		| conditional()
-		| loop()
+		| conditional(sistema)
+		| loop(sistema)
 	) 
 	{
 		try {
@@ -369,22 +369,34 @@ void assignment():
     <ID> ":=" expr() "."
 }
 
-void conditional():
+void conditional(Console sistema):
 {
 }
 {
-    <IF> expr() <THEN> "[" (command())* "]" (<ELSE> "[" (command())* "]")?
+    <IF> conditions() <THEN> "[" (command(sistema))* "]" (<ELSE> "[" (command(sistema))* "]")?
     
 }
 
-void loop():
+void loop(Console sistema):
 {
 }
 {
-  <WHILE> expr() <DO> "[" (command())* "]"
+  <WHILE> conditions() <DO> "[" (command(sistema))* "]"
 
-    | <REPEAT> expr() <REPEAT_BLOCK> "[" (command())* "]"
+    | <REPEAT> expr() <REPEAT_BLOCK> "[" (command(sistema))* "]"
     
+}
+
+void conditions():
+{
+}
+{
+	 <CANMOVE>
+  |  <FACING>
+  |  <CANPUT>
+  |  <CANPICK>
+  |  <CANJUMP>
+  |  <NOT> 
 }
 
 int expr():

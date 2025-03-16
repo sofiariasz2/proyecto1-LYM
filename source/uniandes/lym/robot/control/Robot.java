@@ -145,12 +145,12 @@ salida = "Command: NOP";
         break;
         }
       case IF:{
-        conditional();
+        conditional(sistema);
         break;
         }
       case WHILE:
       case REPEAT:{
-        loop();
+        loop(sistema);
         break;
         }
       default:
@@ -577,9 +577,9 @@ if (world.getFacing()==0)
     jj_consume_token(51);
 }
 
-  final public void conditional() throws ParseException {
+  final public void conditional(Console sistema) throws ParseException {
     jj_consume_token(IF);
-    expr();
+    conditions();
     jj_consume_token(THEN);
     jj_consume_token(52);
     label_4:
@@ -607,7 +607,7 @@ if (world.getFacing()==0)
         jj_la1[16] = jj_gen;
         break label_4;
       }
-      command();
+      command(sistema);
     }
     jj_consume_token(53);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -639,7 +639,7 @@ if (world.getFacing()==0)
           jj_la1[17] = jj_gen;
           break label_5;
         }
-        command();
+        command(sistema);
       }
       jj_consume_token(53);
       break;
@@ -650,11 +650,11 @@ if (world.getFacing()==0)
     }
 }
 
-  final public void loop() throws ParseException {
+  final public void loop(Console sistema) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case WHILE:{
       jj_consume_token(WHILE);
-      expr();
+      conditions();
       jj_consume_token(DO);
       jj_consume_token(52);
       label_6:
@@ -682,7 +682,7 @@ if (world.getFacing()==0)
           jj_la1[19] = jj_gen;
           break label_6;
         }
-        command();
+        command(sistema);
       }
       jj_consume_token(53);
       break;
@@ -717,13 +717,46 @@ if (world.getFacing()==0)
           jj_la1[20] = jj_gen;
           break label_7;
         }
-        command();
+        command(sistema);
       }
       jj_consume_token(53);
       break;
       }
     default:
       jj_la1[21] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+}
+
+  final public void conditions() throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case CANMOVE:{
+      jj_consume_token(CANMOVE);
+      break;
+      }
+    case FACING:{
+      jj_consume_token(FACING);
+      break;
+      }
+    case CANPUT:{
+      jj_consume_token(CANPUT);
+      break;
+      }
+    case CANPICK:{
+      jj_consume_token(CANPICK);
+      break;
+      }
+    case CANJUMP:{
+      jj_consume_token(CANJUMP);
+      break;
+      }
+    case NOT:{
+      jj_consume_token(NOT);
+      break;
+      }
+    default:
+      jj_la1[22] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -742,7 +775,7 @@ if (!variables.containsKey(token.image)) {if (true) throw new Error("Variable no
       break;
       }
     default:
-      jj_la1[22] = jj_gen;
+      jj_la1[23] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -778,7 +811,7 @@ changeFace(1);
       break;
       }
     default:
-      jj_la1[23] = jj_gen;
+      jj_la1[24] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -802,7 +835,7 @@ world.turnRight(); world.turnRight();
       break;
       }
     default:
-      jj_la1[24] = jj_gen;
+      jj_la1[25] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -817,7 +850,7 @@ world.turnRight(); world.turnRight();
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[25];
+  final private int[] jj_la1 = new int[26];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -825,10 +858,10 @@ world.turnRight(); world.turnRight();
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x40a5ff80,0x40a5ff81,0x0,0x40a5ff81,0x0,0x0,0x0,0x0,0x0,0xc000000,0xc000000,0x0,0x0,0x0,0x0,0x0,0x40a5ff81,0x40a5ff81,0x100000,0x40a5ff81,0x40a5ff81,0xa00000,0x40000000,0x0,0x0,};
+	   jj_la1_0 = new int[] {0x40a5ff80,0x40a5ff81,0x0,0x40a5ff81,0x0,0x0,0x0,0x0,0x0,0xc000000,0xc000000,0x0,0x0,0x0,0x0,0x0,0x40a5ff81,0x40a5ff81,0x100000,0x40a5ff81,0x40a5ff81,0xa00000,0x0,0x40000000,0x0,0x0,};
 	}
 	private static void jj_la1_init_1() {
-	   jj_la1_1 = new int[] {0x0,0x0,0x100000,0x0,0x400000,0x7f0,0x3c,0x3c,0x780,0x0,0x0,0x780,0x3c,0x780,0x3,0x800000,0x0,0x0,0x0,0x0,0x0,0x0,0x800,0x780,0x70,};
+	   jj_la1_1 = new int[] {0x0,0x0,0x100000,0x0,0x400000,0x7f0,0x3c,0x3c,0x780,0x0,0x0,0x780,0x3c,0x780,0x3,0x800000,0x0,0x0,0x0,0x0,0x0,0x0,0x3f000,0x800,0x780,0x70,};
 	}
 
   /** Constructor with InputStream. */
@@ -842,7 +875,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 26; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -856,7 +889,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 26; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -866,7 +899,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 26; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -884,7 +917,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 26; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -893,7 +926,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 26; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -902,7 +935,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 25; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 26; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -958,7 +991,7 @@ world.turnRight(); world.turnRight();
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
 	 }
-	 for (int i = 0; i < 25; i++) {
+	 for (int i = 0; i < 26; i++) {
 	   if (jj_la1[i] == jj_gen) {
 		 for (int j = 0; j < 32; j++) {
 		   if ((jj_la1_0[i] & (1<<j)) != 0) {
