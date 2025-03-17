@@ -27,11 +27,11 @@ public class Robot implements RobotConstants {
 
         class Procedure {
                 String name;
-                List<String> parameters;
+                HashMap<String, Integer> parameters;
                 HashMap<String, Integer> varLocales = new HashMap<>();
                 List<String> body;
 
-                Procedure(String name, List<String> parameters, List<String> body) {
+                Procedure(String name, HashMap<String, Integer> parameters, List<String> body) {
                         this.name = name;
                         this.parameters = parameters;
                         this.body = body;
@@ -280,19 +280,25 @@ if (variables.containsKey(varName.image)) {
             // Si es una variable global, actualiza su valor
             variables.put(varName.image, valor);
         }
-        else if (procedures.containsKey(procName) && procedures.get(procName).parameters.contains(varName.image)) {
-            // Si es una variable local, se debería actualizar su valor, no agregarla como parámetro
-            int index = procedures.get(procName).parameters.indexOf(varName.image);
-            procedures.get(procName).parameters.set(index, varName.image);  // Mantiene la variable sin duplicarla
+        else if (procedures.containsKey(procName) && procedures.get(procName).parameters.containsKey(varName.image))
+        {
+                //Caso de que es un parametro
+                procedures.get(procName).parameters.put(varName.image, valor);
         }
-        else {
+        else if (procedures.containsKey(procName) && procedures.get(procName).varLocales.containsKey(varName.image))
+        {
+          //Caso de que es una variable local
+          procedures.get(procName).varLocales.put(varName.image, valor);
+       }
+        else
+        {
             {if (true) throw new Error("Variable no definida: " + varName.image);}
         }
 }
 
   final public void procedure(Console sistema) throws ParseException {Token procName;
-    List<String> params = new ArrayList<>();
     List<String> body = new ArrayList<>();
+    HashMap<String, Integer > params = new HashMap<String, Integer >();
     jj_consume_token(PROC);
     procName = jj_consume_token(ID);
     label_2:
@@ -349,9 +355,9 @@ procedures.put(procName.image, new Procedure(procName.image, params, body));
     jj_consume_token(57);
 }
 
-  final public void paramList(List<String > params) throws ParseException {Token param;
+  final public void paramList(HashMap<String, Integer > params) throws ParseException {Token param;
     param = jj_consume_token(ID);
-params.add(param.image);
+params.put(param.image, 0);
     label_4:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -380,7 +386,7 @@ params.add(param.image);
         throw new ParseException();
       }
       param = jj_consume_token(ID);
-params.add(param.image);
+params.put(param.image, 0);
     }
 }
 
@@ -1385,37 +1391,6 @@ if (x > world.chipsToPick()) {if ("" != null) return false;} else {if ("" != nul
     Token operador;
     valor = factor(procName);
 total = valor;
-    label_9:
-    while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case SUMA:
-      case RESTA:{
-        ;
-        break;
-        }
-      default:
-        jj_la1[34] = jj_gen;
-        break label_9;
-      }
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case SUMA:{
-        operador = jj_consume_token(SUMA);
-        valor = factor(procName);
-if (operador.kind == SUMA) total += valor;
-        break;
-        }
-      case RESTA:{
-        operador = jj_consume_token(RESTA);
-        valor = factor(procName);
-if (operador.kind == RESTA) total -= valor;
-        break;
-        }
-      default:
-        jj_la1[35] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
-    }
 {if ("" != null) return total;}
     throw new Error("Missing return statement in function");
 }
@@ -1424,30 +1399,51 @@ if (operador.kind == RESTA) total -= valor;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case NUM:{
       jj_consume_token(NUM);
-total = Integer.parseInt(token.image);
+total = Integer.parseInt(token.image); {if ("" != null) return total;}
       break;
       }
     case ID:{
       jj_consume_token(ID);
-if (procName.isEmpty()) {
-            if (!variables.containsKey(token.image)) {
+if (procName.equals(""))
+        {
+            if (!variables.containsKey(token.image))
+            {
                 {if (true) throw new Error("Variable global no definida: " + token.image);}
             }
             total = variables.get(token.image);
-        } else {
-            if (!procedures.containsKey(procName) ||
-                !procedures.get(procName).parameters.contains(token.image)) {
+        }
+        else
+        {
+            if (!procedures.containsKey(procName) )
+            {
                 {if (true) throw new Error("Variable '" + token.image + "' no definida en el procedimiento '" + procName + "'");}
             }
+            else if (procedures.get(procName).parameters.containsKey(token.image))
+            {
+              total=procedures.get(procName).parameters.get(token.image);
+                }
+                else if (variables.containsKey(token.image))
+            {
+                total=variables.get(token.image);
+            }
+                else if (procedures.get(procName).varLocales.containsKey(token.image) )
+                {
+                  total=procedures.get(procName).varLocales.get(token.image);
+            }
+            else
+            {
+              {if (true) throw new Error("Variable '" + token.image + "' no definida en el procedimiento '" + procName + "'");}
+                }
         }
+
+        {if ("" != null) return total;}
       break;
       }
     default:
-      jj_la1[36] = jj_gen;
+      jj_la1[34] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
-{if ("" != null) return total;}
     throw new Error("Missing return statement in function");
 }
 
@@ -1479,7 +1475,7 @@ if (ejecutar) changeFace(1);
       break;
       }
     default:
-      jj_la1[37] = jj_gen;
+      jj_la1[35] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1508,7 +1504,7 @@ if (ejecutar)
       break;
       }
     default:
-      jj_la1[38] = jj_gen;
+      jj_la1[36] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1523,7 +1519,7 @@ if (ejecutar)
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[39];
+  final private int[] jj_la1 = new int[37];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -1531,10 +1527,10 @@ if (ejecutar)
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x0,0x4097fe01,0x4097fe00,0x4097fe01,0x40000000,0x0,0x0,0x4097fe01,0x40000000,0x40000000,0x0,0x0,0x0,0x0,0xc000000,0xc000000,0x0,0x0,0x0,0x4097fe01,0x4097fe01,0x400000,0x4097fe01,0x0,0x0,0xc000000,0x0,0x0,0x0,0x0,0xc000000,0x0,0x0,0x0,0x0,0x0,0x40000000,0x0,0x0,};
+	   jj_la1_0 = new int[] {0x0,0x4097fe01,0x4097fe00,0x4097fe01,0x40000000,0x0,0x0,0x4097fe01,0x40000000,0x40000000,0x0,0x0,0x0,0x0,0xc000000,0xc000000,0x0,0x0,0x0,0x4097fe01,0x4097fe01,0x400000,0x4097fe01,0x0,0x0,0xc000000,0x0,0x0,0x0,0x0,0xc000000,0x0,0x0,0x0,0x40000000,0x0,0x0,};
 	}
 	private static void jj_la1_init_1() {
-	   jj_la1_1 = new int[] {0x3,0x800000,0x0,0x0,0x0,0x100000,0x800000,0x0,0x400000,0x400000,0x7f0,0x3c,0x3c,0x780,0x0,0x0,0x780,0x3c,0x780,0x0,0x0,0x0,0x0,0x80000,0x7c000,0x0,0x780,0x3c,0x780,0x3c,0x0,0x3,0x3,0x780,0x1800,0x1800,0x2000,0x780,0x70,};
+	   jj_la1_1 = new int[] {0x3,0x800000,0x0,0x0,0x0,0x100000,0x800000,0x0,0x400000,0x400000,0x7f0,0x3c,0x3c,0x780,0x0,0x0,0x780,0x3c,0x780,0x0,0x0,0x0,0x0,0x80000,0x7c000,0x0,0x780,0x3c,0x780,0x3c,0x0,0x3,0x3,0x780,0x2000,0x780,0x70,};
 	}
 
   /** Constructor with InputStream. */
@@ -1548,7 +1544,7 @@ if (ejecutar)
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 39; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1562,7 +1558,7 @@ if (ejecutar)
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 39; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -1572,7 +1568,7 @@ if (ejecutar)
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 39; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1590,7 +1586,7 @@ if (ejecutar)
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 39; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -1599,7 +1595,7 @@ if (ejecutar)
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 39; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1608,7 +1604,7 @@ if (ejecutar)
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 39; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -1664,7 +1660,7 @@ if (ejecutar)
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
 	 }
-	 for (int i = 0; i < 39; i++) {
+	 for (int i = 0; i < 37; i++) {
 	   if (jj_la1[i] == jj_gen) {
 		 for (int j = 0; j < 32; j++) {
 		   if ((jj_la1_0[i] & (1<<j)) != 0) {

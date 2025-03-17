@@ -54,11 +54,11 @@ public class Robot
 
 	class Procedure {
 		String name;
-		List<String> parameters;
+		HashMap<String, Integer> parameters;
 		HashMap<String, Integer> varLocales = new HashMap<>();
 		List<String> body;
 
-		Procedure(String name, List<String> parameters, List<String> body) {
+		Procedure(String name, HashMap<String, Integer> parameters, List<String> body) {
 			this.name = name;
 			this.parameters = parameters;
 			this.body = body;
@@ -282,12 +282,18 @@ void assignment(String procName):
             // Si es una variable global, actualiza su valor
             variables.put(varName.image, valor);
         } 
-        else if (procedures.containsKey(procName) && procedures.get(procName).parameters.contains(varName.image)) {  
-            // Si es una variable local, se debería actualizar su valor, no agregarla como parámetro
-            int index = procedures.get(procName).parameters.indexOf(varName.image);
-            procedures.get(procName).parameters.set(index, varName.image);  // Mantiene la variable sin duplicarla
+        else if (procedures.containsKey(procName) && procedures.get(procName).parameters.containsKey(varName.image))
+        {
+          	//Caso de que es un parametro
+          	procedures.get(procName).parameters.put(varName.image, valor);
         }
-        else {
+        else if (procedures.containsKey(procName) && procedures.get(procName).varLocales.containsKey(varName.image))
+        {
+          //Caso de que es una variable local
+          procedures.get(procName).varLocales.put(varName.image, valor);
+       }
+        else
+        {
             throw new Error("Variable no definida: " + varName.image);
         }
     }
@@ -299,8 +305,8 @@ void assignment(String procName):
 void procedure(Console sistema):
 {
     Token procName;
-    List<String> params = new ArrayList<>();
     List<String> body = new ArrayList<>();
+    HashMap<String, Integer > params = new HashMap<String, Integer >();
 }
 {   
     <PROC> procName=<ID> ( ":" paramList(params) )* "[" 
@@ -314,18 +320,13 @@ void procedure(Console sistema):
 
 
 
-void paramList(List<String > params):
+void paramList(HashMap<String, Integer > params):
 {
 	Token param;
 }
 {
-	param=<ID> { params.add(param.image); } (  (<ID> ":" | "with:") param=<ID> { params.add(param.image); } )*
+	param=<ID> { params.put(param.image, 0); } (  (<ID> ":" | "with:") param=<ID> { params.put(param.image, 0); } )*
 }
-
-
-
-
-
 
 void direction():
 {
@@ -992,6 +993,7 @@ boolean facingCondition():
 	| < EAST > { return world.facingEast(); }
 	| < WEST > { return world.facingWest(); }
 }
+
 int expr(String procName):
 {
     int total = 0;
@@ -1000,16 +1002,6 @@ int expr(String procName):
 }
 {
     valor = factor(procName) { total = valor; }
-    (
-        operador = <SUMA> valor = factor(procName)
-        {
-            if (operador.kind == SUMA) total += valor;
-        }
-        | operador = <RESTA> valor = factor(procName)
-        {
-            if (operador.kind == RESTA) total -= valor;
-        }
-    )*
     { return total; }
 }
 
@@ -1018,21 +1010,45 @@ int factor(String procName):
     int total = 0;
 }
 {
-    ( <NUM> { total = Integer.parseInt(token.image); }
-    | <ID> {
-        if (procName.isEmpty()) {
-            if (!variables.containsKey(token.image)) {
+    ( <NUM> { total = Integer.parseInt(token.image); return total;}
+    | <ID>
+    {
+        if (procName.equals(""))
+        {
+            if (!variables.containsKey(token.image))
+            {
                 throw new Error("Variable global no definida: " + token.image);
             }
             total = variables.get(token.image);
-        } else {
-            if (!procedures.containsKey(procName) || 
-                !procedures.get(procName).parameters.contains(token.image)) {
+        }
+        else 
+        {
+            if (!procedures.containsKey(procName) )
+            {
                 throw new Error("Variable '" + token.image + "' no definida en el procedimiento '" + procName + "'");
             }
+            else if (procedures.get(procName).parameters.containsKey(token.image))
+            {
+              total=procedures.get(procName).parameters.get(token.image);
+          	}
+          	else if (variables.containsKey(token.image))
+            {
+                total=variables.get(token.image);
+            }
+          	else if (procedures.get(procName).varLocales.containsKey(token.image) )
+          	{
+          	  total=procedures.get(procName).varLocales.get(token.image);
+            }
+            else
+            {
+              throw new Error("Variable '" + token.image + "' no definida en el procedimiento '" + procName + "'");
+           	}
         }
-    })
-    { return total; }
+
+        return total;
+    }
+    )
+    
 }
 
 
