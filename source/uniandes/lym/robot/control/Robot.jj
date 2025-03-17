@@ -151,6 +151,17 @@ Token objType():
 boolean command(Console sistema):
 {
 	int x, y, n;
+	boolean bool;
+	Token t;
+}
+{
+	bool=interna(sistema, true, 1, "")
+	{return bool;} 
+}
+
+boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, String procName):
+{
+	int x, y, n;
 	salida = new String();
 	Token t;
 }
@@ -205,8 +216,8 @@ boolean command(Console sistema):
 		| procedure(sistema)
 		| variable_declaration()
 		//| assignment()
-		| conditional(sistema)
-		| loop(sistema)
+		| conditional(sistema, procName)
+		| loop(sistema, procName)
 	) 
 	{
 		try {
@@ -228,7 +239,7 @@ void procedure(Console sistema):
 	List<String> body = new ArrayList<>();
 }
 {	
-	<PROC> procName=<ID> ( ":" paramList(params) )* "[" ( command(sistema) )* "]" {
+	<PROC> procName=<ID> ( ":" paramList(params) )* "[" ( interna(sistema, true, 1, procName.image) )* "]" {
     procedures.put(procName.image, new Procedure(procName.image, params, body));
 }
 	
@@ -406,21 +417,22 @@ void assignment():
 }
 */
 
-void conditional(Console sistema):
+void conditional(Console sistema, String procName):
 {
+  boolean bool;
 }
 {
-    <IF> (<NOT>)* conditions() <THEN> "[" (command(sistema))* "]" (<ELSE> "[" (command(sistema))* "]")?
+    <IF> (<NOT>)* bool=conditions() <THEN> "[" (interna(sistema, true, 1, procName))* "]" (<ELSE> "[" (interna(sistema, true, 1, procName))* "]")?
     
 }
 
-void loop(Console sistema):
+void loop(Console sistema, String procName):
 {
 }
 {
-  <WHILE> (<NOT>)* conditions() <DO> "[" (command(sistema))* "]"
+  <WHILE> (<NOT>)* conditions() <DO> "[" (interna(sistema, true, 1, procName))* "]"
 
-    | <FOR> expr() <REPEAT_BLOCK> "[" (command(sistema))* "]"
+    | <FOR> expr() <REPEAT_BLOCK> "[" (interna(sistema, true, 1, procName))* "]"
     
 }
 
@@ -857,15 +869,19 @@ int expr():
 	{ return total; }
 }
 
-int expr(String procName):
+boolean varExiste( String procName, String var):
 {
-	int total = 1;
 }
 {
-	( <NUM> { total = Integer.parseInt(token.image); }
-	| <ID> { if (!variables.containsKey(token.image)) throw new Error("Variable no definida: " + token.image); total = variables.get(token.image); }
-	)
-	{ return total; }
+  {
+    Procedure proc= procedures.get(procName);
+    List<String > parametros = proc.parameters;
+    if (parametros.contains(var))
+    	return true;
+    else
+    	return false;
+
+	}
 }
 
 void changeFace(int dir):
