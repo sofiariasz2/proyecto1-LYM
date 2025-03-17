@@ -244,16 +244,26 @@ boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, Strin
 
 void procedure(Console sistema):
 {
-	Token procName;
-	List<String> params = new ArrayList<>();
-	List<String> body = new ArrayList<>();
+    Token procName;
+    List<String> params = new ArrayList<>();
+    List<String> body = new ArrayList<>();
 }
 {	
-	<PROC> procName=<ID> ( ":" paramList(params) )* "[" ( interna(sistema, true, 1, procName.image) )* "]" {
-    procedures.put(procName.image, new Procedure(procName.image, params, body));
+    <PROC> procName=<ID> ( ":" paramList(params) )* "[" 
+        { procedures.put(procName.image, new Procedure(procName.image, params, body)); }
+        ( interna(sistema, true, 1, procName.image) )* 
+    "]"
+
+    // Llamada a un procedimiento
+    | procName=<ID> "(" (paramList(params))? ")" "."
+    {
+        if (!procedures.containsKey(procName.image)) {
+            throw new Error("Procedimiento no definido: " + procName.image);
+        }
+        interna(sistema, true, 1, procName.image);
+    }
 }
-	
-}
+
 
 void paramList(List<String > params):
 {
@@ -521,26 +531,42 @@ void conditional(Console sistema, String procName):
 
 void loop(Console sistema, String procName):
 {
-  boolean bool;
-  int numNot=0;
-  boolean ejecutable;
+    boolean bool;
+    int numNot = 0;
+    boolean ejecutable;
+    int repeticiones;
 }
 {
-  <WHILE> numNot=notCondition() bool=conditions()
-  	{ 
-	  if (numNot%2!=0)
-	  	bool=!bool;
-	  if (bool)
-	  	ejecutable=true;
-	  else
-	  	ejecutable=false;
-  	}
+    // WHILE LOOP
+    <WHILE> numNot = notCondition() bool = conditions()
+    {
+        if (numNot % 2 != 0) {
+            bool = !bool;
+        }
+        ejecutable = bool;
+    }
+    <DO> "[" 
+        { 
+            while (ejecutable) {
+                if (!interna(sistema, true, 1, procName)) break; // Control de ejecución
+                ejecutable = conditions(); // Reevaluar condición en cada iteración
+            }
+        } 
+        ( <BREAK> "." { return; } | <CONTINUE> "." { continue; } )*
+    "]"
 
-  <DO> "[" (interna(sistema, true, 1, procName))* "]"
-
-    | <FOR> expr() <REPEAT_BLOCK> "[" (interna(sistema, true, 1, procName))* "]"
-    
+    | 
+    // FOR LOOP
+    <FOR> repeticiones = expr(procName) <REPEAT_BLOCK> "[" 
+        { 
+            for (int i = 0; i < repeticiones; i++) {
+                if (!interna(sistema, true, 1, procName)) break; // Permitir interrupción
+            }
+        } 
+        ( <BREAK> "." { return; } | <CONTINUE> "." { continue; } )*
+    "]"
 }
+
 
 int notCondition():
 {
@@ -976,7 +1002,24 @@ boolean facingCondition():
 
 int expr(String procName):
 {
-    int total = 1;
+    int total = 0;
+    int valor;
+    Token operador;
+}
+{
+    valor = factor(procName) { total = valor; }
+    ( operador = (<"+" | "-">) valor = factor(procName)
+      { 
+        if (operador.image.equals("+")) total += valor;
+        else total -= valor; 
+      }
+    )*
+    { return total; }
+}
+
+int factor(String procName):
+{
+    int total = 0;
 }
 {
     ( <NUM> { total = Integer.parseInt(token.image); }
@@ -988,6 +1031,7 @@ int expr(String procName):
     })
     { return total; }
 }
+
 
 void changeFace(int dir):
 {
