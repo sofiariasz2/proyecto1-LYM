@@ -27,14 +27,17 @@ public class Robot implements RobotConstants {
 
         class Procedure {
                 String name;
-                HashMap<String, Integer> parameters;
+                HashMap<String, Integer> paramValues;
+                List<String> paramNames;
                 HashMap<String, Integer> varLocales = new HashMap<>();
                 List<String> body;
 
-                Procedure(String name, HashMap<String, Integer> parameters, List<String> body) {
+                Procedure(String name, HashMap<String, Integer> paramValues, List<String> paramNames, List<String> body)
+                {
                         this.name = name;
-                        this.parameters = parameters;
+                        this.paramNames = paramNames;
                         this.body = body;
+                        this.paramValues = paramValues;
                 }
         }
 
@@ -95,6 +98,7 @@ bool=true;
   final public boolean interna(Console sistema, boolean ejecutar, int numVecesEjecucion, String procName) throws ParseException {int x, y, n;
     salida = new String();
     Token t;
+    Token tok;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case MOVE:
     case TURN:
@@ -211,7 +215,7 @@ salida = "Command: NOP";
         break;
         }
       case ID:{
-        assignment(procName);
+        idTokenPath(procName);
         break;
         }
       case IF:{
@@ -270,9 +274,7 @@ if (esGlobal) {
     jj_consume_token(55);
 }
 
-  final public void assignment(String procName) throws ParseException {Token varName;
-    int valor;
-    varName = jj_consume_token(ID);
+  final public void assignment(Token varName, String procName) throws ParseException {int valor;
     jj_consume_token(ASSIGN);
     valor = expr(procName);
     jj_consume_token(53);
@@ -280,10 +282,10 @@ if (variables.containsKey(varName.image)) {
             // Si es una variable global, actualiza su valor
             variables.put(varName.image, valor);
         }
-        else if (procedures.containsKey(procName) && procedures.get(procName).parameters.containsKey(varName.image))
+        else if (procedures.containsKey(procName) && procedures.get(procName).paramValues.containsKey(varName.image))
         {
                 //Caso de que es un parametro
-                procedures.get(procName).parameters.put(varName.image, valor);
+                procedures.get(procName).paramValues.put(varName.image, valor);
         }
         else if (procedures.containsKey(procName) && procedures.get(procName).varLocales.containsKey(varName.image))
         {
@@ -298,7 +300,8 @@ if (variables.containsKey(varName.image)) {
 
   final public void procedure(Console sistema) throws ParseException {Token procName;
     List<String> body = new ArrayList<>();
-    HashMap<String, Integer > params = new HashMap<String, Integer >();
+    HashMap<String, Integer > paramValues = new HashMap<String, Integer >();
+    List<String > paramNames = new ArrayList<>();
     jj_consume_token(PROC);
     procName = jj_consume_token(ID);
     label_2:
@@ -313,10 +316,10 @@ if (variables.containsKey(varName.image)) {
         break label_2;
       }
       jj_consume_token(52);
-      paramList(params);
+      paramList(paramValues, paramNames);
     }
     jj_consume_token(56);
-procedures.put(procName.image, new Procedure(procName.image, params, body));
+procedures.put(procName.image, new Procedure(procName.image, paramValues, paramNames, body));
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case 55:{
       variable_declaration(false, procName.image);
@@ -355,9 +358,10 @@ procedures.put(procName.image, new Procedure(procName.image, params, body));
     jj_consume_token(57);
 }
 
-  final public void paramList(HashMap<String, Integer > params) throws ParseException {Token param;
+  final public void paramList(HashMap<String, Integer > paramValues, List<String> paramNames) throws ParseException {Token param;
     param = jj_consume_token(ID);
-params.put(param.image, 0);
+paramValues.put(param.image, 0);
+                  paramNames.add(param.image);
     label_4:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -386,38 +390,21 @@ params.put(param.image, 0);
         throw new ParseException();
       }
       param = jj_consume_token(ID);
-params.put(param.image, 0);
+paramValues.put(param.image, 0);
+                  paramNames.add(param.image);
     }
 }
 
-  final public void direction() throws ParseException {
+  final public void idTokenPath(String procName) throws ParseException {Token tok;
+    tok = jj_consume_token(ID);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case NORTH:{
-      jj_consume_token(NORTH);
+    case ASSIGN:{
+      assignment(tok, procName);
       break;
       }
-    case SOUTH:{
-      jj_consume_token(SOUTH);
-      break;
-      }
-    case EAST:{
-      jj_consume_token(EAST);
-      break;
-      }
-    case WEST:{
-      jj_consume_token(WEST);
-      break;
-      }
-    case LEFT:{
-      jj_consume_token(LEFT);
-      break;
-      }
-    case RIGHT:{
-      jj_consume_token(RIGHT);
-      break;
-      }
-    case AROUND:{
-      jj_consume_token(AROUND);
+    case 52:
+    case 53:{
+      procCall(tok, procName);
       break;
       }
     default:
@@ -427,31 +414,66 @@ params.put(param.image, 0);
     }
 }
 
-  final public void directionLRFB() throws ParseException {
+  final public void procCall(Token procTok, String procName) throws ParseException {int numParam=0;
+  Procedure proc;
+  int n;
+  Token tok;
+  String paramName;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case LEFT:{
-      jj_consume_token(LEFT);
+    case 52:{
+      jj_consume_token(52);
+      n = expr(procName);
+if (!procedures.containsKey(procTok.image))
+                        {if (true) throw new Error("No esta definido  el procedimiento " + procTok );}
+                else
+                        proc=procedures.get(procTok.image);
+
+                if (proc.paramNames.size()< 1)
+                        {if (true) throw new Error("Numero incorrecto de parametros");}
+
+                 numParam=1;
+         paramName=proc.paramNames.get(0);
+         proc.paramValues.put(paramName, n);
+      label_5:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+        case ID:{
+          ;
+          break;
+          }
+        default:
+          jj_la1[11] = jj_gen;
+          break label_5;
+        }
+        jj_consume_token(ID);
+        jj_consume_token(52);
+        n = expr(procName);
+numParam+=1;
+
+                 if (proc.paramNames.size()< numParam)
+                        {if (true) throw new Error("Numero incorrecto de parametros para este procedimiento");}
+
+         paramName=proc.paramNames.get(numParam-1);
+         proc.paramValues.put(paramName, n);
+      }
       break;
       }
-    case RIGHT:{
-      jj_consume_token(RIGHT);
-      break;
-      }
-    case FRONT:{
-      jj_consume_token(FRONT);
-      break;
-      }
-    case BACK:{
-      jj_consume_token(BACK);
+    case 53:{
+      jj_consume_token(53);
+if (!procedures.containsKey(procTok.image))
+                        {if (true) throw new Error("No esta definido  el procedimiento " + procTok );}
       break;
       }
     default:
-      jj_la1[11] = jj_gen;
+      jj_la1[12] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
 }
 
+///
+///MOVE Y JUMP COMMANDS
+///
   final public void moveDirectionLRFB(int x, boolean ejecutar) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case LEFT:{
@@ -506,7 +528,7 @@ if (ejecutar)
       break;
       }
     default:
-      jj_la1[12] = jj_gen;
+      jj_la1[13] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -543,7 +565,7 @@ if (ejecutar)
       break;
       }
     default:
-      jj_la1[13] = jj_gen;
+      jj_la1[14] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -562,7 +584,7 @@ if (ejecutar)
       break;
       }
     default:
-      jj_la1[14] = jj_gen;
+      jj_la1[15] = jj_gen;
 if (ejecutar)
                         world.moveForward(x, false);
     }
@@ -581,7 +603,7 @@ if (ejecutar)
       break;
       }
     default:
-      jj_la1[15] = jj_gen;
+      jj_la1[16] = jj_gen;
 world.moveForward(x, true);
     }
 }
@@ -617,7 +639,7 @@ if (ejecutar)
       break;
       }
     default:
-      jj_la1[16] = jj_gen;
+      jj_la1[17] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -671,37 +693,15 @@ if (ejecutar)
       break;
       }
     default:
-      jj_la1[17] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
-    }
-}
-
-  final public void directionNSEW() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case NORTH:{
-      jj_consume_token(NORTH);
-      break;
-      }
-    case SOUTH:{
-      jj_consume_token(SOUTH);
-      break;
-      }
-    case EAST:{
-      jj_consume_token(EAST);
-      break;
-      }
-    case WEST:{
-      jj_consume_token(WEST);
-      break;
-      }
-    default:
       jj_la1[18] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
 }
 
+///
+//CONDITIONS Y LOOPS
+//
   final public void conditional(Console sistema, String procName) throws ParseException {boolean bool;
   int numNot=0;
   boolean ejecutableIf=true;
@@ -721,7 +721,7 @@ if (numNot%2!=0)
                         }
     jj_consume_token(THEN);
     jj_consume_token(56);
-    label_5:
+    label_6:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case 0:
@@ -743,7 +743,7 @@ if (numNot%2!=0)
         }
       default:
         jj_la1[19] = jj_gen;
-        break label_5;
+        break label_6;
       }
       interna(sistema, ejecutableIf, 1, procName);
     }
@@ -752,7 +752,7 @@ if (numNot%2!=0)
     case ELSE:{
       jj_consume_token(ELSE);
       jj_consume_token(56);
-      label_6:
+      label_7:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case 0:
@@ -774,7 +774,7 @@ if (numNot%2!=0)
           }
         default:
           jj_la1[20] = jj_gen;
-          break label_6;
+          break label_7;
         }
         interna(sistema, ejecutableThen, 1, procName);
       }
@@ -800,7 +800,7 @@ if (numNot % 2 != 0) {
         ejecutable = bool;
     jj_consume_token(DO);
     jj_consume_token(56);
-    label_7:
+    label_8:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case 0:
@@ -822,7 +822,7 @@ if (numNot % 2 != 0) {
         }
       default:
         jj_la1[22] = jj_gen;
-        break label_7;
+        break label_8;
       }
       interna(sistema, ejecutable, 1, procName);
     }
@@ -830,7 +830,7 @@ if (numNot % 2 != 0) {
 }
 
   final public int notCondition() throws ParseException {int total=0;
-    label_8:
+    label_9:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case NOT:{
@@ -839,7 +839,7 @@ if (numNot % 2 != 0) {
         }
       default:
         jj_la1[23] = jj_gen;
-        break label_8;
+        break label_9;
       }
       jj_consume_token(NOT);
 total+=1;
@@ -1188,6 +1188,229 @@ pos=world.getPosition();
     throw new Error("Missing return statement in function");
 }
 
+  final public boolean canMoveInDirToTheCondition(int x) throws ParseException {boolean bool;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case INDIR:{
+      jj_consume_token(INDIR);
+      bool = canMoveNESWCondition(x);
+{if ("" != null) return bool;}
+      break;
+      }
+    case TOTHE:{
+      jj_consume_token(TOTHE);
+      bool = canMoveLRFBCondition(x);
+{if ("" != null) return bool ;}
+      break;
+      }
+    default:
+      jj_la1[30] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+}
+
+  final public boolean canPutCondition(int x) throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case BALLOONS:{
+      jj_consume_token(BALLOONS);
+if ( world.getMyBalloons()< x) {if ("" != null) return false;} else {if ("" != null) return true;}
+      break;
+      }
+    case CHIPS:{
+      jj_consume_token(CHIPS);
+if (x > world.freeSpacesForChips() ||  world.getMyChips()< x) {if ("" != null) return false;} else {if ("" != null) return true;}
+      break;
+      }
+    default:
+      jj_la1[31] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+}
+
+  final public boolean canPickCondition(int x) throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case BALLOONS:{
+      jj_consume_token(BALLOONS);
+if (x > world.countBalloons()) {if ("" != null) return false;} else {if ("" != null) return true;}
+      break;
+      }
+    case CHIPS:{
+      jj_consume_token(CHIPS);
+if (x > world.chipsToPick()) {if ("" != null) return false;} else {if ("" != null) return true;}
+      break;
+      }
+    default:
+      jj_la1[32] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+}
+
+  final public boolean facingCondition() throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case NORTH:{
+      jj_consume_token(NORTH);
+{if ("" != null) return world.facingNorth();}
+      break;
+      }
+    case SOUTH:{
+      jj_consume_token(SOUTH);
+{if ("" != null) return world.facingSouth();}
+      break;
+      }
+    case EAST:{
+      jj_consume_token(EAST);
+{if ("" != null) return world.facingEast();}
+      break;
+      }
+    case WEST:{
+      jj_consume_token(WEST);
+{if ("" != null) return world.facingWest();}
+      break;
+      }
+    default:
+      jj_la1[33] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+}
+
+//
+//OTROS
+  final public int expr(String procName) throws ParseException {int total = 0;
+    int valor;
+    Token operador;
+    valor = factor(procName);
+total = valor;
+{if ("" != null) return total;}
+    throw new Error("Missing return statement in function");
+}
+
+  final public int factor(String procName) throws ParseException {int total = 0;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case NUM:{
+      jj_consume_token(NUM);
+total = Integer.parseInt(token.image); {if ("" != null) return total;}
+      break;
+      }
+    case ID:{
+      jj_consume_token(ID);
+if (procName.equals(""))
+        {
+            if (!variables.containsKey(token.image))
+            {
+                {if (true) throw new Error("Variable global no definida: " + token.image);}
+            }
+            total = variables.get(token.image);
+        }
+        else
+        {
+            if (!procedures.containsKey(procName) )
+            {
+                {if (true) throw new Error("Variable '" + token.image + "' no definida en el procedimiento '" + procName + "'");}
+            }
+            else if (procedures.get(procName).paramNames.contains(token.image))
+            {
+              total=procedures.get(procName).paramValues.get(token.image);
+                }
+                else if (variables.containsKey(token.image))
+            {
+                total=variables.get(token.image);
+            }
+                else if (procedures.get(procName).varLocales.containsKey(token.image) )
+                {
+                  total=procedures.get(procName).varLocales.get(token.image);
+            }
+            else
+            {
+              {if (true) throw new Error("Variable '" + token.image + "' no definida en el procedimiento '" + procName + "'");}
+                }
+        }
+
+        {if ("" != null) return total;}
+      break;
+      }
+    default:
+      jj_la1[34] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    throw new Error("Missing return statement in function");
+}
+
+//
+//FACING RELATED
+  final public void changeFace(int dir) throws ParseException {
+while (world.getFacing()!=dir)
+                world.turnRight();
+}
+
+  final public void faceDirections(boolean ejecutar) throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case WEST:{
+      jj_consume_token(WEST);
+if (ejecutar) changeFace(3);
+      break;
+      }
+    case EAST:{
+      jj_consume_token(EAST);
+if (ejecutar) changeFace(2);
+      break;
+      }
+    case NORTH:{
+      jj_consume_token(NORTH);
+if (ejecutar) changeFace(0);
+      break;
+      }
+    case SOUTH:{
+      jj_consume_token(SOUTH);
+if (ejecutar) changeFace(1);
+      break;
+      }
+    default:
+      jj_la1[35] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+}
+
+  final public void turnDirections(boolean ejecutar) throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case RIGHT:{
+      jj_consume_token(RIGHT);
+if (ejecutar) world.turnRight();
+      break;
+      }
+    case LEFT:{
+      jj_consume_token(LEFT);
+if (ejecutar)
+                { world.turnRight();
+                world.turnRight();
+                world.turnRight();}
+      break;
+      }
+    case AROUND:{
+      jj_consume_token(AROUND);
+if (ejecutar)
+                { world.turnRight();
+                 world.turnRight(); }
+      break;
+      }
+    default:
+      jj_la1[36] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+}
+
+//
+//AUXILIARES
+//
   final public int getCardinalDirHeaded(String dir) throws ParseException {int facing;
 facing=world.getFacing();
   if (dir=="FRONT")
@@ -1294,222 +1517,6 @@ Point newPos= new Point(1,1);
     throw new Error("Missing return statement in function");
 }
 
-  final public boolean canMoveInDirToTheCondition(int x) throws ParseException {boolean bool;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case INDIR:{
-      jj_consume_token(INDIR);
-      bool = canMoveNESWCondition(x);
-{if ("" != null) return bool;}
-      break;
-      }
-    case TOTHE:{
-      jj_consume_token(TOTHE);
-      bool = canMoveLRFBCondition(x);
-{if ("" != null) return bool ;}
-      break;
-      }
-    default:
-      jj_la1[30] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
-    }
-    throw new Error("Missing return statement in function");
-}
-
-  final public boolean canPutCondition(int x) throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case BALLOONS:{
-      jj_consume_token(BALLOONS);
-if ( world.getMyBalloons()< x) {if ("" != null) return false;} else {if ("" != null) return true;}
-      break;
-      }
-    case CHIPS:{
-      jj_consume_token(CHIPS);
-if (x > world.freeSpacesForChips() ||  world.getMyChips()< x) {if ("" != null) return false;} else {if ("" != null) return true;}
-      break;
-      }
-    default:
-      jj_la1[31] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
-    }
-    throw new Error("Missing return statement in function");
-}
-
-  final public boolean canPickCondition(int x) throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case BALLOONS:{
-      jj_consume_token(BALLOONS);
-if (x > world.countBalloons()) {if ("" != null) return false;} else {if ("" != null) return true;}
-      break;
-      }
-    case CHIPS:{
-      jj_consume_token(CHIPS);
-if (x > world.chipsToPick()) {if ("" != null) return false;} else {if ("" != null) return true;}
-      break;
-      }
-    default:
-      jj_la1[32] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
-    }
-    throw new Error("Missing return statement in function");
-}
-
-  final public boolean facingCondition() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case NORTH:{
-      jj_consume_token(NORTH);
-{if ("" != null) return world.facingNorth();}
-      break;
-      }
-    case SOUTH:{
-      jj_consume_token(SOUTH);
-{if ("" != null) return world.facingSouth();}
-      break;
-      }
-    case EAST:{
-      jj_consume_token(EAST);
-{if ("" != null) return world.facingEast();}
-      break;
-      }
-    case WEST:{
-      jj_consume_token(WEST);
-{if ("" != null) return world.facingWest();}
-      break;
-      }
-    default:
-      jj_la1[33] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
-    }
-    throw new Error("Missing return statement in function");
-}
-
-  final public int expr(String procName) throws ParseException {int total = 0;
-    int valor;
-    Token operador;
-    valor = factor(procName);
-total = valor;
-{if ("" != null) return total;}
-    throw new Error("Missing return statement in function");
-}
-
-  final public int factor(String procName) throws ParseException {int total = 0;
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case NUM:{
-      jj_consume_token(NUM);
-total = Integer.parseInt(token.image); {if ("" != null) return total;}
-      break;
-      }
-    case ID:{
-      jj_consume_token(ID);
-if (procName.equals(""))
-        {
-            if (!variables.containsKey(token.image))
-            {
-                {if (true) throw new Error("Variable global no definida: " + token.image);}
-            }
-            total = variables.get(token.image);
-        }
-        else
-        {
-            if (!procedures.containsKey(procName) )
-            {
-                {if (true) throw new Error("Variable '" + token.image + "' no definida en el procedimiento '" + procName + "'");}
-            }
-            else if (procedures.get(procName).parameters.containsKey(token.image))
-            {
-              total=procedures.get(procName).parameters.get(token.image);
-                }
-                else if (variables.containsKey(token.image))
-            {
-                total=variables.get(token.image);
-            }
-                else if (procedures.get(procName).varLocales.containsKey(token.image) )
-                {
-                  total=procedures.get(procName).varLocales.get(token.image);
-            }
-            else
-            {
-              {if (true) throw new Error("Variable '" + token.image + "' no definida en el procedimiento '" + procName + "'");}
-                }
-        }
-
-        {if ("" != null) return total;}
-      break;
-      }
-    default:
-      jj_la1[34] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
-    }
-    throw new Error("Missing return statement in function");
-}
-
-  final public void changeFace(int dir) throws ParseException {
-while (world.getFacing()!=dir)
-                world.turnRight();
-}
-
-  final public void faceDirections(boolean ejecutar) throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case WEST:{
-      jj_consume_token(WEST);
-if (ejecutar) changeFace(3);
-      break;
-      }
-    case EAST:{
-      jj_consume_token(EAST);
-if (ejecutar) changeFace(2);
-      break;
-      }
-    case NORTH:{
-      jj_consume_token(NORTH);
-if (ejecutar) changeFace(0);
-      break;
-      }
-    case SOUTH:{
-      jj_consume_token(SOUTH);
-if (ejecutar) changeFace(1);
-      break;
-      }
-    default:
-      jj_la1[35] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
-    }
-}
-
-  final public void turnDirections(boolean ejecutar) throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case RIGHT:{
-      jj_consume_token(RIGHT);
-if (ejecutar) world.turnRight();
-      break;
-      }
-    case LEFT:{
-      jj_consume_token(LEFT);
-if (ejecutar)
-                { world.turnRight();
-                world.turnRight();
-                world.turnRight();}
-      break;
-      }
-    case AROUND:{
-      jj_consume_token(AROUND);
-if (ejecutar)
-                { world.turnRight();
-                 world.turnRight(); }
-      break;
-      }
-    default:
-      jj_la1[36] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
-    }
-}
-
   /** Generated Token Manager. */
   public RobotTokenManager token_source;
   SimpleCharStream jj_input_stream;
@@ -1527,10 +1534,10 @@ if (ejecutar)
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x0,0x4097fe01,0x4097fe00,0x4097fe01,0x40000000,0x0,0x0,0x4097fe01,0x40000000,0x40000000,0x0,0x0,0x0,0x0,0xc000000,0xc000000,0x0,0x0,0x0,0x4097fe01,0x4097fe01,0x400000,0x4097fe01,0x0,0x0,0xc000000,0x0,0x0,0x0,0x0,0xc000000,0x0,0x0,0x0,0x40000000,0x0,0x0,};
+	   jj_la1_0 = new int[] {0x0,0x4097fe01,0x4097fe00,0x4097fe01,0x40000000,0x0,0x0,0x4097fe01,0x40000000,0x40000000,0x80000,0x40000000,0x0,0x0,0x0,0xc000000,0xc000000,0x0,0x0,0x4097fe01,0x4097fe01,0x400000,0x4097fe01,0x0,0x0,0xc000000,0x0,0x0,0x0,0x0,0xc000000,0x0,0x0,0x0,0x40000000,0x0,0x0,};
 	}
 	private static void jj_la1_init_1() {
-	   jj_la1_1 = new int[] {0x3,0x800000,0x0,0x0,0x0,0x100000,0x800000,0x0,0x400000,0x400000,0x7f0,0x3c,0x3c,0x780,0x0,0x0,0x780,0x3c,0x780,0x0,0x0,0x0,0x0,0x80000,0x7c000,0x0,0x780,0x3c,0x780,0x3c,0x0,0x3,0x3,0x780,0x2000,0x780,0x70,};
+	   jj_la1_1 = new int[] {0x3,0x800000,0x0,0x0,0x0,0x100000,0x800000,0x0,0x400000,0x400000,0x300000,0x0,0x300000,0x3c,0x780,0x0,0x0,0x780,0x3c,0x0,0x0,0x0,0x0,0x80000,0x7c000,0x0,0x780,0x3c,0x780,0x3c,0x0,0x3,0x3,0x780,0x2000,0x780,0x70,};
 	}
 
   /** Constructor with InputStream. */

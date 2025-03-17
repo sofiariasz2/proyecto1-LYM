@@ -54,14 +54,17 @@ public class Robot
 
 	class Procedure {
 		String name;
-		HashMap<String, Integer> parameters;
+		HashMap<String, Integer> paramValues;
+		List<String> paramNames;
 		HashMap<String, Integer> varLocales = new HashMap<>();
 		List<String> body;
 
-		Procedure(String name, HashMap<String, Integer> parameters, List<String> body) {
+		Procedure(String name, HashMap<String, Integer> paramValues, List<String> paramNames, List<String> body)
+		{
 			this.name = name;
-			this.parameters = parameters;
+			this.paramNames = paramNames;
 			this.body = body;
+			this.paramValues = paramValues;
 		}
 	}
 }
@@ -185,6 +188,7 @@ boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, Strin
     int x, y, n;
     salida = new String();
     Token t;
+    Token tok;
 }
 {
 
@@ -229,7 +233,7 @@ boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, Strin
         
         | procedure(sistema)
         
-        | assignment(procName)  // Ahora las asignaciones pueden aparecer en cualquier punto
+        | idTokenPath(procName) 
         
         | conditional(sistema, procName)
         
@@ -270,22 +274,21 @@ void variable_declaration(boolean esGlobal, String procName):
 
 
 
-void assignment(String procName):
+void assignment(Token varName, String procName):
 {
-    Token varName;
     int valor;
 }
 {
-    varName=<ID> ":=" valor=expr(procName) "."
+    ":=" valor=expr(procName) "."
     {
         if (variables.containsKey(varName.image)) {  
             // Si es una variable global, actualiza su valor
             variables.put(varName.image, valor);
         } 
-        else if (procedures.containsKey(procName) && procedures.get(procName).parameters.containsKey(varName.image))
+        else if (procedures.containsKey(procName) && procedures.get(procName).paramValues.containsKey(varName.image))
         {
           	//Caso de que es un parametro
-          	procedures.get(procName).parameters.put(varName.image, valor);
+          	procedures.get(procName).paramValues.put(varName.image, valor);
         }
         else if (procedures.containsKey(procName) && procedures.get(procName).varLocales.containsKey(varName.image))
         {
@@ -306,12 +309,13 @@ void procedure(Console sistema):
 {
     Token procName;
     List<String> body = new ArrayList<>();
-    HashMap<String, Integer > params = new HashMap<String, Integer >();
+    HashMap<String, Integer > paramValues = new HashMap<String, Integer >();
+    List<String > paramNames = new ArrayList<>(); 
 }
 {   
-    <PROC> procName=<ID> ( ":" paramList(params) )* "[" 
+    <PROC> procName=<ID> ( ":" paramList(paramValues, paramNames) )* "[" 
     {
-        procedures.put(procName.image, new Procedure(procName.image, params, body));
+        procedures.put(procName.image, new Procedure(procName.image, paramValues, paramNames, body));
     }
     (variable_declaration(false, procName.image))? // Solo ejecuta si hay variables
     ( interna(sistema, true, 1, procName.image) )* "]"
@@ -320,28 +324,77 @@ void procedure(Console sistema):
 
 
 
-void paramList(HashMap<String, Integer > params):
+void paramList(HashMap<String, Integer > paramValues, List<String> paramNames ):
 {
 	Token param;
 }
 {
-	param=<ID> { params.put(param.image, 0); } (  (<ID> ":" | "with:") param=<ID> { params.put(param.image, 0); } )*
+	param=<ID>
+		{ paramValues.put(param.image, 0);
+		  paramNames.add(param.image);
+		}
+	(  (<ID> ":" | "with:") param=<ID>
+		{ paramValues.put(param.image, 0);
+		  paramNames.add(param.image);
+		}
+	)*
 }
 
-void direction():
+void idTokenPath(String procName):
 {
+  Token tok;
 }
 {
-    <NORTH> | <SOUTH> | <EAST> | <WEST> | <LEFT> | <RIGHT> | <AROUND>
-}
-
-void directionLRFB():
-{
-}
-{
-    <LEFT> | <RIGHT> | <FRONT> | <BACK>
+	( tok= <ID>  ) (assignment(tok, procName)| procCall(tok, procName) )
 }
 
+void procCall(Token procTok, String procName):
+{
+  int numParam=0;
+  Procedure proc;
+  int n;
+  Token tok;
+  String paramName;
+}
+{
+	":" n=expr(procName)
+		{if (!procedures.containsKey(procTok.image))
+			throw new Error("No esta definido  el procedimiento " + procTok );
+		else
+			proc=procedures.get(procTok.image);
+
+		if (proc.paramNames.size()< 1)
+			throw new Error("Numero incorrecto de parametros");
+			
+		 numParam=1;
+    	 paramName=proc.paramNames.get(0);
+    	 proc.paramValues.put(paramName, n);
+		}
+
+	(< ID > ":" n=expr(procName)
+		 { numParam+=1;
+		 
+		 if (proc.paramNames.size()< numParam)
+			throw new Error("Numero incorrecto de parametros para este procedimiento");
+		 
+    	 paramName=proc.paramNames.get(numParam-1);
+    	 proc.paramValues.put(paramName, n);
+		 }
+	)*
+	"."
+	  
+	| "."
+		{ if (!procedures.containsKey(procTok.image))
+			throw new Error("No esta definido  el procedimiento " + procTok );
+		}
+	
+}
+
+
+
+///
+///MOVE Y JUMP COMMANDS
+///
 void moveDirectionLRFB(int x, boolean ejecutar):
 {
 }
@@ -506,18 +559,9 @@ void jumpDirectionLRFB(int x, boolean ejecutar):
 	     }
 }
 
-void directionNSEW():
-{
-}
-{
-    <NORTH> | <SOUTH> | <EAST> | <WEST> 
-}
-
-
-
-
-
-
+///
+//CONDITIONS Y LOOPS
+//
 void conditional(Console sistema, String procName):
 {
   boolean bool;
@@ -847,6 +891,144 @@ boolean canMoveLRFBCondition(int steps):
 		}
 }
 
+
+boolean canMoveInDirToTheCondition(int x):
+{  boolean bool;
+}
+{
+	< INDIR > bool=canMoveNESWCondition( x) { return bool; }
+	| < TOTHE > bool=canMoveLRFBCondition( x) { return bool ;}
+}
+
+boolean canPutCondition(int x):
+{
+}
+{
+  < BALLOONS > {if ( world.getMyBalloons()< x) return false; else return true; }
+	|  < CHIPS > { if (x > world.freeSpacesForChips() ||  world.getMyChips()< x) return false; else return true;}
+}
+
+boolean canPickCondition(int x):
+{
+}
+{
+  < BALLOONS > { if (x > world.countBalloons()) return false; else return true;}
+	|  < CHIPS > { if (x > world.chipsToPick()) return false; else return true;}
+}
+
+boolean facingCondition():
+{
+}
+{
+	< NORTH > { return world.facingNorth(); }
+	| <SOUTH> { return world.facingSouth(); }
+	| < EAST > { return world.facingEast(); }
+	| < WEST > { return world.facingWest(); }
+}
+
+//
+//OTROS
+int expr(String procName):
+{
+    int total = 0;
+    int valor;
+    Token operador;
+}
+{
+    valor = factor(procName) { total = valor; }
+    { return total; }
+}
+
+int factor(String procName):
+{
+    int total = 0;
+}
+{
+    ( <NUM> { total = Integer.parseInt(token.image); return total;}
+    | <ID>
+    {
+        if (procName.equals(""))
+        {
+            if (!variables.containsKey(token.image))
+            {
+                throw new Error("Variable global no definida: " + token.image);
+            }
+            total = variables.get(token.image);
+        }
+        else 
+        {
+            if (!procedures.containsKey(procName) )
+            {
+                throw new Error("Variable '" + token.image + "' no definida en el procedimiento '" + procName + "'");
+            }
+            else if (procedures.get(procName).paramNames.contains(token.image))
+            {
+              total=procedures.get(procName).paramValues.get(token.image);
+          	}
+          	else if (variables.containsKey(token.image))
+            {
+                total=variables.get(token.image);
+            }
+          	else if (procedures.get(procName).varLocales.containsKey(token.image) )
+          	{
+          	  total=procedures.get(procName).varLocales.get(token.image);
+            }
+            else
+            {
+              throw new Error("Variable '" + token.image + "' no definida en el procedimiento '" + procName + "'");
+           	}
+        }
+
+        return total;
+    }
+    )
+    
+}
+
+//
+//FACING RELATED
+void changeFace(int dir):
+{
+}
+{
+  {
+    while (world.getFacing()!=dir)
+		world.turnRight();
+  }
+}
+
+void faceDirections(boolean ejecutar):
+{
+}
+{
+ 		 <WEST >  { if (ejecutar) changeFace(3); }
+		|  <EAST >  { if (ejecutar) changeFace(2); }
+		|  <NORTH >  { if (ejecutar) changeFace(0); }
+		| <SOUTH >  { if (ejecutar) changeFace(1); }
+}
+
+void turnDirections(boolean ejecutar):
+{
+}
+{
+  	 <RIGHT>  { if (ejecutar) world.turnRight();}
+  	| < LEFT >
+  		{ if (ejecutar)
+	    	{ world.turnRight();
+	    	world.turnRight();
+	    	world.turnRight();}
+	  	}
+  	| < AROUND >
+  		{ if (ejecutar)
+	    	{ world.turnRight();
+	    	 world.turnRight(); }
+	  	}
+}
+
+
+//
+//AUXILIARES
+//
 int getCardinalDirHeaded(String dir):
 {int facing;}
 {
@@ -959,142 +1141,6 @@ Point getNewPos( int steps, String dir):
   
 }
 }
-
-boolean canMoveInDirToTheCondition(int x):
-{  boolean bool;
-}
-{
-	< INDIR > bool=canMoveNESWCondition( x) { return bool; }
-	| < TOTHE > bool=canMoveLRFBCondition( x) { return bool ;}
-}
-
-boolean canPutCondition(int x):
-{
-}
-{
-  < BALLOONS > {if ( world.getMyBalloons()< x) return false; else return true; }
-	|  < CHIPS > { if (x > world.freeSpacesForChips() ||  world.getMyChips()< x) return false; else return true;}
-}
-
-boolean canPickCondition(int x):
-{
-}
-{
-  < BALLOONS > { if (x > world.countBalloons()) return false; else return true;}
-	|  < CHIPS > { if (x > world.chipsToPick()) return false; else return true;}
-}
-
-boolean facingCondition():
-{
-}
-{
-	< NORTH > { return world.facingNorth(); }
-	| <SOUTH> { return world.facingSouth(); }
-	| < EAST > { return world.facingEast(); }
-	| < WEST > { return world.facingWest(); }
-}
-
-int expr(String procName):
-{
-    int total = 0;
-    int valor;
-    Token operador;
-}
-{
-    valor = factor(procName) { total = valor; }
-    { return total; }
-}
-
-int factor(String procName):
-{
-    int total = 0;
-}
-{
-    ( <NUM> { total = Integer.parseInt(token.image); return total;}
-    | <ID>
-    {
-        if (procName.equals(""))
-        {
-            if (!variables.containsKey(token.image))
-            {
-                throw new Error("Variable global no definida: " + token.image);
-            }
-            total = variables.get(token.image);
-        }
-        else 
-        {
-            if (!procedures.containsKey(procName) )
-            {
-                throw new Error("Variable '" + token.image + "' no definida en el procedimiento '" + procName + "'");
-            }
-            else if (procedures.get(procName).parameters.containsKey(token.image))
-            {
-              total=procedures.get(procName).parameters.get(token.image);
-          	}
-          	else if (variables.containsKey(token.image))
-            {
-                total=variables.get(token.image);
-            }
-          	else if (procedures.get(procName).varLocales.containsKey(token.image) )
-          	{
-          	  total=procedures.get(procName).varLocales.get(token.image);
-            }
-            else
-            {
-              throw new Error("Variable '" + token.image + "' no definida en el procedimiento '" + procName + "'");
-           	}
-        }
-
-        return total;
-    }
-    )
-    
-}
-
-
-
-
-
-void changeFace(int dir):
-{
-}
-{
-  {
-    while (world.getFacing()!=dir)
-		world.turnRight();
-  }
-}
-
-void faceDirections(boolean ejecutar):
-{
-}
-{
- 		 <WEST >  { if (ejecutar) changeFace(3); }
-		|  <EAST >  { if (ejecutar) changeFace(2); }
-		|  <NORTH >  { if (ejecutar) changeFace(0); }
-		| <SOUTH >  { if (ejecutar) changeFace(1); }
-}
-
-void turnDirections(boolean ejecutar):
-{
-}
-{
-  	 <RIGHT>  { if (ejecutar) world.turnRight();}
-  	| < LEFT >
-  		{ if (ejecutar)
-	    	{ world.turnRight();
-	    	world.turnRight();
-	    	world.turnRight();}
-	  	}
-  	| < AROUND >
-  		{ if (ejecutar)
-	    	{ world.turnRight();
-	    	 world.turnRight(); }
-	  	}
-}
-
-
-
 
 
   
