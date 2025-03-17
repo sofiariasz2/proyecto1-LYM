@@ -55,6 +55,7 @@ public class Robot
 	class Procedure {
 		String name;
 		List<String> parameters;
+		HashMap<String, Integer> varLocales = new HashMap<>();
 		List<String> body;
 
 		Procedure(String name, List<String> parameters, List<String> body) {
@@ -167,6 +168,10 @@ boolean command(Console sistema):
 }
 {
     variable_declaration(true, "") // declaro las variables globales al inicio
+    { bool=true;
+    	return bool;
+    }
+    
     | bool = interna(sistema, true, 1, "") 
     { return bool; }
 }
@@ -182,7 +187,6 @@ boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, Strin
     Token t;
 }
 {
-    variable_declaration(false, procName)  // declara variables locales dentro del procedimiento
 
     (
         <MOVE> ":" x=expr(procName) moveIndirTothe(x, ejecutar) "." { salida = "Command: Move"; }
@@ -249,27 +253,19 @@ void variable_declaration(boolean esGlobal, String procName):
     Token varName;
 }
 {
-    LOOKAHEAD(3) // Indica a JavaCC que verifique más adelante antes de decidir
-    (
+
       "|" 
-      ( varName=<ID> "." 
+      ( varName=<ID> 
         { 
           if (esGlobal) { 
               variables.put(varName.image, 0);
-          } 
+          }
+          else
+          	procedures.get(procName).varLocales.put(varName.image, 0);
         }  
       )* 
       "|"
-    )
-    |
-    (
-      varName=<ID> ("," <ID> )* "." 
-      { 
-        if (!esGlobal) {  
-            procedures.get(procName).parameters.add(varName.image);
-        }
-      }
-    )
+
 }
 
 
@@ -529,7 +525,7 @@ void conditional(Console sistema, String procName):
   boolean ejecutableThen=false;
 }
 {
-    <IF> numNot=notCondition() bool=conditions(procname)
+    <IF> numNot=notCondition() bool=conditions(procName)
     	{
     	  if (numNot%2!=0)
     	  	bool=!bool;
@@ -554,24 +550,14 @@ void loop(Console sistema, String procName):
     int repeticiones;
 }
 {
-    <WHILE> numNot = notCondition() bool = conditions()
+    <WHILE> numNot = notCondition() bool = conditions(procName)
     {
         if (numNot % 2 != 0) {
             bool = !bool;
         }
         ejecutable = bool;
     }
-    <DO> "[" 
-        { 
-            variable_declaration(false, procName) // Declara variables locales dentro del loop si las hay
-            while (ejecutable)
-            {
-                if (!interna(sistema, true, 1, procName)) break;
-                ejecutable = conditions(); // Reevaluar condición en cada iteración
-            } 
-        } 
-        ( <BREAK> "." { return; } | <CONTINUE> "." { continue; } )*
-    "]"
+    <DO> "[" ( interna(sistema, ejecutable, 1, procName) )*   "]"
 }
 
 
