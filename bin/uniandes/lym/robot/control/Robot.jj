@@ -420,20 +420,59 @@ void assignment():
 void conditional(Console sistema, String procName):
 {
   boolean bool;
+  int numNot=0;
+  boolean ejecutableIf=true;
+  boolean ejecutableThen=false;
 }
 {
-    <IF> (<NOT>)* bool=conditions() <THEN> "[" (interna(sistema, true, 1, procName))* "]" (<ELSE> "[" (interna(sistema, true, 1, procName))* "]")?
+    <IF> numNot=notCondition() bool=conditions()
+    	{
+    	  if (numNot%2!=0)
+    	  	bool=!bool;
+    	  if (bool)
+    		{ ejecutableIf= true;
+			ejecutableThen=false;
+			}
+		else
+			{ ejecutableIf=false;
+			ejecutableThen=true;
+			}
+    	}
+    <THEN> "[" ( interna(sistema, ejecutableIf, 1, procName) )* "]" (<ELSE> "[" (interna(sistema, ejecutableThen, 1, procName))* "]")?
     
 }
 
 void loop(Console sistema, String procName):
 {
+  boolean bool;
+  int numNot=0;
+  boolean ejecutable;
 }
 {
-  <WHILE> (<NOT>)* conditions() <DO> "[" (interna(sistema, true, 1, procName))* "]"
+  <WHILE> numNot=notCondition() bool=conditions()
+  	{ 
+	  if (numNot%2!=0)
+	  	bool=!bool;
+	  if (bool)
+	  	ejecutable=true;
+	  else
+	  	ejecutable=false;
+  	}
+
+  <DO> "[" (interna(sistema, true, 1, procName))* "]"
 
     | <FOR> expr() <REPEAT_BLOCK> "[" (interna(sistema, true, 1, procName))* "]"
     
+}
+
+int notCondition():
+{
+  int total=0;
+}
+{
+	(<NOT> { total+=1; } )*
+
+	{return total; }
 }
 
 boolean conditions():
