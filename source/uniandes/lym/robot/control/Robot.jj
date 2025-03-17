@@ -166,7 +166,7 @@ boolean command(Console sistema):
     boolean bool;
 }
 {
-    variable_declaration(true, ""); // declaro las variables globales al inicio
+    variable_declaration(true, "") // declaro las variables globales al inicio
     | bool = interna(sistema, true, 1, "") 
     { return bool; }
 }
@@ -311,7 +311,7 @@ void procedure(Console sistema):
     {
         procedures.put(procName.image, new Procedure(procName.image, params, body));
     }
-    (variable_declaration(false, procName))? // Solo ejecuta si hay variables
+    (variable_declaration(false, procName.image))? // Solo ejecuta si hay variables
     ( interna(sistema, true, 1, procName.image) )* "]"
 }
 
@@ -529,7 +529,7 @@ void conditional(Console sistema, String procName):
   boolean ejecutableThen=false;
 }
 {
-    <IF> numNot=notCondition() bool=conditions()
+    <IF> numNot=notCondition() bool=conditions(procname)
     	{
     	  if (numNot%2!=0)
     	  	bool=!bool;
@@ -564,10 +564,11 @@ void loop(Console sistema, String procName):
     <DO> "[" 
         { 
             variable_declaration(false, procName) // Declara variables locales dentro del loop si las hay
-            while (ejecutable) {
+            while (ejecutable)
+            {
                 if (!interna(sistema, true, 1, procName)) break;
                 ejecutable = conditions(); // Reevaluar condición en cada iteración
-            }
+            } 
         } 
         ( <BREAK> "." { return; } | <CONTINUE> "." { continue; } )*
     "]"
@@ -584,16 +585,16 @@ int notCondition():
 	{return total; }
 }
 
-boolean conditions():
+boolean conditions(String procname):
 {
   int x=0;
   boolean bool;
 }
-{	  <CANMOVE> x=expr() bool=canMoveInDirToTheCondition(x) "." { return bool; }
+{	  <CANMOVE> x=expr(procname) bool=canMoveInDirToTheCondition(x) "." { return bool; }
 	  |  <FACING>  bool=facingCondition() "." { return bool; }
-	  |  <CANPUT> x=expr() < OFTYPE >  bool=canPutCondition( x) "." { return bool; }
-	  |  <CANPICK> x=expr() < OFTYPE >  bool=canPickCondition( x) "." { return bool; }
-	  |  <CANJUMP> x=expr()  bool=canJumpInDirToTheCondition(x) "." { return bool; }
+	  |  <CANPUT> x=expr(procname) < OFTYPE >  bool=canPutCondition( x) "." { return bool; }
+	  |  <CANPICK> x=expr(procname) < OFTYPE >  bool=canPickCondition( x) "." { return bool; }
+	  |  <CANJUMP> x=expr(procname)  bool=canJumpInDirToTheCondition(x) "." { return bool; }
 	
 }
 
