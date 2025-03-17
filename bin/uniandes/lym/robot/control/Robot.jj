@@ -80,6 +80,13 @@ TOKEN:
     | <#DIGIT: ["0"-"9"]>
 }
 
+TOKEN: {
+    <BREAK: "break">
+    | <CONTINUE: "continue">
+}
+
+
+
 TOKEN: /* Comandos actualizados según el enunciado */
 {
     <MOVE: "move"> 
@@ -122,6 +129,12 @@ TOKEN:
     | <EAST: "#east">
 }
 
+TOKEN: {
+    <SUMA: "+"> | <RESTA: "-">
+}
+
+
+
 
 TOKEN:
 {
@@ -153,10 +166,14 @@ boolean command(Console sistema):
     boolean bool;
 }
 {
-    global_variable_declaration()  // Ahora reconoce las variables globales antes de ejecutar comandos
-    | bool = interna(sistema, true, 1, "")  // Luego ejecuta los comandos
+    variable_declaration(true, ""); // declaro las variables globales al inicio
+    | bool = interna(sistema, true, 1, "") 
     { return bool; }
 }
+
+
+
+
 
 boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, String procName):
 {
@@ -165,6 +182,8 @@ boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, Strin
     Token t;
 }
 {
+    variable_declaration(false, procName)  // declara variables locales dentro del procedimiento
+
     (
         <MOVE> ":" x=expr(procName) moveIndirTothe(x, ejecutar) "." { salida = "Command: Move"; }
         
@@ -173,67 +192,48 @@ boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, Strin
         | <FACE> ":" faceDirections(ejecutar) "." { salida = "Command: Face"; }
         
         | <PUT> ":" n=expr(procName) <OFTYPE> t=objType() "." 
-            { if (ejecutar)
-                { 
-                    if (n <= 0) {
-                        throw new Error("PUT error: n debe ser mayor que 0");
-                    }
-                    if (t.image.equals("#chips")) {
-                        world.putChips(n);
-                        salida = "Command: Put " + n + " chips"; 
-                    } else if (t.image.equals("#balloons")) {
-                        world.putBalloons(n);
-                        salida = "Command: Put " + n + " balloons"; 
-                    }
+            { if (ejecutar) {
+                if (n <= 0) throw new Error("PUT error: n debe ser mayor que 0");
+                if (t.image.equals("#chips")) {
+                    world.putChips(n);
+                    salida = "Command: Put " + n + " chips"; 
+                } else if (t.image.equals("#balloons")) {
+                    world.putBalloons(n);
+                    salida = "Command: Put " + n + " balloons"; 
                 }
-            }
-
+            }}
         | <PICK> ":" n=expr(procName) <OFTYPE> t=objType() "." 
-        
-            { if (ejecutar)
-                { 
-                    if (n <= 0) {
-                        throw new Error("PICK error: n debe ser mayor que 0");
-                    }
-                    
-                    if (t.image.equals("#chips")) {
-                        world.pickChips(n);
-                        salida = "Command: Pick " + n + " chips"; 
-                    } else if (t.image.equals("#balloons")) {
-                        world.grabBalloons(n);
-                        salida = "Command: Pick " + n + " balloons"; 
-                    }
+            { if (ejecutar) {
+                if (n <= 0) throw new Error("PICK error: n debe ser mayor que 0");
+                if (t.image.equals("#chips")) {
+                    world.pickChips(n);
+                    salida = "Command: Pick " + n + " chips"; 
+                } else if (t.image.equals("#balloons")) {
+                    world.grabBalloons(n);
+                    salida = "Command: Pick " + n + " balloons"; 
                 }
-            }
-            
+            }}
         | <POP> ":" n=expr(procName) "."
-            {if (ejecutar)
-                {  world.popBalloons(n);
-                salida = "Command: Pop"; }
-            }
-
+            { if (ejecutar) { world.popBalloons(n); salida = "Command: Pop"; } }
+            
         | <GOTO> ":" x=expr(procName) "with:" y=expr(procName) "."
-            { if (ejecutar)
-                 { world.setPostion(x, y);
-                 salida = "Command: GoTo"; }
-            }
-        
+            { if (ejecutar) { world.setPostion(x, y); salida = "Command: GoTo"; } }
+            
         | <JUMP> ":" n=expr(procName) jumpIndirTothe(n, ejecutar) "." { salida = "Command: Jump"; }
-
         
         | <NOP> "." { salida = "Command: NOP"; }
+        
         | procedure(sistema)
-        | variable_declaration()
-        //| assignment()
+        
+        | assignment(procName)  // Ahora las asignaciones pueden aparecer en cualquier punto
+        
         | conditional(sistema, procName)
+        
         | loop(sistema, procName)
     ) 
     {
-        try {
-            Thread.sleep(900);
-        } catch (InterruptedException e) {
-            System.err.format("IOException: %s%n", e);
-        }
+        try { Thread.sleep(900); } 
+        catch (InterruptedException e) { System.err.format("IOException: %s%n", e); }
 
         sistema.printOutput(salida);
         return true;
@@ -242,27 +242,80 @@ boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, Strin
 }
 
 
+
+
+void variable_declaration(boolean esGlobal, String procName):
+{
+    Token varName;
+}
+{
+    LOOKAHEAD(3) // Indica a JavaCC que verifique más adelante antes de decidir
+    (
+      "|" 
+      ( varName=<ID> "." 
+        { 
+          if (esGlobal) { 
+              variables.put(varName.image, 0);
+          } 
+        }  
+      )* 
+      "|"
+    )
+    |
+    (
+      varName=<ID> ("," <ID> )* "." 
+      { 
+        if (!esGlobal) {  
+            procedures.get(procName).parameters.add(varName.image);
+        }
+      }
+    )
+}
+
+
+
+void assignment(String procName):
+{
+    Token varName;
+    int valor;
+}
+{
+    varName=<ID> ":=" valor=expr(procName) "."
+    {
+        if (variables.containsKey(varName.image)) {  
+            // Si es una variable global, actualiza su valor
+            variables.put(varName.image, valor);
+        } 
+        else if (procedures.containsKey(procName) && procedures.get(procName).parameters.contains(varName.image)) {  
+            // Si es una variable local, se debería actualizar su valor, no agregarla como parámetro
+            int index = procedures.get(procName).parameters.indexOf(varName.image);
+            procedures.get(procName).parameters.set(index, varName.image);  // Mantiene la variable sin duplicarla
+        }
+        else {
+            throw new Error("Variable no definida: " + varName.image);
+        }
+    }
+}
+
+
+
+
 void procedure(Console sistema):
 {
     Token procName;
     List<String> params = new ArrayList<>();
     List<String> body = new ArrayList<>();
 }
-{	
+{   
     <PROC> procName=<ID> ( ":" paramList(params) )* "[" 
-        { procedures.put(procName.image, new Procedure(procName.image, params, body)); }
-        ( interna(sistema, true, 1, procName.image) )* 
-    "]"
-
-    // Llamada a un procedimiento
-    | procName=<ID> "(" (paramList(params))? ")" "."
     {
-        if (!procedures.containsKey(procName.image)) {
-            throw new Error("Procedimiento no definido: " + procName.image);
-        }
-        interna(sistema, true, 1, procName.image);
+        procedures.put(procName.image, new Procedure(procName.image, params, body));
     }
+    (variable_declaration(false, procName))? // Solo ejecuta si hay variables
+    ( interna(sistema, true, 1, procName.image) )* "]"
 }
+
+
 
 
 void paramList(List<String > params):
@@ -273,30 +326,7 @@ void paramList(List<String > params):
 	param=<ID> { params.add(param.image); } (  (<ID> ":" | "with:") param=<ID> { params.add(param.image); } )*
 }
 
-void variable_declaration(String procName):
-{
-    Token varName;
-}
-{
-    varName=<ID> ( "," <ID> )* ":=" expr(procName) "."
-    {
-        if (procName.isEmpty()) {
-            variables.put(varName.image, 0);
-        } else {
-            procedures.get(procName).parameters.add(varName.image);
-        }
-    }
-}
 
-void global_variable_declaration():
-{
-    Token varName;
-}
-{
-    "|" 
-    ( varName=<ID> { variables.put(varName.image, 0); } )* 
-    "|"
-}
 
 
 
@@ -488,21 +518,8 @@ void directionNSEW():
 
 
 
-void variable_declaration():
-{
-}
-{
-    <ID> ("," <ID>)* ":=" expr() "."
-}
 
-/*
-void assignment():
-{
-}
-{
-    <ID> ":=" expr() "."
-}
-*/
+
 
 void conditional(Console sistema, String procName):
 {
@@ -537,7 +554,6 @@ void loop(Console sistema, String procName):
     int repeticiones;
 }
 {
-    // WHILE LOOP
     <WHILE> numNot = notCondition() bool = conditions()
     {
         if (numNot % 2 != 0) {
@@ -547,20 +563,10 @@ void loop(Console sistema, String procName):
     }
     <DO> "[" 
         { 
+            variable_declaration(false, procName) // Declara variables locales dentro del loop si las hay
             while (ejecutable) {
-                if (!interna(sistema, true, 1, procName)) break; // Control de ejecución
+                if (!interna(sistema, true, 1, procName)) break;
                 ejecutable = conditions(); // Reevaluar condición en cada iteración
-            }
-        } 
-        ( <BREAK> "." { return; } | <CONTINUE> "." { continue; } )*
-    "]"
-
-    | 
-    // FOR LOOP
-    <FOR> repeticiones = expr(procName) <REPEAT_BLOCK> "[" 
-        { 
-            for (int i = 0; i < repeticiones; i++) {
-                if (!interna(sistema, true, 1, procName)) break; // Permitir interrupción
             }
         } 
         ( <BREAK> "." { return; } | <CONTINUE> "." { continue; } )*
@@ -999,7 +1005,6 @@ boolean facingCondition():
 	| < EAST > { return world.facingEast(); }
 	| < WEST > { return world.facingWest(); }
 }
-
 int expr(String procName):
 {
     int total = 0;
@@ -1008,11 +1013,15 @@ int expr(String procName):
 }
 {
     valor = factor(procName) { total = valor; }
-    ( operador = (<"+" | "-">) valor = factor(procName)
-      { 
-        if (operador.image.equals("+")) total += valor;
-        else total -= valor; 
-      }
+    (
+        operador = <SUMA> valor = factor(procName)
+        {
+            if (operador.kind == SUMA) total += valor;
+        }
+        | operador = <RESTA> valor = factor(procName)
+        {
+            if (operador.kind == RESTA) total -= valor;
+        }
     )*
     { return total; }
 }
@@ -1024,13 +1033,23 @@ int factor(String procName):
 {
     ( <NUM> { total = Integer.parseInt(token.image); }
     | <ID> {
-        if (!variables.containsKey(token.image) && (procName.isEmpty() || !varExiste(procName, token.image))) {
-            throw new Error("Variable no definida: " + token.image);
+        if (procName.isEmpty()) {
+            if (!variables.containsKey(token.image)) {
+                throw new Error("Variable global no definida: " + token.image);
+            }
+            total = variables.get(token.image);
+        } else {
+            if (!procedures.containsKey(procName) || 
+                !procedures.get(procName).parameters.contains(token.image)) {
+                throw new Error("Variable '" + token.image + "' no definida en el procedimiento '" + procName + "'");
+            }
         }
-        total = variables.containsKey(token.image) ? variables.get(token.image) : 0;
     })
     { return total; }
 }
+
+
+
 
 
 void changeFace(int dir):
