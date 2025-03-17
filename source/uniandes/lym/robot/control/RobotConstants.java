@@ -59,7 +59,7 @@ public interface RobotConstants {
   /** RegularExpression Id. */
   int OFTYPE = 28;
   /** RegularExpression Id. */
-  int REPEAT_BLOCK = 29;
+  int REPEAT = 29;
   /** RegularExpression Id. */
   int ID = 30;
   /** RegularExpression Id. */

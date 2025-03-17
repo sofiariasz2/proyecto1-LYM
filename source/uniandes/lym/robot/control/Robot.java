@@ -75,13 +75,13 @@ bool=true;
     case FACE:
     case PUT:
     case PICK:
-    case POP:
     case GOTO:
     case JUMP:
     case NOP:
     case PROC:
     case IF:
     case WHILE:
+    case FOR:
     case ID:{
       bool = interna(sistema, true, 1, "");
 {if ("" != null) return bool;}
@@ -105,20 +105,20 @@ bool=true;
     case FACE:
     case PUT:
     case PICK:
-    case POP:
     case GOTO:
     case JUMP:
     case NOP:
     case PROC:
     case IF:
     case WHILE:
+    case FOR:
     case ID:{
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case MOVE:{
         jj_consume_token(MOVE);
         jj_consume_token(52);
         x = expr(procName);
-        moveIndirTothe(x, ejecutar);
+        moveIndirTothe(x, ejecutar, numVecesEjecucion);
         jj_consume_token(53);
 salida = "Command: Move";
         break;
@@ -126,7 +126,7 @@ salida = "Command: Move";
       case TURN:{
         jj_consume_token(TURN);
         jj_consume_token(52);
-        turnDirections(ejecutar);
+        turnDirections(ejecutar,numVecesEjecucion);
         jj_consume_token(53);
 salida = "Command: Turn";
         break;
@@ -134,7 +134,7 @@ salida = "Command: Turn";
       case FACE:{
         jj_consume_token(FACE);
         jj_consume_token(52);
-        faceDirections(ejecutar);
+        faceDirections(ejecutar,numVecesEjecucion);
         jj_consume_token(53);
 salida = "Command: Face";
         break;
@@ -146,16 +146,21 @@ salida = "Command: Face";
         jj_consume_token(OFTYPE);
         t = objType();
         jj_consume_token(53);
-if (ejecutar) {
-                if (n <= 0) {if (true) throw new Error("PUT error: n debe ser mayor que 0");}
-                if (t.image.equals("#chips")) {
-                    world.putChips(n);
-                    salida = "Command: Put " + n + " chips";
-                } else if (t.image.equals("#balloons")) {
-                    world.putBalloons(n);
-                    salida = "Command: Put " + n + " balloons";
+if (ejecutar)
+                { for (int i = 0; i < numVecesEjecucion; i++)
+                  {
+                        if (n <= 0) {if (true) throw new Error("PUT error: n debe ser mayor que 0");}
+                        if (t.image.equals("#chips")) {
+                            world.putChips(n);
+                            salida = "Command: Put " + n + " chips";
+                        }
+                        else if (t.image.equals("#balloons"))
+                        {
+                            world.putBalloons(n);
+                            salida = "Command: Put " + n + " balloons";
+                         }
+                          }
                 }
-            }
         break;
         }
       case PICK:{
@@ -165,24 +170,19 @@ if (ejecutar) {
         jj_consume_token(OFTYPE);
         t = objType();
         jj_consume_token(53);
-if (ejecutar) {
-                if (n <= 0) {if (true) throw new Error("PICK error: n debe ser mayor que 0");}
-                if (t.image.equals("#chips")) {
-                    world.pickChips(n);
-                    salida = "Command: Pick " + n + " chips";
-                } else if (t.image.equals("#balloons")) {
-                    world.grabBalloons(n);
-                    salida = "Command: Pick " + n + " balloons";
-                }
-            }
-        break;
-        }
-      case POP:{
-        jj_consume_token(POP);
-        jj_consume_token(52);
-        n = expr(procName);
-        jj_consume_token(53);
-if (ejecutar) { world.popBalloons(n); salida = "Command: Pop"; }
+if (ejecutar)
+              { for (int i = 0; i < numVecesEjecucion; i++)
+                {
+                        if (n <= 0) {if (true) throw new Error("PICK error: n debe ser mayor que 0");}
+                        if (t.image.equals("#chips")) {
+                            world.pickChips(n);
+                            salida = "Command: Pick " + n + " chips";
+                        } else if (t.image.equals("#balloons")) {
+                            world.grabBalloons(n);
+                            salida = "Command: Pick " + n + " balloons";
+                        }
+                     }
+                   }
         break;
         }
       case GOTO:{
@@ -192,14 +192,17 @@ if (ejecutar) { world.popBalloons(n); salida = "Command: Pop"; }
         jj_consume_token(54);
         y = expr(procName);
         jj_consume_token(53);
-if (ejecutar) { world.setPostion(x, y); salida = "Command: GoTo"; }
+if (ejecutar)
+                        { for (int i = 0; i < numVecesEjecucion; i++)
+                                {  world.setPostion(x, y); salida = "Command: GoTo"; }
+                        }
         break;
         }
       case JUMP:{
         jj_consume_token(JUMP);
         jj_consume_token(52);
         n = expr(procName);
-        jumpIndirTothe(n, ejecutar);
+        jumpIndirTothe(n, ejecutar, numVecesEjecucion);
         jj_consume_token(53);
 salida = "Command: Jump";
         break;
@@ -222,7 +225,8 @@ salida = "Command: NOP";
         conditional(sistema, procName);
         break;
         }
-      case WHILE:{
+      case WHILE:
+      case FOR:{
         loop(sistema, procName);
         break;
         }
@@ -338,13 +342,13 @@ procedures.put(procName.image, new Procedure(procName.image, paramValues, paramN
       case FACE:
       case PUT:
       case PICK:
-      case POP:
       case GOTO:
       case JUMP:
       case NOP:
       case PROC:
       case IF:
       case WHILE:
+      case FOR:
       case ID:{
         ;
         break;
@@ -353,7 +357,7 @@ procedures.put(procName.image, new Procedure(procName.image, paramValues, paramN
         jj_la1[7] = jj_gen;
         break label_3;
       }
-      interna(sistema, true, 1, procName.image);
+      interna(sistema, false, 1, procName.image);
     }
     jj_consume_token(57);
 }
@@ -456,6 +460,7 @@ numParam+=1;
          paramName=proc.paramNames.get(numParam-1);
          proc.paramValues.put(paramName, n);
       }
+      jj_consume_token(53);
       break;
       }
     case 53:{
@@ -474,57 +479,65 @@ if (!procedures.containsKey(procTok.image))
 ///
 ///MOVE Y JUMP COMMANDS
 ///
-  final public void moveDirectionLRFB(int x, boolean ejecutar) throws ParseException {
+  final public void moveDirectionLRFB(int x, boolean ejecutar, int numVeces) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case LEFT:{
       jj_consume_token(LEFT);
 if (ejecutar)
-                {
-                      if (world.getFacing()==0)
-                        world.moveHorizontally(-x, false) ;
-                      else if (world.getFacing()==1)
-                        world.moveHorizontally(x, false) ;
-                      else if (world.getFacing()==2)
-                        world.moveVertically(-x, false) ;
-                      else
-                        world.moveVertically(x, false) ;
-                     }
+                { for (int i = 0; i < numVeces; i++)
+                        {
+                              if (world.getFacing()==0)
+                                world.moveHorizontally(-x, false) ;
+                              else if (world.getFacing()==1)
+                                world.moveHorizontally(x, false) ;
+                              else if (world.getFacing()==2)
+                                world.moveVertically(-x, false) ;
+                              else
+                                world.moveVertically(x, false) ;
+                             }
+                        }
       break;
       }
     case RIGHT:{
       jj_consume_token(RIGHT);
 if (ejecutar)
-                {
-                      if (world.getFacing()==0)
-                        world.moveHorizontally(x, false) ;
-                      else if (world.getFacing()==1)
-                        world.moveHorizontally(-x, false) ;
-                      else if (world.getFacing()==2)
-                        world.moveVertically(x, false) ;
-                      else
-                        world.moveVertically(-x, false) ;
+                { for (int i = 0; i < numVeces; i++)
+                        {
+                              if (world.getFacing()==0)
+                                world.moveHorizontally(x, false) ;
+                              else if (world.getFacing()==1)
+                                world.moveHorizontally(-x, false) ;
+                              else if (world.getFacing()==2)
+                                world.moveVertically(x, false) ;
+                              else
+                                world.moveVertically(-x, false) ;
+                                }
                         }
       break;
       }
     case FRONT:{
       jj_consume_token(FRONT);
 if (ejecutar)
-                world.moveForward(x, false) ;
+                { for (int i = 0; i < numVeces; i++)
+                        { world.moveForward(x, false) ; }
+                }
       break;
       }
     case BACK:{
       jj_consume_token(BACK);
 if (ejecutar)
-                {
-                      if (world.getFacing()==0)
-                        world.moveVertically(x, false) ;
-                      else if (world.getFacing()==1)
-                      world.moveVertically(-x, false) ;
-                      else if (world.getFacing()==2)
-                        world.moveHorizontally(-x, false) ;
-                      else
-                        world.moveHorizontally(x, false) ;
-                   }
+                { for (int i = 0; i < numVeces; i++)
+                        {
+                              if (world.getFacing()==0)
+                                world.moveVertically(x, false) ;
+                              else if (world.getFacing()==1)
+                              world.moveVertically(-x, false) ;
+                              else if (world.getFacing()==2)
+                                world.moveHorizontally(-x, false) ;
+                              else
+                                world.moveHorizontally(x, false) ;
+                           }
+                        }
       break;
       }
     default:
@@ -534,34 +547,42 @@ if (ejecutar)
     }
 }
 
-  final public void moveDirectionNESW(int x, boolean ejecutar) throws ParseException {
+  final public void moveDirectionNESW(int x, boolean ejecutar, int numVeces) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case EAST:{
       jj_consume_token(EAST);
 if (ejecutar)
-                                { world.moveHorizontally(x, false);
-                                changeFace(2); }
+                                { for (int i = 0; i < numVeces; i++)
+                                        { world.moveHorizontally(x, false);
+                                        changeFace(2); }
+                                }
       break;
       }
     case WEST:{
       jj_consume_token(WEST);
 if (ejecutar)
-                                { world.moveHorizontally(-x, false);
-                                changeFace(3); }
+                                { for (int i = 0; i < numVeces; i++)
+                                        { world.moveHorizontally(-x, false);
+                                        changeFace(3); }
+                                }
       break;
       }
     case NORTH:{
       jj_consume_token(NORTH);
 if (ejecutar)
-                                {  world.moveVertically(-x, false);
-                                changeFace(0); }
+                                { for (int i = 0; i < numVeces; i++)
+                                        {  world.moveVertically(-x, false);
+                                        changeFace(0); }
+                                }
       break;
       }
     case SOUTH:{
       jj_consume_token(SOUTH);
 if (ejecutar)
-                                { world.moveVertically(x, false);
-                                changeFace(1); }
+                                { for (int i = 0; i < numVeces; i++)
+                                        { world.moveVertically(x, false);
+                                        changeFace(1); }
+                                }
       break;
       }
     default:
@@ -571,71 +592,84 @@ if (ejecutar)
     }
 }
 
-  final public void moveIndirTothe(int x, boolean ejecutar) throws ParseException {
+  final public void moveIndirTothe(int x, boolean ejecutar, int numVeces) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case INDIR:{
       jj_consume_token(INDIR);
-      moveDirectionNESW(x, ejecutar);
+      moveDirectionNESW(x, ejecutar, numVeces);
       break;
       }
     case TOTHE:{
       jj_consume_token(TOTHE);
-      moveDirectionLRFB(x, ejecutar);
+      moveDirectionLRFB(x, ejecutar, numVeces);
       break;
       }
     default:
       jj_la1[15] = jj_gen;
 if (ejecutar)
-                        world.moveForward(x, false);
+                { for (int i = 0; i < numVeces; i++)
+                        {world.moveForward(x, false); }
+                }
     }
 }
 
-  final public void jumpIndirTothe(int x, boolean ejecutar) throws ParseException {
+  final public void jumpIndirTothe(int x, boolean ejecutar, int numVeces) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case INDIR:{
       jj_consume_token(INDIR);
-      jumpDirectionNESW(x,ejecutar);
+      jumpDirectionNESW(x,ejecutar, numVeces);
       break;
       }
     case TOTHE:{
       jj_consume_token(TOTHE);
-      jumpDirectionLRFB(x,ejecutar);
+      jumpDirectionLRFB(x,ejecutar, numVeces);
       break;
       }
     default:
       jj_la1[16] = jj_gen;
-world.moveForward(x, true);
+if (ejecutar)
+                { for (int i = 0; i < numVeces; i++)
+                        {world.moveForward(x, true); }
+                }
     }
 }
 
-  final public void jumpDirectionNESW(int x, boolean ejecutar) throws ParseException {
+  final public void jumpDirectionNESW(int x, boolean ejecutar, int numVeces) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case EAST:{
       jj_consume_token(EAST);
 if (ejecutar)
-                        { world.moveHorizontally(x, true);
-                        changeFace(2); }
+                        { for (int i = 0; i < numVeces; i++)
+                                { world.moveHorizontally(x, true);
+                                changeFace(2); }
+                        }
       break;
       }
     case WEST:{
       jj_consume_token(WEST);
 if (ejecutar)
-                                { world.moveHorizontally(-x, true);
-                                changeFace(3); }
+                                { for (int i = 0; i < numVeces; i++)
+                                        { world.moveHorizontally(-x, true);
+                                        changeFace(3); }
+                                }
       break;
       }
     case NORTH:{
       jj_consume_token(NORTH);
 if (ejecutar)
-                                { world.moveVertically(-x, true);
-                                changeFace(0); }
+                                { for (int i = 0; i < numVeces; i++)
+                                        { world.moveVertically(-x, true);
+                                        changeFace(0); }
+                                }
       break;
       }
     case SOUTH:{
       jj_consume_token(SOUTH);
 if (ejecutar)
-                                {  world.moveVertically(x, true);
-                                changeFace(1); }
+                                { for (int i = 0; i < numVeces; i++)
+                                        {  world.moveVertically(x, true);
+                                        changeFace(1); }
+                                }
       break;
       }
     default:
@@ -645,11 +679,12 @@ if (ejecutar)
     }
 }
 
-  final public void jumpDirectionLRFB(int x, boolean ejecutar) throws ParseException {
+  final public void jumpDirectionLRFB(int x, boolean ejecutar, int numVeces) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case LEFT:{
       jj_consume_token(LEFT);
 if (ejecutar)
+                { for (int i = 0; i < numVeces; i++)
                       { if (world.getFacing()==0)
                         world.moveHorizontally(-x, true) ;
                       else if (world.getFacing()==1)
@@ -658,11 +693,13 @@ if (ejecutar)
                         world.moveVertically(-x, true) ;
                       else
                         world.moveVertically(x, true) ; }
+                    }
       break;
       }
     case RIGHT:{
       jj_consume_token(RIGHT);
 if (ejecutar)
+                { for (int i = 0; i < numVeces; i++)
                       { if (world.getFacing()==0)
                         world.moveHorizontally(x, true) ;
                       else if (world.getFacing()==1)
@@ -671,17 +708,21 @@ if (ejecutar)
                         world.moveVertically(x, true) ;
                       else
                         world.moveVertically(-x, true) ; }
+                   }
       break;
       }
     case FRONT:{
       jj_consume_token(FRONT);
 if (ejecutar)
-                world.moveForward(x, true) ;
+                { for (int i = 0; i < numVeces; i++)
+                        { world.moveForward(x, true) ; }
+                }
       break;
       }
     case BACK:{
       jj_consume_token(BACK);
 if (ejecutar)
+                { for (int i = 0; i < numVeces; i++)
                       { if (world.getFacing()==0)
                         world.moveVertically(x, true) ;
                       else if (world.getFacing()==1)
@@ -690,6 +731,7 @@ if (ejecutar)
                         world.moveHorizontally(-x, true) ;
                       else
                         world.moveHorizontally(x, true) ; }
+                        }
       break;
       }
     default:
@@ -730,13 +772,13 @@ if (numNot%2!=0)
       case FACE:
       case PUT:
       case PICK:
-      case POP:
       case GOTO:
       case JUMP:
       case NOP:
       case PROC:
       case IF:
       case WHILE:
+      case FOR:
       case ID:{
         ;
         break;
@@ -761,13 +803,13 @@ if (numNot%2!=0)
         case FACE:
         case PUT:
         case PICK:
-        case POP:
         case GOTO:
         case JUMP:
         case NOP:
         case PROC:
         case IF:
         case WHILE:
+        case FOR:
         case ID:{
           ;
           break;
@@ -791,46 +833,90 @@ if (numNot%2!=0)
     int numNot = 0;
     boolean ejecutable;
     int repeticiones;
-    jj_consume_token(WHILE);
-    numNot = notCondition();
-    bool = conditions(procName);
+    int n;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case WHILE:{
+      jj_consume_token(WHILE);
+      numNot = notCondition();
+      bool = conditions(procName);
 if (numNot % 2 != 0) {
             bool = !bool;
         }
         ejecutable = bool;
-    jj_consume_token(DO);
-    jj_consume_token(56);
-    label_8:
-    while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case 0:
-      case MOVE:
-      case TURN:
-      case FACE:
-      case PUT:
-      case PICK:
-      case POP:
-      case GOTO:
-      case JUMP:
-      case NOP:
-      case PROC:
-      case IF:
-      case WHILE:
-      case ID:{
-        ;
-        break;
+      jj_consume_token(DO);
+      jj_consume_token(56);
+      label_8:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+        case 0:
+        case MOVE:
+        case TURN:
+        case FACE:
+        case PUT:
+        case PICK:
+        case GOTO:
+        case JUMP:
+        case NOP:
+        case PROC:
+        case IF:
+        case WHILE:
+        case FOR:
+        case ID:{
+          ;
+          break;
+          }
+        default:
+          jj_la1[22] = jj_gen;
+          break label_8;
         }
-      default:
-        jj_la1[22] = jj_gen;
-        break label_8;
+        interna(sistema, ejecutable, 1, procName);
       }
-      interna(sistema, ejecutable, 1, procName);
+      jj_consume_token(57);
+      break;
+      }
+    case FOR:{
+      jj_consume_token(FOR);
+      n = expr(procName);
+      jj_consume_token(REPEAT);
+      jj_consume_token(56);
+      label_9:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+        case 0:
+        case MOVE:
+        case TURN:
+        case FACE:
+        case PUT:
+        case PICK:
+        case GOTO:
+        case JUMP:
+        case NOP:
+        case PROC:
+        case IF:
+        case WHILE:
+        case FOR:
+        case ID:{
+          ;
+          break;
+          }
+        default:
+          jj_la1[23] = jj_gen;
+          break label_9;
+        }
+        interna(sistema, true, n, procName);
+      }
+      jj_consume_token(57);
+      break;
+      }
+    default:
+      jj_la1[24] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
     }
-    jj_consume_token(57);
 }
 
   final public int notCondition() throws ParseException {int total=0;
-    label_9:
+    label_10:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case NOT:{
@@ -838,8 +924,8 @@ if (numNot % 2 != 0) {
         break;
         }
       default:
-        jj_la1[23] = jj_gen;
-        break label_9;
+        jj_la1[25] = jj_gen;
+        break label_10;
       }
       jj_consume_token(NOT);
 total+=1;
@@ -893,7 +979,7 @@ total+=1;
       break;
       }
     default:
-      jj_la1[24] = jj_gen;
+      jj_la1[26] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -915,7 +1001,7 @@ total+=1;
       break;
       }
     default:
-      jj_la1[25] = jj_gen;
+      jj_la1[27] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -967,7 +1053,7 @@ pos=world.getPosition();
       break;
       }
     default:
-      jj_la1[26] = jj_gen;
+      jj_la1[28] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1044,7 +1130,7 @@ pos=world.getPosition();
       break;
       }
     default:
-      jj_la1[27] = jj_gen;
+      jj_la1[29] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1096,7 +1182,7 @@ pos=world.getPosition();
       break;
       }
     default:
-      jj_la1[28] = jj_gen;
+      jj_la1[30] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1181,7 +1267,7 @@ pos=world.getPosition();
       break;
       }
     default:
-      jj_la1[29] = jj_gen;
+      jj_la1[31] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1203,7 +1289,7 @@ pos=world.getPosition();
       break;
       }
     default:
-      jj_la1[30] = jj_gen;
+      jj_la1[32] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1223,7 +1309,7 @@ if (x > world.freeSpacesForChips() ||  world.getMyChips()< x) {if ("" != null) r
       break;
       }
     default:
-      jj_la1[31] = jj_gen;
+      jj_la1[33] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1243,7 +1329,7 @@ if (x > world.chipsToPick()) {if ("" != null) return false;} else {if ("" != nul
       break;
       }
     default:
-      jj_la1[32] = jj_gen;
+      jj_la1[34] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1273,7 +1359,7 @@ if (x > world.chipsToPick()) {if ("" != null) return false;} else {if ("" != nul
       break;
       }
     default:
-      jj_la1[33] = jj_gen;
+      jj_la1[35] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1336,7 +1422,7 @@ if (procName.equals(""))
       break;
       }
     default:
-      jj_la1[34] = jj_gen;
+      jj_la1[36] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1350,36 +1436,48 @@ while (world.getFacing()!=dir)
                 world.turnRight();
 }
 
-  final public void faceDirections(boolean ejecutar) throws ParseException {
+  final public void faceDirections(boolean ejecutar, int numVeces) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case WEST:{
       jj_consume_token(WEST);
-if (ejecutar) changeFace(3);
+if (ejecutar)
+                                { for (int i = 0; i < numVeces; i++)
+                                        { changeFace(3); }
+                                }
       break;
       }
     case EAST:{
       jj_consume_token(EAST);
-if (ejecutar) changeFace(2);
+if (ejecutar)
+                                { for (int i = 0; i < numVeces; i++)
+                                        { changeFace(2); }
+                                }
       break;
       }
     case NORTH:{
       jj_consume_token(NORTH);
-if (ejecutar) changeFace(0);
+if (ejecutar)
+                                { for (int i = 0; i < numVeces; i++)
+                                        { changeFace(0); }
+                                }
       break;
       }
     case SOUTH:{
       jj_consume_token(SOUTH);
-if (ejecutar) changeFace(1);
+if (ejecutar)
+                                { for (int i = 0; i < numVeces; i++)
+                                        { changeFace(1); }
+                                }
       break;
       }
     default:
-      jj_la1[35] = jj_gen;
+      jj_la1[37] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
 }
 
-  final public void turnDirections(boolean ejecutar) throws ParseException {
+  final public void turnDirections(boolean ejecutar, int numVeces) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case RIGHT:{
       jj_consume_token(RIGHT);
@@ -1389,20 +1487,24 @@ if (ejecutar) world.turnRight();
     case LEFT:{
       jj_consume_token(LEFT);
 if (ejecutar)
-                { world.turnRight();
-                world.turnRight();
-                world.turnRight();}
+                        { for (int i = 0; i < numVeces; i++)
+                        { world.turnRight();
+                        world.turnRight();
+                        world.turnRight();}
+                  }
       break;
       }
     case AROUND:{
       jj_consume_token(AROUND);
 if (ejecutar)
-                { world.turnRight();
-                 world.turnRight(); }
+                        { for (int i = 0; i < numVeces; i++)
+                        { world.turnRight();
+                         world.turnRight(); }
+                        }
       break;
       }
     default:
-      jj_la1[36] = jj_gen;
+      jj_la1[38] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1526,7 +1628,7 @@ Point newPos= new Point(1,1);
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[37];
+  final private int[] jj_la1 = new int[39];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -1534,10 +1636,10 @@ Point newPos= new Point(1,1);
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x0,0x4097fe01,0x4097fe00,0x4097fe01,0x40000000,0x0,0x0,0x4097fe01,0x40000000,0x40000000,0x80000,0x40000000,0x0,0x0,0x0,0xc000000,0xc000000,0x0,0x0,0x4097fe01,0x4097fe01,0x400000,0x4097fe01,0x0,0x0,0xc000000,0x0,0x0,0x0,0x0,0xc000000,0x0,0x0,0x0,0x40000000,0x0,0x0,};
+	   jj_la1_0 = new int[] {0x0,0x4297be01,0x4297be00,0x4297be01,0x40000000,0x0,0x0,0x4297be01,0x40000000,0x40000000,0x80000,0x40000000,0x0,0x0,0x0,0xc000000,0xc000000,0x0,0x0,0x4297be01,0x4297be01,0x400000,0x4297be01,0x4297be01,0x2800000,0x0,0x0,0xc000000,0x0,0x0,0x0,0x0,0xc000000,0x0,0x0,0x0,0x40000000,0x0,0x0,};
 	}
 	private static void jj_la1_init_1() {
-	   jj_la1_1 = new int[] {0x3,0x800000,0x0,0x0,0x0,0x100000,0x800000,0x0,0x400000,0x400000,0x300000,0x0,0x300000,0x3c,0x780,0x0,0x0,0x780,0x3c,0x0,0x0,0x0,0x0,0x80000,0x7c000,0x0,0x780,0x3c,0x780,0x3c,0x0,0x3,0x3,0x780,0x2000,0x780,0x70,};
+	   jj_la1_1 = new int[] {0x3,0x800000,0x0,0x0,0x0,0x100000,0x800000,0x0,0x400000,0x400000,0x300000,0x0,0x300000,0x3c,0x780,0x0,0x0,0x780,0x3c,0x0,0x0,0x0,0x0,0x0,0x0,0x80000,0x7c000,0x0,0x780,0x3c,0x780,0x3c,0x0,0x3,0x3,0x780,0x2000,0x780,0x70,};
 	}
 
   /** Constructor with InputStream. */
@@ -1551,7 +1653,7 @@ Point newPos= new Point(1,1);
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 39; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1565,7 +1667,7 @@ Point newPos= new Point(1,1);
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 39; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -1575,7 +1677,7 @@ Point newPos= new Point(1,1);
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 39; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1593,7 +1695,7 @@ Point newPos= new Point(1,1);
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 39; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -1602,7 +1704,7 @@ Point newPos= new Point(1,1);
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 39; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1611,7 +1713,7 @@ Point newPos= new Point(1,1);
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 39; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -1667,7 +1769,7 @@ Point newPos= new Point(1,1);
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
 	 }
-	 for (int i = 0; i < 37; i++) {
+	 for (int i = 0; i < 39; i++) {
 	   if (jj_la1[i] == jj_gen) {
 		 for (int j = 0; j < 32; j++) {
 		   if ((jj_la1_0[i] & (1<<j)) != 0) {
