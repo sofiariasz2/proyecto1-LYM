@@ -626,24 +626,25 @@ void assignment():
 */
   final public 
 void conditional(Console sistema, String procName) throws ParseException {boolean bool;
+  int numNot=0;
+  boolean ejecutableIf=true;
+  boolean ejecutableThen=false;
     jj_consume_token(IF);
-    label_5:
-    while (true) {
-      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case NOT:{
-        ;
-        break;
-        }
-      default:
-        jj_la1[17] = jj_gen;
-        break label_5;
-      }
-      jj_consume_token(NOT);
-    }
+    numNot = notCondition();
     bool = conditions();
+if (numNot%2!=0)
+                bool=!bool;
+          if (bool)
+                { ejecutableIf= true;
+                        ejecutableThen=false;
+                        }
+                else
+                        { ejecutableIf=false;
+                        ejecutableThen=true;
+                        }
     jj_consume_token(THEN);
     jj_consume_token(51);
-    label_6:
+    label_5:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case 0:
@@ -665,15 +666,67 @@ void conditional(Console sistema, String procName) throws ParseException {boolea
         break;
         }
       default:
-        jj_la1[18] = jj_gen;
-        break label_6;
+        jj_la1[17] = jj_gen;
+        break label_5;
       }
-      interna(sistema, true, 1, procName);
+      interna(sistema, ejecutableIf, 1, procName);
     }
     jj_consume_token(52);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case ELSE:{
       jj_consume_token(ELSE);
+      jj_consume_token(51);
+      label_6:
+      while (true) {
+        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+        case 0:
+        case MOVE:
+        case TURN:
+        case FACE:
+        case PUT:
+        case PICK:
+        case POP:
+        case GOTO:
+        case JUMP:
+        case NOP:
+        case PROC:
+        case IF:
+        case WHILE:
+        case FOR:
+        case ID:{
+          ;
+          break;
+          }
+        default:
+          jj_la1[18] = jj_gen;
+          break label_6;
+        }
+        interna(sistema, ejecutableThen, 1, procName);
+      }
+      jj_consume_token(52);
+      break;
+      }
+    default:
+      jj_la1[19] = jj_gen;
+      ;
+    }
+}
+
+  final public void loop(Console sistema, String procName) throws ParseException {boolean bool;
+  int numNot=0;
+  boolean ejecutable;
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case WHILE:{
+      jj_consume_token(WHILE);
+      numNot = notCondition();
+      bool = conditions();
+if (numNot%2!=0)
+                bool=!bool;
+          if (bool)
+                ejecutable=true;
+          else
+                ejecutable=false;
+      jj_consume_token(DO);
       jj_consume_token(51);
       label_7:
       while (true) {
@@ -697,64 +750,8 @@ void conditional(Console sistema, String procName) throws ParseException {boolea
           break;
           }
         default:
-          jj_la1[19] = jj_gen;
+          jj_la1[20] = jj_gen;
           break label_7;
-        }
-        interna(sistema, true, 1, procName);
-      }
-      jj_consume_token(52);
-      break;
-      }
-    default:
-      jj_la1[20] = jj_gen;
-      ;
-    }
-}
-
-  final public void loop(Console sistema, String procName) throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case WHILE:{
-      jj_consume_token(WHILE);
-      label_8:
-      while (true) {
-        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-        case NOT:{
-          ;
-          break;
-          }
-        default:
-          jj_la1[21] = jj_gen;
-          break label_8;
-        }
-        jj_consume_token(NOT);
-      }
-      conditions();
-      jj_consume_token(DO);
-      jj_consume_token(51);
-      label_9:
-      while (true) {
-        switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-        case 0:
-        case MOVE:
-        case TURN:
-        case FACE:
-        case PUT:
-        case PICK:
-        case POP:
-        case GOTO:
-        case JUMP:
-        case NOP:
-        case PROC:
-        case IF:
-        case WHILE:
-        case FOR:
-        case ID:{
-          ;
-          break;
-          }
-        default:
-          jj_la1[22] = jj_gen;
-          break label_9;
         }
         interna(sistema, true, 1, procName);
       }
@@ -766,7 +763,7 @@ void conditional(Console sistema, String procName) throws ParseException {boolea
       expr();
       jj_consume_token(REPEAT_BLOCK);
       jj_consume_token(51);
-      label_10:
+      label_8:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case 0:
@@ -788,8 +785,8 @@ void conditional(Console sistema, String procName) throws ParseException {boolea
           break;
           }
         default:
-          jj_la1[23] = jj_gen;
-          break label_10;
+          jj_la1[21] = jj_gen;
+          break label_8;
         }
         interna(sistema, true, 1, procName);
       }
@@ -797,10 +794,29 @@ void conditional(Console sistema, String procName) throws ParseException {boolea
       break;
       }
     default:
-      jj_la1[24] = jj_gen;
+      jj_la1[22] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+}
+
+  final public int notCondition() throws ParseException {int total=0;
+    label_9:
+    while (true) {
+      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case NOT:{
+        ;
+        break;
+        }
+      default:
+        jj_la1[23] = jj_gen;
+        break label_9;
+      }
+      jj_consume_token(NOT);
+total+=1;
+    }
+{if ("" != null) return total;}
+    throw new Error("Missing return statement in function");
 }
 
   final public boolean conditions() throws ParseException {int x=0;
@@ -843,7 +859,7 @@ void conditional(Console sistema, String procName) throws ParseException {boolea
       break;
       }
     default:
-      jj_la1[25] = jj_gen;
+      jj_la1[24] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -865,7 +881,7 @@ void conditional(Console sistema, String procName) throws ParseException {boolea
       break;
       }
     default:
-      jj_la1[26] = jj_gen;
+      jj_la1[25] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -917,7 +933,7 @@ pos=world.getPosition();
       break;
       }
     default:
-      jj_la1[27] = jj_gen;
+      jj_la1[26] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -994,7 +1010,7 @@ pos=world.getPosition();
       break;
       }
     default:
-      jj_la1[28] = jj_gen;
+      jj_la1[27] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1046,7 +1062,7 @@ pos=world.getPosition();
       break;
       }
     default:
-      jj_la1[29] = jj_gen;
+      jj_la1[28] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1131,7 +1147,7 @@ pos=world.getPosition();
       break;
       }
     default:
-      jj_la1[30] = jj_gen;
+      jj_la1[29] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1259,7 +1275,7 @@ Point newPos= new Point(1,1);
       break;
       }
     default:
-      jj_la1[31] = jj_gen;
+      jj_la1[30] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1279,7 +1295,7 @@ if (x > world.freeSpacesForChips() ||  world.getMyChips()< x) {if ("" != null) r
       break;
       }
     default:
-      jj_la1[32] = jj_gen;
+      jj_la1[31] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1299,7 +1315,7 @@ if (x > world.chipsToPick()) {if ("" != null) return false;} else {if ("" != nul
       break;
       }
     default:
-      jj_la1[33] = jj_gen;
+      jj_la1[32] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1329,7 +1345,7 @@ if (x > world.chipsToPick()) {if ("" != null) return false;} else {if ("" != nul
       break;
       }
     default:
-      jj_la1[34] = jj_gen;
+      jj_la1[33] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1349,7 +1365,7 @@ if (!variables.containsKey(token.image)) {if (true) throw new Error("Variable no
       break;
       }
     default:
-      jj_la1[35] = jj_gen;
+      jj_la1[34] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1395,7 +1411,7 @@ changeFace(1);
       break;
       }
     default:
-      jj_la1[36] = jj_gen;
+      jj_la1[35] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1419,7 +1435,7 @@ world.turnRight(); world.turnRight();
       break;
       }
     default:
-      jj_la1[37] = jj_gen;
+      jj_la1[36] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1434,7 +1450,7 @@ world.turnRight(); world.turnRight();
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[38];
+  final private int[] jj_la1 = new int[37];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -1442,10 +1458,10 @@ world.turnRight(); world.turnRight();
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0xc0000000,0x10a5ff80,0x10a5ff81,0x0,0x10a5ff81,0x10000000,0x10000000,0x0,0x0,0x0,0x0,0x3000000,0x3000000,0x0,0x0,0x0,0x0,0x0,0x10a5ff81,0x10a5ff81,0x100000,0x0,0x10a5ff81,0x10a5ff81,0xa00000,0x0,0x3000000,0x0,0x0,0x0,0x0,0x3000000,0xc0000000,0xc0000000,0x0,0x10000000,0x0,0x0,};
+	   jj_la1_0 = new int[] {0xc0000000,0x10a5ff80,0x10a5ff81,0x0,0x10a5ff81,0x10000000,0x10000000,0x0,0x0,0x0,0x0,0x3000000,0x3000000,0x0,0x0,0x0,0x0,0x10a5ff81,0x10a5ff81,0x100000,0x10a5ff81,0x10a5ff81,0xa00000,0x0,0x0,0x3000000,0x0,0x0,0x0,0x0,0x3000000,0xc0000000,0xc0000000,0x0,0x10000000,0x0,0x0,};
 	}
 	private static void jj_la1_init_1() {
-	   jj_la1_1 = new int[] {0x0,0x0,0x0,0x10000,0x0,0x40000,0x40000,0x1fc,0xf,0xf,0x1e0,0x0,0x0,0x1e0,0xf,0x1e0,0x200000,0x8000,0x0,0x0,0x0,0x8000,0x0,0x0,0x0,0x7c00,0x0,0x1e0,0xf,0x1e0,0xf,0x0,0x0,0x0,0x1e0,0x200,0x1e0,0x1c,};
+	   jj_la1_1 = new int[] {0x0,0x0,0x0,0x10000,0x0,0x40000,0x40000,0x1fc,0xf,0xf,0x1e0,0x0,0x0,0x1e0,0xf,0x1e0,0x200000,0x0,0x0,0x0,0x0,0x0,0x0,0x8000,0x7c00,0x0,0x1e0,0xf,0x1e0,0xf,0x0,0x0,0x0,0x1e0,0x200,0x1e0,0x1c,};
 	}
 
   /** Constructor with InputStream. */
@@ -1459,7 +1475,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 38; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1473,7 +1489,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 38; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -1483,7 +1499,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 38; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1501,7 +1517,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 38; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -1510,7 +1526,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 38; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -1519,7 +1535,7 @@ world.turnRight(); world.turnRight();
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 38; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 37; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -1575,7 +1591,7 @@ world.turnRight(); world.turnRight();
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
 	 }
-	 for (int i = 0; i < 38; i++) {
+	 for (int i = 0; i < 37; i++) {
 	   if (jj_la1[i] == jj_gen) {
 		 for (int j = 0; j < 32; j++) {
 		   if ((jj_la1_0[i] & (1<<j)) != 0) {
