@@ -88,7 +88,7 @@ public class Robot implements RobotConstants {
         jj_consume_token(MOVE);
         jj_consume_token(48);
         x = expr();
-        moveIndirTothe(x);
+        moveIndirTothe(x, ejecutar);
         jj_consume_token(49);
 salida = "Command: Move";
         break;
@@ -96,7 +96,7 @@ salida = "Command: Move";
       case TURN:{
         jj_consume_token(TURN);
         jj_consume_token(48);
-        turnDirections();
+        turnDirections(ejecutar);
         jj_consume_token(49);
 salida = "Command: Turn";
         break;
@@ -104,7 +104,7 @@ salida = "Command: Turn";
       case FACE:{
         jj_consume_token(FACE);
         jj_consume_token(48);
-        faceDirections();
+        faceDirections(ejecutar);
         jj_consume_token(49);
 salida = "Command: Face";
         break;
@@ -116,17 +116,20 @@ salida = "Command: Face";
         jj_consume_token(OFTYPE);
         t = objType();
         jj_consume_token(49);
-if (n <= 0) {
+if (ejecutar)
+                        {
+                                if (n <= 0) {
 
-                            {if (true) throw new Error("PUT error: n debe ser mayor que 0");}
-                        }
-                        if (t.image.equals("#chips")) {
-                            world.putChips(n);
-                            salida = "Command: Put " + n + " chips";
-                        } else if (t.image.equals("#balloons")) {
-                            world.putBalloons(n);
-                            salida = "Command: Put " + n + " balloons";
-                        }
+                                    {if (true) throw new Error("PUT error: n debe ser mayor que 0");}
+                                }
+                                if (t.image.equals("#chips")) {
+                                    world.putChips(n);
+                                    salida = "Command: Put " + n + " chips";
+                                } else if (t.image.equals("#balloons")) {
+                                    world.putBalloons(n);
+                                    salida = "Command: Put " + n + " balloons";
+                                }
+                                }
         break;
         }
       case PICK:{
@@ -136,18 +139,21 @@ if (n <= 0) {
         jj_consume_token(OFTYPE);
         t = objType();
         jj_consume_token(49);
-if (n <= 0) {
+if (ejecutar)
+                        {
+                                if (n <= 0) {
 
-                            {if (true) throw new Error("PICK error: n debe ser mayor que 0");}
-                        }
+                                    {if (true) throw new Error("PICK error: n debe ser mayor que 0");}
+                                }
 
-                        if (t.image.equals("#chips")) {
-                            world.pickChips(n);
-                            salida = "Command: Pick " + n + " chips";
-                        } else if (t.image.equals("#balloons")) {
-                            world.grabBalloons(n);
-                            salida = "Command: Pick " + n + " balloons";
-                        }
+                                if (t.image.equals("#chips")) {
+                                    world.pickChips(n);
+                                    salida = "Command: Pick " + n + " chips";
+                                } else if (t.image.equals("#balloons")) {
+                                    world.grabBalloons(n);
+                                    salida = "Command: Pick " + n + " balloons";
+                                }
+                                }
         break;
         }
       case POP:{
@@ -155,7 +161,9 @@ if (n <= 0) {
         jj_consume_token(48);
         n = expr();
         jj_consume_token(49);
-world.popBalloons(n); salida = "Command: Pop";
+if (ejecutar)
+                                {  world.popBalloons(n);
+                                salida = "Command: Pop"; }
         break;
         }
       case GOTO:{
@@ -165,14 +173,16 @@ world.popBalloons(n); salida = "Command: Pop";
         jj_consume_token(50);
         y = expr();
         jj_consume_token(49);
-world.setPostion(x, y); salida = "Command: GoTo";
+if (ejecutar)
+                                 { world.setPostion(x, y);
+                                 salida = "Command: GoTo"; }
         break;
         }
       case JUMP:{
         jj_consume_token(JUMP);
         jj_consume_token(48);
         n = expr();
-        jumpIndirTothe(n);
+        jumpIndirTothe(n, ejecutar);
         jj_consume_token(49);
 salida = "Command: Jump";
         break;
@@ -376,47 +386,57 @@ params.add(param.image);
     }
 }
 
-  final public void moveDirectionLRFB(int x) throws ParseException {
+  final public void moveDirectionLRFB(int x, boolean ejecutar) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case LEFT:{
       jj_consume_token(LEFT);
-if (world.getFacing()==0)
-                world.moveHorizontally(-x, false) ;
-              else if (world.getFacing()==1)
-                world.moveHorizontally(x, false) ;
-              else if (world.getFacing()==2)
-                world.moveVertically(-x, false) ;
-              else
-                world.moveVertically(x, false) ;
+if (ejecutar)
+                {
+                      if (world.getFacing()==0)
+                        world.moveHorizontally(-x, false) ;
+                      else if (world.getFacing()==1)
+                        world.moveHorizontally(x, false) ;
+                      else if (world.getFacing()==2)
+                        world.moveVertically(-x, false) ;
+                      else
+                        world.moveVertically(x, false) ;
+                     }
       break;
       }
     case RIGHT:{
       jj_consume_token(RIGHT);
-if (world.getFacing()==0)
-                world.moveHorizontally(x, false) ;
-              else if (world.getFacing()==1)
-                world.moveHorizontally(-x, false) ;
-              else if (world.getFacing()==2)
-                world.moveVertically(x, false) ;
-              else
-                world.moveVertically(-x, false) ;
+if (ejecutar)
+                {
+                      if (world.getFacing()==0)
+                        world.moveHorizontally(x, false) ;
+                      else if (world.getFacing()==1)
+                        world.moveHorizontally(-x, false) ;
+                      else if (world.getFacing()==2)
+                        world.moveVertically(x, false) ;
+                      else
+                        world.moveVertically(-x, false) ;
+                        }
       break;
       }
     case FRONT:{
       jj_consume_token(FRONT);
-world.moveForward(x, false) ;
+if (ejecutar)
+                world.moveForward(x, false) ;
       break;
       }
     case BACK:{
       jj_consume_token(BACK);
-if (world.getFacing()==0)
-                world.moveVertically(x, false) ;
-              else if (world.getFacing()==1)
-              world.moveVertically(-x, false) ;
-              else if (world.getFacing()==2)
-                world.moveHorizontally(-x, false) ;
-              else
-                world.moveHorizontally(x, false) ;
+if (ejecutar)
+                {
+                      if (world.getFacing()==0)
+                        world.moveVertically(x, false) ;
+                      else if (world.getFacing()==1)
+                      world.moveVertically(-x, false) ;
+                      else if (world.getFacing()==2)
+                        world.moveHorizontally(-x, false) ;
+                      else
+                        world.moveHorizontally(x, false) ;
+                   }
       break;
       }
     default:
@@ -426,26 +446,34 @@ if (world.getFacing()==0)
     }
 }
 
-  final public void moveDirectionNESW(int x) throws ParseException {
+  final public void moveDirectionNESW(int x, boolean ejecutar) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case EAST:{
       jj_consume_token(EAST);
-world.moveHorizontally(x, false); changeFace(2);
+if (ejecutar)
+                                { world.moveHorizontally(x, false);
+                                changeFace(2); }
       break;
       }
     case WEST:{
       jj_consume_token(WEST);
-world.moveHorizontally(-x, false); changeFace(3);
+if (ejecutar)
+                                { world.moveHorizontally(-x, false);
+                                changeFace(3); }
       break;
       }
     case NORTH:{
       jj_consume_token(NORTH);
-world.moveVertically(-x, false); changeFace(0);
+if (ejecutar)
+                                {  world.moveVertically(-x, false);
+                                changeFace(0); }
       break;
       }
     case SOUTH:{
       jj_consume_token(SOUTH);
-world.moveVertically(x, false); changeFace(1);
+if (ejecutar)
+                                { world.moveVertically(x, false);
+                                changeFace(1); }
       break;
       }
     default:
@@ -455,34 +483,35 @@ world.moveVertically(x, false); changeFace(1);
     }
 }
 
-  final public void moveIndirTothe(int x) throws ParseException {
+  final public void moveIndirTothe(int x, boolean ejecutar) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case INDIR:{
       jj_consume_token(INDIR);
-      moveDirectionNESW(x);
+      moveDirectionNESW(x, ejecutar);
       break;
       }
     case TOTHE:{
       jj_consume_token(TOTHE);
-      moveDirectionLRFB(x);
+      moveDirectionLRFB(x, ejecutar);
       break;
       }
     default:
       jj_la1[11] = jj_gen;
-world.moveForward(x, false);
+if (ejecutar)
+                        world.moveForward(x, false);
     }
 }
 
-  final public void jumpIndirTothe(int x) throws ParseException {
+  final public void jumpIndirTothe(int x, boolean ejecutar) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case INDIR:{
       jj_consume_token(INDIR);
-      jumpDirectionNESW(x);
+      jumpDirectionNESW(x,ejecutar);
       break;
       }
     case TOTHE:{
       jj_consume_token(TOTHE);
-      jumpDirectionLRFB(x);
+      jumpDirectionLRFB(x,ejecutar);
       break;
       }
     default:
@@ -491,26 +520,34 @@ world.moveForward(x, true);
     }
 }
 
-  final public void jumpDirectionNESW(int x) throws ParseException {
+  final public void jumpDirectionNESW(int x, boolean ejecutar) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case EAST:{
       jj_consume_token(EAST);
-world.moveHorizontally(x, true); changeFace(2);
+if (ejecutar)
+                        { world.moveHorizontally(x, true);
+                        changeFace(2); }
       break;
       }
     case WEST:{
       jj_consume_token(WEST);
-world.moveHorizontally(-x, true); changeFace(3);
+if (ejecutar)
+                                { world.moveHorizontally(-x, true);
+                                changeFace(3); }
       break;
       }
     case NORTH:{
       jj_consume_token(NORTH);
-world.moveVertically(-x, true); changeFace(0);
+if (ejecutar)
+                                { world.moveVertically(-x, true);
+                                changeFace(0); }
       break;
       }
     case SOUTH:{
       jj_consume_token(SOUTH);
-world.moveVertically(x, true); changeFace(1);
+if (ejecutar)
+                                {  world.moveVertically(x, true);
+                                changeFace(1); }
       break;
       }
     default:
@@ -520,47 +557,51 @@ world.moveVertically(x, true); changeFace(1);
     }
 }
 
-  final public void jumpDirectionLRFB(int x) throws ParseException {
+  final public void jumpDirectionLRFB(int x, boolean ejecutar) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case LEFT:{
       jj_consume_token(LEFT);
-if (world.getFacing()==0)
-                world.moveHorizontally(-x, true) ;
-              else if (world.getFacing()==1)
-                world.moveHorizontally(x, true) ;
-              else if (world.getFacing()==2)
-                world.moveVertically(-x, true) ;
-              else
-                world.moveVertically(x, true) ;
+if (ejecutar)
+                      { if (world.getFacing()==0)
+                        world.moveHorizontally(-x, true) ;
+                      else if (world.getFacing()==1)
+                        world.moveHorizontally(x, true) ;
+                      else if (world.getFacing()==2)
+                        world.moveVertically(-x, true) ;
+                      else
+                        world.moveVertically(x, true) ; }
       break;
       }
     case RIGHT:{
       jj_consume_token(RIGHT);
-if (world.getFacing()==0)
-                world.moveHorizontally(x, true) ;
-              else if (world.getFacing()==1)
-                world.moveHorizontally(-x, true) ;
-              else if (world.getFacing()==2)
-                world.moveVertically(x, true) ;
-              else
-                world.moveVertically(-x, true) ;
+if (ejecutar)
+                      { if (world.getFacing()==0)
+                        world.moveHorizontally(x, true) ;
+                      else if (world.getFacing()==1)
+                        world.moveHorizontally(-x, true) ;
+                      else if (world.getFacing()==2)
+                        world.moveVertically(x, true) ;
+                      else
+                        world.moveVertically(-x, true) ; }
       break;
       }
     case FRONT:{
       jj_consume_token(FRONT);
-world.moveForward(x, true) ;
+if (ejecutar)
+                world.moveForward(x, true) ;
       break;
       }
     case BACK:{
       jj_consume_token(BACK);
-if (world.getFacing()==0)
-                world.moveVertically(x, true) ;
-              else if (world.getFacing()==1)
-              world.moveVertically(-x, true) ;
-              else if (world.getFacing()==2)
-                world.moveHorizontally(-x, true) ;
-              else
-                world.moveHorizontally(x, true) ;
+if (ejecutar)
+                      { if (world.getFacing()==0)
+                        world.moveVertically(x, true) ;
+                      else if (world.getFacing()==1)
+                      world.moveVertically(-x, true) ;
+                      else if (world.getFacing()==2)
+                        world.moveHorizontally(-x, true) ;
+                      else
+                        world.moveHorizontally(x, true) ; }
       break;
       }
     default:
@@ -826,12 +867,14 @@ total+=1;
       jj_consume_token(CANMOVE);
       x = expr();
       bool = canMoveInDirToTheCondition(x);
+      jj_consume_token(49);
 {if ("" != null) return bool;}
       break;
       }
     case FACING:{
       jj_consume_token(FACING);
       bool = facingCondition();
+      jj_consume_token(49);
 {if ("" != null) return bool;}
       break;
       }
@@ -840,6 +883,7 @@ total+=1;
       x = expr();
       jj_consume_token(OFTYPE);
       bool = canPutCondition(x);
+      jj_consume_token(49);
 {if ("" != null) return bool;}
       break;
       }
@@ -848,6 +892,7 @@ total+=1;
       x = expr();
       jj_consume_token(OFTYPE);
       bool = canPickCondition(x);
+      jj_consume_token(49);
 {if ("" != null) return bool;}
       break;
       }
@@ -855,6 +900,7 @@ total+=1;
       jj_consume_token(CANJUMP);
       x = expr();
       bool = canJumpInDirToTheCondition(x);
+      jj_consume_token(49);
 {if ("" != null) return bool;}
       break;
       }
@@ -1388,26 +1434,26 @@ while (world.getFacing()!=dir)
                 world.turnRight();
 }
 
-  final public void faceDirections() throws ParseException {
+  final public void faceDirections(boolean ejecutar) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case WEST:{
       jj_consume_token(WEST);
-changeFace(3);
+if (ejecutar) changeFace(3);
       break;
       }
     case EAST:{
       jj_consume_token(EAST);
-changeFace(2);
+if (ejecutar) changeFace(2);
       break;
       }
     case NORTH:{
       jj_consume_token(NORTH);
-changeFace(0);
+if (ejecutar) changeFace(0);
       break;
       }
     case SOUTH:{
       jj_consume_token(SOUTH);
-changeFace(1);
+if (ejecutar) changeFace(1);
       break;
       }
     default:
@@ -1417,21 +1463,26 @@ changeFace(1);
     }
 }
 
-  final public void turnDirections() throws ParseException {
+  final public void turnDirections(boolean ejecutar) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case RIGHT:{
       jj_consume_token(RIGHT);
-world.turnRight();
+if (ejecutar) world.turnRight();
       break;
       }
     case LEFT:{
       jj_consume_token(LEFT);
-world.turnRight(); world.turnRight(); world.turnRight();
+if (ejecutar)
+                { world.turnRight();
+                world.turnRight();
+                world.turnRight();}
       break;
       }
     case AROUND:{
       jj_consume_token(AROUND);
-world.turnRight(); world.turnRight();
+if (ejecutar)
+                { world.turnRight();
+                 world.turnRight(); }
       break;
       }
     default:

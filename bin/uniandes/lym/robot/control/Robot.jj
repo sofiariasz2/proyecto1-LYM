@@ -167,49 +167,61 @@ boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, Strin
 }
 {
 	(
-		<MOVE> ":" x=expr() moveIndirTothe(x) "." { salida = "Command: Move"; }
+		<MOVE> ":" x=expr() moveIndirTothe(x, ejecutar) "." { salida = "Command: Move"; }
 		
-		| <TURN> ":" turnDirections() "." { salida = "Command: Turn"; }
+		| <TURN> ":" turnDirections(ejecutar) "." { salida = "Command: Turn"; }
 		
-		| <FACE> ":" faceDirections() "." { salida = "Command: Face"; }
+		| <FACE> ":" faceDirections(ejecutar) "." { salida = "Command: Face"; }
 		
 		| <PUT> ":" n=expr() <OFTYPE> t=objType() "." 
-		    { 
-		        if (n <= 0) {
-		        
-		            throw new Error("PUT error: n debe ser mayor que 0");
-		        }
-		        if (t.image.equals("#chips")) {
-		            world.putChips(n);
-		            salida = "Command: Put " + n + " chips"; 
-		        } else if (t.image.equals("#balloons")) {
-		            world.putBalloons(n);
-		            salida = "Command: Put " + n + " balloons"; 
-		        }
+		    { if (ejecutar)
+		    	{ 
+			        if (n <= 0) {
+			        
+			            throw new Error("PUT error: n debe ser mayor que 0");
+			        }
+			        if (t.image.equals("#chips")) {
+			            world.putChips(n);
+			            salida = "Command: Put " + n + " chips"; 
+			        } else if (t.image.equals("#balloons")) {
+			            world.putBalloons(n);
+			            salida = "Command: Put " + n + " balloons"; 
+			        }
+			  	}
 		    }
 
 		| <PICK> ":" n=expr() <OFTYPE> t=objType() "." 
 		
-		    { 
-		        
-		        if (n <= 0) {
-		        
-		            throw new Error("PICK error: n debe ser mayor que 0");
-		        }
-		        
-		        if (t.image.equals("#chips")) {
-		            world.pickChips(n);
-		            salida = "Command: Pick " + n + " chips"; 
-		        } else if (t.image.equals("#balloons")) {
-		            world.grabBalloons(n);
-		            salida = "Command: Pick " + n + " balloons"; 
-		        }
+		    { if (ejecutar)
+		        { 
+			        if (n <= 0) {
+			        
+			            throw new Error("PICK error: n debe ser mayor que 0");
+			        }
+			        
+			        if (t.image.equals("#chips")) {
+			            world.pickChips(n);
+			            salida = "Command: Pick " + n + " chips"; 
+			        } else if (t.image.equals("#balloons")) {
+			            world.grabBalloons(n);
+			            salida = "Command: Pick " + n + " balloons"; 
+			        }
+			  	}
 		    }
 		    
-		| <POP> ":" n=expr() "." { world.popBalloons(n); salida = "Command: Pop"; }
-		| <GOTO> ":" x=expr() "with:" y=expr() "." { world.setPostion(x, y); salida = "Command: GoTo"; }
+		| <POP> ":" n=expr() "."
+			{if (ejecutar)
+				{  world.popBalloons(n);
+				salida = "Command: Pop"; }
+			}
+
+		| <GOTO> ":" x=expr() "with:" y=expr() "."
+			{ if (ejecutar)
+				 { world.setPostion(x, y);
+				 salida = "Command: GoTo"; }
+			}
 		
-		| <JUMP> ":" n=expr() jumpIndirTothe(n) "." { salida = "Command: Jump"; }
+		| <JUMP> ":" n=expr() jumpIndirTothe(n, ejecutar) "." { salida = "Command: Jump"; }
 
 		
 		| <NOP> "." { salida = "Command: NOP"; }
@@ -267,128 +279,167 @@ void directionLRFB():
     <LEFT> | <RIGHT> | <FRONT> | <BACK>
 }
 
-void moveDirectionLRFB(int x):
+void moveDirectionLRFB(int x, boolean ejecutar):
 {
 }
 {
     <LEFT>
-	    {
-	      if (world.getFacing()==0)
-	      	world.moveHorizontally(-x, false) ;
-	      else if (world.getFacing()==1)
-	      	world.moveHorizontally(x, false) ;
-	      else if (world.getFacing()==2)
-	      	world.moveVertically(-x, false) ;
-	      else 
-	      	world.moveVertically(x, false) ;
+	    { if (ejecutar)
+	    	{ 
+		      if (world.getFacing()==0)
+		      	world.moveHorizontally(-x, false) ;
+		      else if (world.getFacing()==1)
+		      	world.moveHorizontally(x, false) ;
+		      else if (world.getFacing()==2)
+		      	world.moveVertically(-x, false) ;
+		      else 
+		      	world.moveVertically(x, false) ;
+		     }
 	     }
     | <RIGHT>
-	    {
-	      if (world.getFacing()==0)
-	      	world.moveHorizontally(x, false) ;
-	      else if (world.getFacing()==1)
-	      	world.moveHorizontally(-x, false) ;
-	      else if (world.getFacing()==2)
-	      	world.moveVertically(x, false) ;
-	      else 
-	      	world.moveVertically(-x, false) ;
+	    { if (ejecutar)
+	    	{ 
+		      if (world.getFacing()==0)
+		      	world.moveHorizontally(x, false) ;
+		      else if (world.getFacing()==1)
+		      	world.moveHorizontally(-x, false) ;
+		      else if (world.getFacing()==2)
+		      	world.moveVertically(x, false) ;
+		      else 
+		      	world.moveVertically(-x, false) ;
+		  	}
 	     }
     | <FRONT>
-	     {
-	       world.moveForward(x, false) ;
+	     { if (ejecutar)
+	       	world.moveForward(x, false) ;
 	     }
     | <BACK>
-	    {
-	      if (world.getFacing()==0)
-	      	world.moveVertically(x, false) ;
-	      else if (world.getFacing()==1)
-	      world.moveVertically(-x, false) ;
-	      else if (world.getFacing()==2)
-	      	world.moveHorizontally(-x, false) ;
-	      else 
-	      	world.moveHorizontally(x, false) ;
+	    { if (ejecutar)
+	    	{ 
+		      if (world.getFacing()==0)
+		      	world.moveVertically(x, false) ;
+		      else if (world.getFacing()==1)
+		      world.moveVertically(-x, false) ;
+		      else if (world.getFacing()==2)
+		      	world.moveHorizontally(-x, false) ;
+		      else 
+		      	world.moveHorizontally(x, false) ;
+		   }
 	     }
 }
 
-void moveDirectionNESW(int x):
+void moveDirectionNESW(int x, boolean ejecutar):
 {
 }
 {
-		 <EAST > { world.moveHorizontally(x, false); changeFace(2); }
-		|  <WEST > { world.moveHorizontally(-x, false); changeFace(3); }
-		|  <NORTH >  { world.moveVertically(-x, false); changeFace(0); }
-		| <SOUTH > { world.moveVertically(x, false); changeFace(1); }
+		<EAST >
+			 { if (ejecutar)
+			 	{ world.moveHorizontally(x, false);
+			 	changeFace(2); }
+			}
+		|  <WEST >
+			{ if (ejecutar)
+				{ world.moveHorizontally(-x, false);
+				changeFace(3); }
+			}
+		|  <NORTH >
+			{ if (ejecutar)
+				{  world.moveVertically(-x, false);
+				changeFace(0); }
+			}
+		| <SOUTH >
+			{ if (ejecutar)
+				{ world.moveVertically(x, false);
+				changeFace(1); }
+			}
 }
 
-void moveIndirTothe(int x):
+void moveIndirTothe(int x, boolean ejecutar):
 {
 }
 {
-  < INDIR > moveDirectionNESW(x)
-	| < TOTHE > moveDirectionLRFB(x)
-	| { world.moveForward(x, false); }
+  < INDIR > moveDirectionNESW(x, ejecutar)
+	| < TOTHE > moveDirectionLRFB(x, ejecutar)
+	| { if (ejecutar)
+			world.moveForward(x, false); }
 }
 
-void jumpIndirTothe(int x):
+void jumpIndirTothe(int x, boolean ejecutar):
 {
 }
 {
-        < INDIR > jumpDirectionNESW(x)
-	| < TOTHE > jumpDirectionLRFB(x)
+        < INDIR > jumpDirectionNESW(x,ejecutar)
+	| < TOTHE > jumpDirectionLRFB(x,ejecutar)
     | { world.moveForward(x, true); }
 }
 
 
-void jumpDirectionNESW(int x):
+void jumpDirectionNESW(int x, boolean ejecutar):
 {
 }
 {
-		  <EAST >  { world.moveHorizontally(x, true); changeFace(2); }
-		| <WEST > { world.moveHorizontally(-x, true); changeFace(3); }
-		| <NORTH > { world.moveVertically(-x, true); changeFace(0); }
-		| <SOUTH >  { world.moveVertically(x, true); changeFace(1); }
+		 <EAST >
+		  { if (ejecutar)
+		  	{ world.moveHorizontally(x, true);
+		  	changeFace(2); }
+		  }
+		| <WEST >
+			{ if (ejecutar)
+				{ world.moveHorizontally(-x, true);
+				changeFace(3); }
+			}
+		| <NORTH >
+			{ if (ejecutar)
+				{ world.moveVertically(-x, true);
+				changeFace(0); }
+			}
+		| <SOUTH >
+			{if (ejecutar)
+				{  world.moveVertically(x, true);
+				changeFace(1); }
+			}
 }
 
-void jumpDirectionLRFB(int x):
+void jumpDirectionLRFB(int x, boolean ejecutar):
 {
 }
 {
     <LEFT>
-	    {
-	      if (world.getFacing()==0)
-	      	world.moveHorizontally(-x, true) ;
-	      else if (world.getFacing()==1)
-	      	world.moveHorizontally(x, true) ;
-	      else if (world.getFacing()==2)
-	      	world.moveVertically(-x, true) ;
-	      else 
-	      	world.moveVertically(x, true) ;
+	    { if (ejecutar)
+		      { if (world.getFacing()==0)
+		      	world.moveHorizontally(-x, true) ;
+		      else if (world.getFacing()==1)
+		      	world.moveHorizontally(x, true) ;
+		      else if (world.getFacing()==2)
+		      	world.moveVertically(-x, true) ;
+		      else 
+		      	world.moveVertically(x, true) ; }
 	     }
     | <RIGHT>
-	    {
-	      if (world.getFacing()==0)
-	      	world.moveHorizontally(x, true) ;
-	      else if (world.getFacing()==1)
-	      	world.moveHorizontally(-x, true) ;
-	      else if (world.getFacing()==2)
-	      	world.moveVertically(x, true) ;
-	      else 
-	      	world.moveVertically(-x, true) ;
+	    {if (ejecutar)
+		      { if (world.getFacing()==0)
+		      	world.moveHorizontally(x, true) ;
+		      else if (world.getFacing()==1)
+		      	world.moveHorizontally(-x, true) ;
+		      else if (world.getFacing()==2)
+		      	world.moveVertically(x, true) ;
+		      else 
+		      	world.moveVertically(-x, true) ; }
 	     }
     | <FRONT>
-	     {
-	       world.moveForward(x, true) ;
-	     }
+	     {if (ejecutar)
+	       	world.moveForward(x, true) ;
+	     }	
     | <BACK>
-	    {
-	      if (world.getFacing()==0)
-	      	world.moveVertically(x, true) ;
-	      else if (world.getFacing()==1)
-	      world.moveVertically(-x, true) ;
-	      else if (world.getFacing()==2)
-	      	world.moveHorizontally(-x, true) ;
-	      else 
-	      	world.moveHorizontally(x, true) ;
+	    { if (ejecutar)
+		      { if (world.getFacing()==0)
+		      	world.moveVertically(x, true) ;
+		      else if (world.getFacing()==1)
+		      world.moveVertically(-x, true) ;
+		      else if (world.getFacing()==2)
+		      	world.moveHorizontally(-x, true) ;
+		      else 
+		      	world.moveHorizontally(x, true) ; }
 	     }
 }
 
@@ -480,11 +531,11 @@ boolean conditions():
   int x=0;
   boolean bool;
 }
-{	  <CANMOVE> x=expr() bool=canMoveInDirToTheCondition(x) { return bool; }
-	  |  <FACING>  bool=facingCondition() { return bool; }
-	  |  <CANPUT> x=expr() < OFTYPE >  bool=canPutCondition( x) { return bool; }
-	  |  <CANPICK> x=expr() < OFTYPE >  bool=canPickCondition( x) { return bool; }
-	  |  <CANJUMP> x=expr()  bool=canJumpInDirToTheCondition(x) { return bool; }
+{	  <CANMOVE> x=expr() bool=canMoveInDirToTheCondition(x) "." { return bool; }
+	  |  <FACING>  bool=facingCondition() "." { return bool; }
+	  |  <CANPUT> x=expr() < OFTYPE >  bool=canPutCondition( x) "." { return bool; }
+	  |  <CANPICK> x=expr() < OFTYPE >  bool=canPickCondition( x) "." { return bool; }
+	  |  <CANJUMP> x=expr()  bool=canJumpInDirToTheCondition(x) "." { return bool; }
 	
 }
 
@@ -933,23 +984,32 @@ void changeFace(int dir):
   }
 }
 
-void faceDirections():
+void faceDirections(boolean ejecutar):
 {
 }
 {
- 		 <WEST >  { changeFace(3); }
-		|  <EAST >  { changeFace(2); }
-		|  <NORTH >  { changeFace(0); }
-		| <SOUTH >  { changeFace(1); }
+ 		 <WEST >  { if (ejecutar) changeFace(3); }
+		|  <EAST >  { if (ejecutar) changeFace(2); }
+		|  <NORTH >  { if (ejecutar) changeFace(0); }
+		| <SOUTH >  { if (ejecutar) changeFace(1); }
 }
 
-void turnDirections():
+void turnDirections(boolean ejecutar):
 {
 }
 {
-  	 <RIGHT>  { world.turnRight();}
-  	| < LEFT >  { world.turnRight(); world.turnRight(); world.turnRight();}
-  	| < AROUND > { world.turnRight(); world.turnRight(); }
+  	 <RIGHT>  { if (ejecutar) world.turnRight();}
+  	| < LEFT >
+  		{ if (ejecutar)
+	    	{ world.turnRight();
+	    	world.turnRight();
+	    	world.turnRight();}
+	  	}
+  	| < AROUND >
+  		{ if (ejecutar)
+	    	{ world.turnRight();
+	    	 world.turnRight(); }
+	  	}
 }
 
 
