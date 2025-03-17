@@ -58,6 +58,14 @@ public class Robot implements RobotConstants {
 }
 
   final public boolean command(Console sistema) throws ParseException {int x, y, n;
+        boolean bool;
+        Token t;
+    bool = interna(sistema, true, 1, "");
+{if ("" != null) return bool;}
+    throw new Error("Missing return statement in function");
+}
+
+  final public boolean interna(Console sistema, boolean ejecutar, int numVecesEjecucion, String procName) throws ParseException {int x, y, n;
         salida = new String();
         Token t;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -184,12 +192,12 @@ salida = "Command: NOP";
         break;
         }
       case IF:{
-        conditional(sistema);
+        conditional(sistema, procName);
         break;
         }
       case WHILE:
       case FOR:{
-        loop(sistema);
+        loop(sistema, procName);
         break;
         }
       default:
@@ -265,7 +273,7 @@ try {
         jj_la1[4] = jj_gen;
         break label_2;
       }
-      command(sistema);
+      interna(sistema, true, 1, procName.image);
     }
     jj_consume_token(52);
 procedures.put(procName.image, new Procedure(procName.image, params, body));
@@ -617,7 +625,7 @@ void assignment():
 }
 */
   final public 
-void conditional(Console sistema) throws ParseException {
+void conditional(Console sistema, String procName) throws ParseException {boolean bool;
     jj_consume_token(IF);
     label_5:
     while (true) {
@@ -632,7 +640,7 @@ void conditional(Console sistema) throws ParseException {
       }
       jj_consume_token(NOT);
     }
-    conditions();
+    bool = conditions();
     jj_consume_token(THEN);
     jj_consume_token(51);
     label_6:
@@ -660,7 +668,7 @@ void conditional(Console sistema) throws ParseException {
         jj_la1[18] = jj_gen;
         break label_6;
       }
-      command(sistema);
+      interna(sistema, true, 1, procName);
     }
     jj_consume_token(52);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -692,7 +700,7 @@ void conditional(Console sistema) throws ParseException {
           jj_la1[19] = jj_gen;
           break label_7;
         }
-        command(sistema);
+        interna(sistema, true, 1, procName);
       }
       jj_consume_token(52);
       break;
@@ -703,7 +711,7 @@ void conditional(Console sistema) throws ParseException {
     }
 }
 
-  final public void loop(Console sistema) throws ParseException {
+  final public void loop(Console sistema, String procName) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case WHILE:{
       jj_consume_token(WHILE);
@@ -748,7 +756,7 @@ void conditional(Console sistema) throws ParseException {
           jj_la1[22] = jj_gen;
           break label_9;
         }
-        command(sistema);
+        interna(sistema, true, 1, procName);
       }
       jj_consume_token(52);
       break;
@@ -783,7 +791,7 @@ void conditional(Console sistema) throws ParseException {
           jj_la1[23] = jj_gen;
           break label_10;
         }
-        command(sistema);
+        interna(sistema, true, 1, procName);
       }
       jj_consume_token(52);
       break;
@@ -1346,6 +1354,16 @@ if (!variables.containsKey(token.image)) {if (true) throw new Error("Variable no
       throw new ParseException();
     }
 {if ("" != null) return total;}
+    throw new Error("Missing return statement in function");
+}
+
+  final public boolean varExiste(String procName, String var) throws ParseException {
+Procedure proc= procedures.get(procName);
+    List<String > parametros = proc.parameters;
+    if (parametros.contains(var))
+        {if ("" != null) return true;}
+    else
+        {if ("" != null) return false;}
     throw new Error("Missing return statement in function");
 }
 
