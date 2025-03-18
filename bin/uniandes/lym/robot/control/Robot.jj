@@ -191,7 +191,7 @@ boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, Strin
     Token tok;
 }
 {
-
+ 	"["
     (
         <MOVE> ":" x=expr(procName) moveIndirTothe(x, ejecutar, numVecesEjecucion, procName) "." { if (ejecutar) salida = "Command: Move"; }
         
@@ -276,7 +276,7 @@ boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, Strin
         | conditional(sistema, procName)
         
         | loop(sistema, procName)
-    ) 
+    ) " ]"
     {
         try { Thread.sleep(900); } 
         catch (InterruptedException e) { System.err.format("IOException: %s%n", e); }
