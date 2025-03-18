@@ -63,26 +63,14 @@ public class Robot implements RobotConstants {
 
   final public boolean command(Console sistema) throws ParseException {boolean bool;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case 55:{
+    case 57:{
       variable_declaration(true, "");
 bool=true;
         {if ("" != null) return bool;}
       break;
       }
     case 0:
-    case MOVE:
-    case TURN:
-    case FACE:
-    case PUT:
-    case PICK:
-    case GOTO:
-    case JUMP:
-    case NOP:
-    case PROC:
-    case IF:
-    case WHILE:
-    case FOR:
-    case ID:{
+    case 52:{
       bool = interna(sistema, true, 1, "");
 {if ("" != null) return bool;}
       break;
@@ -100,52 +88,41 @@ bool=true;
     Token t;
     Token tok;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case MOVE:
-    case TURN:
-    case FACE:
-    case PUT:
-    case PICK:
-    case GOTO:
-    case JUMP:
-    case NOP:
-    case PROC:
-    case IF:
-    case WHILE:
-    case FOR:
-    case ID:{
+    case 52:{
+      jj_consume_token(52);
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case MOVE:{
         jj_consume_token(MOVE);
-        jj_consume_token(52);
+        jj_consume_token(53);
         x = expr(procName);
         moveIndirTothe(x, ejecutar, numVecesEjecucion, procName);
-        jj_consume_token(53);
+        jj_consume_token(54);
 if (ejecutar) salida = "Command: Move";
         break;
         }
       case TURN:{
         jj_consume_token(TURN);
-        jj_consume_token(52);
-        turnDirections(ejecutar,numVecesEjecucion, procName);
         jj_consume_token(53);
+        turnDirections(ejecutar,numVecesEjecucion, procName);
+        jj_consume_token(54);
 if (ejecutar) salida = "Command: Turn";
         break;
         }
       case FACE:{
         jj_consume_token(FACE);
-        jj_consume_token(52);
-        faceDirections(ejecutar,numVecesEjecucion, procName);
         jj_consume_token(53);
+        faceDirections(ejecutar,numVecesEjecucion, procName);
+        jj_consume_token(54);
 if (ejecutar) salida = "Command: Face";
         break;
         }
       case PUT:{
         jj_consume_token(PUT);
-        jj_consume_token(52);
+        jj_consume_token(53);
         n = expr(procName);
         jj_consume_token(OFTYPE);
         t = objType();
-        jj_consume_token(53);
+        jj_consume_token(54);
 if (ejecutar)
                 { for (int i = 0; i < numVecesEjecucion; i++)
                   {
@@ -175,11 +152,11 @@ if (ejecutar)
         }
       case PICK:{
         jj_consume_token(PICK);
-        jj_consume_token(52);
+        jj_consume_token(53);
         n = expr(procName);
         jj_consume_token(OFTYPE);
         t = objType();
-        jj_consume_token(53);
+        jj_consume_token(54);
 if (ejecutar)
               { for (int i = 0; i < numVecesEjecucion; i++)
                 {
@@ -207,11 +184,11 @@ if (ejecutar)
         }
       case GOTO:{
         jj_consume_token(GOTO);
-        jj_consume_token(52);
-        x = expr(procName);
-        jj_consume_token(54);
-        y = expr(procName);
         jj_consume_token(53);
+        x = expr(procName);
+        jj_consume_token(55);
+        y = expr(procName);
+        jj_consume_token(54);
 if (ejecutar)
                         { for (int i = 0; i < numVecesEjecucion; i++)
                                 {  world.setPostion(x, y);
@@ -225,16 +202,16 @@ if (ejecutar)
         }
       case JUMP:{
         jj_consume_token(JUMP);
-        jj_consume_token(52);
+        jj_consume_token(53);
         n = expr(procName);
         jumpIndirTothe(n, ejecutar, numVecesEjecucion, procName);
-        jj_consume_token(53);
+        jj_consume_token(54);
 if (ejecutar) salida = "Command: Jump";
         break;
         }
       case NOP:{
         jj_consume_token(NOP);
-        jj_consume_token(53);
+        jj_consume_token(54);
 if (ejecutar) salida = "Command: NOP";
         break;
         }
@@ -260,6 +237,7 @@ if (ejecutar) salida = "Command: NOP";
         jj_consume_token(-1);
         throw new ParseException();
       }
+      jj_consume_token(56);
 try { Thread.sleep(900); }
         catch (InterruptedException e) { System.err.format("IOException: %s%n", e); }
 
@@ -281,7 +259,7 @@ try { Thread.sleep(900); }
 }
 
   final public void variable_declaration(boolean esGlobal, String procName) throws ParseException {Token varName;
-    jj_consume_token(55);
+    jj_consume_token(57);
     label_1:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
@@ -300,13 +278,13 @@ if (esGlobal) {
           else
                 procedures.get(procName).varLocales.put(varName.image, 0);
     }
-    jj_consume_token(55);
+    jj_consume_token(57);
 }
 
   final public void assignment(Token varName, String procName) throws ParseException {int valor;
     jj_consume_token(ASSIGN);
     valor = expr(procName);
-    jj_consume_token(53);
+    jj_consume_token(54);
 if (variables.containsKey(varName.image)) {
             // Si es una variable global, actualiza su valor
             variables.put(varName.image, valor);
@@ -336,7 +314,7 @@ if (variables.containsKey(varName.image)) {
     label_2:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case 52:{
+      case 53:{
         ;
         break;
         }
@@ -344,13 +322,13 @@ if (variables.containsKey(varName.image)) {
         jj_la1[5] = jj_gen;
         break label_2;
       }
-      jj_consume_token(52);
+      jj_consume_token(53);
       paramList(paramValues, paramNames);
     }
-    jj_consume_token(56);
+    jj_consume_token(52);
 procedures.put(procName.image, new Procedure(procName.image, paramValues, paramNames, body));
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case 55:{
+    case 57:{
       variable_declaration(false, procName.image);
       break;
       }
@@ -362,19 +340,7 @@ procedures.put(procName.image, new Procedure(procName.image, paramValues, paramN
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case 0:
-      case MOVE:
-      case TURN:
-      case FACE:
-      case PUT:
-      case PICK:
-      case GOTO:
-      case JUMP:
-      case NOP:
-      case PROC:
-      case IF:
-      case WHILE:
-      case FOR:
-      case ID:{
+      case 52:{
         ;
         break;
         }
@@ -384,7 +350,7 @@ procedures.put(procName.image, new Procedure(procName.image, paramValues, paramN
       }
       interna(sistema, false, 1, procName.image);
     }
-    jj_consume_token(57);
+    jj_consume_token(58);
 }
 
   final public void paramList(HashMap<String, Integer > paramValues, List<String> paramNames) throws ParseException {Token param;
@@ -395,7 +361,7 @@ paramValues.put(param.image, 0);
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case ID:
-      case 54:{
+      case 55:{
         ;
         break;
         }
@@ -406,11 +372,11 @@ paramValues.put(param.image, 0);
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case ID:{
         jj_consume_token(ID);
-        jj_consume_token(52);
+        jj_consume_token(53);
         break;
         }
-      case 54:{
-        jj_consume_token(54);
+      case 55:{
+        jj_consume_token(55);
         break;
         }
       default:
@@ -431,8 +397,8 @@ paramValues.put(param.image, 0);
       assignment(tok, procName);
       break;
       }
-    case 52:
-    case 53:{
+    case 53:
+    case 54:{
       procCall(tok, procName);
       break;
       }
@@ -449,8 +415,8 @@ paramValues.put(param.image, 0);
   Token tok;
   String paramName;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case 52:{
-      jj_consume_token(52);
+    case 53:{
+      jj_consume_token(53);
       n = expr(procName);
 if (!procedures.containsKey(procTok.image))
                         {if (true) throw new Error("No esta definido  el procedimiento " + procTok );}
@@ -475,7 +441,7 @@ if (!procedures.containsKey(procTok.image))
           break label_5;
         }
         jj_consume_token(ID);
-        jj_consume_token(52);
+        jj_consume_token(53);
         n = expr(procName);
 numParam+=1;
 
@@ -485,12 +451,12 @@ numParam+=1;
          paramName=proc.paramNames.get(numParam-1);
          proc.paramValues.put(paramName, n);
       }
-      jj_consume_token(53);
+      jj_consume_token(54);
 procBodyCommands(procTok.image);
       break;
       }
-    case 53:{
-      jj_consume_token(53);
+    case 54:{
+      jj_consume_token(54);
 if (!procedures.containsKey(procTok.image))
                         {if (true) throw new Error("No esta definido  el procedimiento " + procTok );}
                   else
@@ -788,24 +754,12 @@ if (numNot%2!=0)
                         ejecutableThen=true;
                         }
     jj_consume_token(THEN);
-    jj_consume_token(56);
+    jj_consume_token(52);
     label_6:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
       case 0:
-      case MOVE:
-      case TURN:
-      case FACE:
-      case PUT:
-      case PICK:
-      case GOTO:
-      case JUMP:
-      case NOP:
-      case PROC:
-      case IF:
-      case WHILE:
-      case FOR:
-      case ID:{
+      case 52:{
         ;
         break;
         }
@@ -815,28 +769,16 @@ if (numNot%2!=0)
       }
       interna(sistema, ejecutableIf, 1, procName);
     }
-    jj_consume_token(57);
+    jj_consume_token(58);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case ELSE:{
       jj_consume_token(ELSE);
-      jj_consume_token(56);
+      jj_consume_token(52);
       label_7:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case 0:
-        case MOVE:
-        case TURN:
-        case FACE:
-        case PUT:
-        case PICK:
-        case GOTO:
-        case JUMP:
-        case NOP:
-        case PROC:
-        case IF:
-        case WHILE:
-        case FOR:
-        case ID:{
+        case 52:{
           ;
           break;
           }
@@ -846,7 +788,7 @@ if (numNot%2!=0)
         }
         interna(sistema, ejecutableThen, 1, procName);
       }
-      jj_consume_token(57);
+      jj_consume_token(58);
       break;
       }
     default:
@@ -870,24 +812,12 @@ if (numNot % 2 != 0) {
         }
         ejecutable = bool;
       jj_consume_token(DO);
-      jj_consume_token(56);
+      jj_consume_token(52);
       label_8:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case 0:
-        case MOVE:
-        case TURN:
-        case FACE:
-        case PUT:
-        case PICK:
-        case GOTO:
-        case JUMP:
-        case NOP:
-        case PROC:
-        case IF:
-        case WHILE:
-        case FOR:
-        case ID:{
+        case 52:{
           ;
           break;
           }
@@ -897,31 +827,19 @@ if (numNot % 2 != 0) {
         }
         interna(sistema, ejecutable, 1, procName);
       }
-      jj_consume_token(57);
+      jj_consume_token(58);
       break;
       }
     case FOR:{
       jj_consume_token(FOR);
       n = expr(procName);
       jj_consume_token(REPEAT);
-      jj_consume_token(56);
+      jj_consume_token(52);
       label_9:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case 0:
-        case MOVE:
-        case TURN:
-        case FACE:
-        case PUT:
-        case PICK:
-        case GOTO:
-        case JUMP:
-        case NOP:
-        case PROC:
-        case IF:
-        case WHILE:
-        case FOR:
-        case ID:{
+        case 52:{
           ;
           break;
           }
@@ -931,7 +849,7 @@ if (numNot % 2 != 0) {
         }
         interna(sistema, true, n, procName);
       }
-      jj_consume_token(57);
+      jj_consume_token(58);
       break;
       }
     default:
@@ -967,14 +885,14 @@ total+=1;
       jj_consume_token(CANMOVE);
       x = expr(procname);
       bool = canMoveInDirToTheCondition(x);
-      jj_consume_token(53);
+      jj_consume_token(54);
 {if ("" != null) return bool;}
       break;
       }
     case FACING:{
       jj_consume_token(FACING);
       bool = facingCondition();
-      jj_consume_token(53);
+      jj_consume_token(54);
 {if ("" != null) return bool;}
       break;
       }
@@ -983,7 +901,7 @@ total+=1;
       x = expr(procname);
       jj_consume_token(OFTYPE);
       bool = canPutCondition(x);
-      jj_consume_token(53);
+      jj_consume_token(54);
 {if ("" != null) return bool;}
       break;
       }
@@ -992,7 +910,7 @@ total+=1;
       x = expr(procname);
       jj_consume_token(OFTYPE);
       bool = canPickCondition(x);
-      jj_consume_token(53);
+      jj_consume_token(54);
 {if ("" != null) return bool;}
       break;
       }
@@ -1000,7 +918,7 @@ total+=1;
       jj_consume_token(CANJUMP);
       x = expr(procname);
       bool = canJumpInDirToTheCondition(x);
-      jj_consume_token(53);
+      jj_consume_token(54);
 {if ("" != null) return bool;}
       break;
       }
@@ -1857,10 +1775,10 @@ if (world.getFacing()==0)
 	   jj_la1_init_1();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x0,0x4297be01,0x4297be00,0x4297be01,0x40000000,0x0,0x0,0x4297be01,0x40000000,0x40000000,0x80000,0x40000000,0x0,0x0,0x0,0xc000000,0xc000000,0x0,0x0,0x4297be01,0x4297be01,0x400000,0x4297be01,0x4297be01,0x2800000,0x0,0x0,0xc000000,0x0,0x0,0x0,0x0,0xc000000,0x0,0x0,0x0,0x40000000,0x0,0x0,};
+	   jj_la1_0 = new int[] {0x0,0x1,0x4297be00,0x1,0x40000000,0x0,0x0,0x1,0x40000000,0x40000000,0x80000,0x40000000,0x0,0x0,0x0,0xc000000,0xc000000,0x0,0x0,0x1,0x1,0x400000,0x1,0x1,0x2800000,0x0,0x0,0xc000000,0x0,0x0,0x0,0x0,0xc000000,0x0,0x0,0x0,0x40000000,0x0,0x0,};
 	}
 	private static void jj_la1_init_1() {
-	   jj_la1_1 = new int[] {0x3,0x800000,0x0,0x0,0x0,0x100000,0x800000,0x0,0x400000,0x400000,0x300000,0x0,0x300000,0x3c,0x780,0x0,0x0,0x780,0x3c,0x0,0x0,0x0,0x0,0x0,0x0,0x80000,0x7c000,0x0,0x780,0x3c,0x780,0x3c,0x0,0x3,0x3,0x780,0x2000,0x780,0x70,};
+	   jj_la1_1 = new int[] {0x3,0x2100000,0x0,0x100000,0x0,0x200000,0x2000000,0x100000,0x800000,0x800000,0x600000,0x0,0x600000,0x3c,0x780,0x0,0x0,0x780,0x3c,0x100000,0x100000,0x0,0x100000,0x100000,0x0,0x80000,0x7c000,0x0,0x780,0x3c,0x780,0x3c,0x0,0x3,0x3,0x780,0x2000,0x780,0x70,};
 	}
 
   /** Constructor with InputStream. */
@@ -1985,7 +1903,7 @@ if (world.getFacing()==0)
   /** Generate ParseException. */
   public ParseException generateParseException() {
 	 jj_expentries.clear();
-	 boolean[] la1tokens = new boolean[58];
+	 boolean[] la1tokens = new boolean[59];
 	 if (jj_kind >= 0) {
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
@@ -2002,7 +1920,7 @@ if (world.getFacing()==0)
 		 }
 	   }
 	 }
-	 for (int i = 0; i < 58; i++) {
+	 for (int i = 0; i < 59; i++) {
 	   if (la1tokens[i]) {
 		 jj_expentry = new int[1];
 		 jj_expentry[0] = i;

@@ -162,11 +162,12 @@ public interface RobotConstants {
     "\"canPick:\"",
     "\"canJump:\"",
     "\"not:\"",
+    "\"[\"",
     "\":\"",
     "\".\"",
     "\"with:\"",
+    "\" ]\"",
     "\"|\"",
-    "\"[\"",
     "\"]\"",
   };
 
