@@ -197,7 +197,7 @@ boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, Strin
         
         | <TURN> ":" turnDirections(ejecutar,numVecesEjecucion, procName) "." { salida = "Command: Turn"; }
         
-        | <FACE> ":" faceDirections(ejecutar,numVecesEjecucion) "." { salida = "Command: Face"; }
+        | <FACE> ":" faceDirections(ejecutar,numVecesEjecucion, procName) "." { salida = "Command: Face"; }
         
         | <PUT> ":" n=expr(procName) <OFTYPE> t=objType() "." 
             { if (ejecutar)
@@ -1052,7 +1052,7 @@ void changeFace(int dir):
   }
 }
 
-void faceDirections(boolean ejecutar, int numVeces):
+void faceDirections(boolean ejecutar, int numVeces, String procName):
 {
 }
 {
@@ -1061,24 +1061,36 @@ void faceDirections(boolean ejecutar, int numVeces):
 	 			{ for (int i = 0; i < numVeces; i++)
 	 				{ changeFace(3); }
 	 			}
+	 			if (procedures.containsKey(procName) ){
+				Procedure proc= procedures.get(procName);
+				proc.body.add("face west_"); }
 	 		 }
 		|  <EAST >  
 			{ if (ejecutar)
 	 			{ for (int i = 0; i < numVeces; i++)
 	 				{ changeFace(2); }
 	 			}
+	 			if (procedures.containsKey(procName) ){
+				Procedure proc= procedures.get(procName);
+				proc.body.add("face east_"); }
 	 		 }
 		|  <NORTH >  
 			{ if (ejecutar)
 	 			{ for (int i = 0; i < numVeces; i++)
 	 				{ changeFace(0); }
 	 			}
+	 			if (procedures.containsKey(procName) ){
+				Procedure proc= procedures.get(procName);
+				proc.body.add("face north_"); }
 	 		 }
 		| <SOUTH >  
 			{ if (ejecutar)
 	 			{ for (int i = 0; i < numVeces; i++)
 	 				{ changeFace(1); }
 	 			}
+	 			if (procedures.containsKey(procName) ){
+				Procedure proc= procedures.get(procName);
+				proc.body.add("face south_"); }
 	 		 }
 }
 
@@ -1086,7 +1098,11 @@ void turnDirections(boolean ejecutar, int numVeces, String procName):
 {
 }
 {
-  	 <RIGHT>  { if (ejecutar) world.turnRight();}
+  	 <RIGHT>  { if (ejecutar) world.turnRight();
+  	 			if (procedures.containsKey(procName) ){
+				Procedure proc= procedures.get(procName);
+				proc.body.add("turn right_"); }
+			  }
   	| < LEFT >
   		{ if (ejecutar)
   			{ for (int i = 0; i < numVeces; i++)
@@ -1094,6 +1110,9 @@ void turnDirections(boolean ejecutar, int numVeces, String procName):
 		    	world.turnRight();
 		    	world.turnRight();}
 		  }
+		  	if (procedures.containsKey(procName) ){
+			Procedure proc= procedures.get(procName);
+			proc.body.add("turn left_"); }
 	  	}
   	| < AROUND >
   		{ if (ejecutar)
@@ -1101,6 +1120,10 @@ void turnDirections(boolean ejecutar, int numVeces, String procName):
 		    	{ world.turnRight();
 		    	 world.turnRight(); }
 		 	}
+		 	
+		 	if (procedures.containsKey(procName) ){
+			Procedure proc= procedures.get(procName);
+			proc.body.add("turn around_"); }
 	  	}
 }
 
@@ -1285,6 +1308,25 @@ void procBodyCommands(String procName):
 	    else if (instrArr[0].equals("jump right"))
 	    	{ num=Integer.parseInt(instrArr[1]);
 	    	instrMoveJumpRight(num, true);}
+
+	   else if (instrArr[0].equals("turn right"))
+	    	{ world.turnRight();}
+	    else if (instrArr[0].equals("turn around"))
+	    	{ world.turnRight();
+	    	world.turnRight();}
+	    else if (instrArr[0].equals("turn left"))
+	    	{ world.turnRight();
+	    	world.turnRight();
+	    	world.turnRight();}
+
+	    else if (instrArr[0].equals("face north"))
+	    	{ changeFace(0);}
+	    else if (instrArr[0].equals("face south"))
+	    	{ changeFace(1);}
+	    else if (instrArr[0].equals("face west"))
+	    	{ changeFace(3);}
+	    else if (instrArr[0].equals("face east"))
+	    	{ changeFace(2);}
 	  }
 	}
 }

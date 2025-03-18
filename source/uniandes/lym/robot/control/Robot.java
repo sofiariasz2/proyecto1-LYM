@@ -134,7 +134,7 @@ salida = "Command: Turn";
       case FACE:{
         jj_consume_token(FACE);
         jj_consume_token(52);
-        faceDirections(ejecutar,numVecesEjecucion);
+        faceDirections(ejecutar,numVecesEjecucion, procName);
         jj_consume_token(53);
 salida = "Command: Face";
         break;
@@ -1437,7 +1437,7 @@ while (world.getFacing()!=dir)
                 world.turnRight();
 }
 
-  final public void faceDirections(boolean ejecutar, int numVeces) throws ParseException {
+  final public void faceDirections(boolean ejecutar, int numVeces, String procName) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case WEST:{
       jj_consume_token(WEST);
@@ -1445,6 +1445,9 @@ if (ejecutar)
                                 { for (int i = 0; i < numVeces; i++)
                                         { changeFace(3); }
                                 }
+                                if (procedures.containsKey(procName) ){
+                                Procedure proc= procedures.get(procName);
+                                proc.body.add("face west_"); }
       break;
       }
     case EAST:{
@@ -1453,6 +1456,9 @@ if (ejecutar)
                                 { for (int i = 0; i < numVeces; i++)
                                         { changeFace(2); }
                                 }
+                                if (procedures.containsKey(procName) ){
+                                Procedure proc= procedures.get(procName);
+                                proc.body.add("face east_"); }
       break;
       }
     case NORTH:{
@@ -1461,6 +1467,9 @@ if (ejecutar)
                                 { for (int i = 0; i < numVeces; i++)
                                         { changeFace(0); }
                                 }
+                                if (procedures.containsKey(procName) ){
+                                Procedure proc= procedures.get(procName);
+                                proc.body.add("face north_"); }
       break;
       }
     case SOUTH:{
@@ -1469,6 +1478,9 @@ if (ejecutar)
                                 { for (int i = 0; i < numVeces; i++)
                                         { changeFace(1); }
                                 }
+                                if (procedures.containsKey(procName) ){
+                                Procedure proc= procedures.get(procName);
+                                proc.body.add("face south_"); }
       break;
       }
     default:
@@ -1483,6 +1495,9 @@ if (ejecutar)
     case RIGHT:{
       jj_consume_token(RIGHT);
 if (ejecutar) world.turnRight();
+                                if (procedures.containsKey(procName) ){
+                                Procedure proc= procedures.get(procName);
+                                proc.body.add("turn right_"); }
       break;
       }
     case LEFT:{
@@ -1493,6 +1508,9 @@ if (ejecutar)
                         world.turnRight();
                         world.turnRight();}
                   }
+                        if (procedures.containsKey(procName) ){
+                        Procedure proc= procedures.get(procName);
+                        proc.body.add("turn left_"); }
       break;
       }
     case AROUND:{
@@ -1502,6 +1520,10 @@ if (ejecutar)
                         { world.turnRight();
                          world.turnRight(); }
                         }
+
+                        if (procedures.containsKey(procName) ){
+                        Procedure proc= procedures.get(procName);
+                        proc.body.add("turn around_"); }
       break;
       }
     default:
@@ -1679,6 +1701,25 @@ for (int i = 0; i < body.size(); i++)
             else if (instrArr[0].equals("jump right"))
                 { num=Integer.parseInt(instrArr[1]);
                 instrMoveJumpRight(num, true);}
+
+           else if (instrArr[0].equals("turn right"))
+                { world.turnRight();}
+            else if (instrArr[0].equals("turn around"))
+                { world.turnRight();
+                world.turnRight();}
+            else if (instrArr[0].equals("turn left"))
+                { world.turnRight();
+                world.turnRight();
+                world.turnRight();}
+
+            else if (instrArr[0].equals("face north"))
+                { changeFace(0);}
+            else if (instrArr[0].equals("face south"))
+                { changeFace(1);}
+            else if (instrArr[0].equals("face west"))
+                { changeFace(3);}
+            else if (instrArr[0].equals("face east"))
+                { changeFace(2);}
           }
 }
 
