@@ -193,11 +193,11 @@ boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, Strin
 {
 
     (
-        <MOVE> ":" x=expr(procName) moveIndirTothe(x, ejecutar, numVecesEjecucion, procName) "." { salida = "Command: Move"; }
+        <MOVE> ":" x=expr(procName) moveIndirTothe(x, ejecutar, numVecesEjecucion, procName) "." { if (ejecutar) salida = "Command: Move"; }
         
-        | <TURN> ":" turnDirections(ejecutar,numVecesEjecucion, procName) "." { salida = "Command: Turn"; }
+        | <TURN> ":" turnDirections(ejecutar,numVecesEjecucion, procName) "." {if (ejecutar) salida = "Command: Turn"; }
         
-        | <FACE> ":" faceDirections(ejecutar,numVecesEjecucion, procName) "." { salida = "Command: Face"; }
+        | <FACE> ":" faceDirections(ejecutar,numVecesEjecucion, procName) "." {if (ejecutar) salida = "Command: Face"; }
         
         | <PUT> ":" n=expr(procName) <OFTYPE> t=objType() "." 
             { if (ejecutar)
@@ -215,6 +215,16 @@ boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, Strin
 	                 }
 	           	  }
                 }
+                if (procedures.containsKey(procName) )
+	           	{
+					Procedure proc= procedures.get(procName);
+					if (t.image.equals("#chips")) {
+					  proc.body.add("put chips_"+String.valueOf(n));
+					}
+					else if (t.image.equals("#balloons"))
+					{ proc.body.add("put balloons_"+String.valueOf(n));
+					}
+				}
             }
         | <PICK> ":" n=expr(procName) <OFTYPE> t=objType() "." 
             { if (ejecutar)
@@ -230,19 +240,34 @@ boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, Strin
 	                }
 	             }
 	           }
+	           	if (procedures.containsKey(procName) )
+	           	{
+					Procedure proc= procedures.get(procName);
+					if (t.image.equals("#chips")) {
+					  proc.body.add("pick chips_"+String.valueOf(n));
+					}
+					else if (t.image.equals("#balloons"))
+					{ proc.body.add("pick balloons_"+String.valueOf(n));
+					}
+				}
             }
             	
           
         | <GOTO> ":" x=expr(procName) "with:" y=expr(procName) "."
             { if (ejecutar)
           		{ for (int i = 0; i < numVecesEjecucion; i++)
-          			{  world.setPostion(x, y); salida = "Command: GoTo"; }
+          			{  world.setPostion(x, y);
+          			salida = "Command: GoTo"; }
           		}
+          	  if (procedures.containsKey(procName) )
+          	  { 
+				Procedure proc= procedures.get(procName);
+				proc.body.add("go to_"+String.valueOf(x)+"_"+String.valueOf(y));}
              }	
             
-        | <JUMP> ":" n=expr(procName) jumpIndirTothe(n, ejecutar, numVecesEjecucion, procName) "." { salida = "Command: Jump"; }
+        | <JUMP> ":" n=expr(procName) jumpIndirTothe(n, ejecutar, numVecesEjecucion, procName) "." { if (ejecutar) salida = "Command: Jump"; }
         
-        | <NOP> "." { salida = "Command: NOP"; }
+        | <NOP> "." { if (ejecutar) salida = "Command: NOP"; }
         
         | procedure(sistema)
         
@@ -1327,6 +1352,23 @@ void procBodyCommands(String procName):
 	    	{ changeFace(3);}
 	    else if (instrArr[0].equals("face east"))
 	    	{ changeFace(2);}
+	    	
+		else if (instrArr[0].equals("go to"))
+	    	{ world.setPostion(Integer.parseInt(instrArr[1]), Integer.parseInt(instrArr[2])); }
+
+	    else if (instrArr[0].equals("put chips"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	world.putChips(num);}
+	    else if (instrArr[0].equals("pick chips"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	world.pickChips(num);}
+	    else if (instrArr[0].equals("put balloons"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	world.putBalloons(num);}
+	    else if (instrArr[0].equals("pick balloons"))
+	    	{num=Integer.parseInt(instrArr[1]);
+	    	world.grabBalloons(num);}
+	    
 	  }
 	}
 }
