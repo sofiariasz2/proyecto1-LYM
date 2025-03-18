@@ -120,7 +120,7 @@ bool=true;
         x = expr(procName);
         moveIndirTothe(x, ejecutar, numVecesEjecucion, procName);
         jj_consume_token(53);
-salida = "Command: Move";
+if (ejecutar) salida = "Command: Move";
         break;
         }
       case TURN:{
@@ -128,7 +128,7 @@ salida = "Command: Move";
         jj_consume_token(52);
         turnDirections(ejecutar,numVecesEjecucion, procName);
         jj_consume_token(53);
-salida = "Command: Turn";
+if (ejecutar) salida = "Command: Turn";
         break;
         }
       case FACE:{
@@ -136,7 +136,7 @@ salida = "Command: Turn";
         jj_consume_token(52);
         faceDirections(ejecutar,numVecesEjecucion, procName);
         jj_consume_token(53);
-salida = "Command: Face";
+if (ejecutar) salida = "Command: Face";
         break;
         }
       case PUT:{
@@ -161,6 +161,16 @@ if (ejecutar)
                          }
                           }
                 }
+                if (procedures.containsKey(procName) )
+                        {
+                                        Procedure proc= procedures.get(procName);
+                                        if (t.image.equals("#chips")) {
+                                          proc.body.add("put chips_"+String.valueOf(n));
+                                        }
+                                        else if (t.image.equals("#balloons"))
+                                        { proc.body.add("put balloons_"+String.valueOf(n));
+                                        }
+                                }
         break;
         }
       case PICK:{
@@ -183,6 +193,16 @@ if (ejecutar)
                         }
                      }
                    }
+                        if (procedures.containsKey(procName) )
+                        {
+                                        Procedure proc= procedures.get(procName);
+                                        if (t.image.equals("#chips")) {
+                                          proc.body.add("pick chips_"+String.valueOf(n));
+                                        }
+                                        else if (t.image.equals("#balloons"))
+                                        { proc.body.add("pick balloons_"+String.valueOf(n));
+                                        }
+                                }
         break;
         }
       case GOTO:{
@@ -194,8 +214,13 @@ if (ejecutar)
         jj_consume_token(53);
 if (ejecutar)
                         { for (int i = 0; i < numVecesEjecucion; i++)
-                                {  world.setPostion(x, y); salida = "Command: GoTo"; }
+                                {  world.setPostion(x, y);
+                                salida = "Command: GoTo"; }
                         }
+                  if (procedures.containsKey(procName) )
+                  {
+                                Procedure proc= procedures.get(procName);
+                                proc.body.add("go to_"+String.valueOf(x)+"_"+String.valueOf(y));}
         break;
         }
       case JUMP:{
@@ -204,13 +229,13 @@ if (ejecutar)
         n = expr(procName);
         jumpIndirTothe(n, ejecutar, numVecesEjecucion, procName);
         jj_consume_token(53);
-salida = "Command: Jump";
+if (ejecutar) salida = "Command: Jump";
         break;
         }
       case NOP:{
         jj_consume_token(NOP);
         jj_consume_token(53);
-salida = "Command: NOP";
+if (ejecutar) salida = "Command: NOP";
         break;
         }
       case PROC:{
@@ -1720,6 +1745,23 @@ for (int i = 0; i < body.size(); i++)
                 { changeFace(3);}
             else if (instrArr[0].equals("face east"))
                 { changeFace(2);}
+
+                else if (instrArr[0].equals("go to"))
+                { world.setPostion(Integer.parseInt(instrArr[1]), Integer.parseInt(instrArr[2])); }
+
+            else if (instrArr[0].equals("put chips"))
+                { num=Integer.parseInt(instrArr[1]);
+                world.putChips(num);}
+            else if (instrArr[0].equals("pick chips"))
+                { num=Integer.parseInt(instrArr[1]);
+                world.pickChips(num);}
+            else if (instrArr[0].equals("put balloons"))
+                { num=Integer.parseInt(instrArr[1]);
+                world.putBalloons(num);}
+            else if (instrArr[0].equals("pick balloons"))
+                {num=Integer.parseInt(instrArr[1]);
+                world.grabBalloons(num);}
+
           }
 }
 
