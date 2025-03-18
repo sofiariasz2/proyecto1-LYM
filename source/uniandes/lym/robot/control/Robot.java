@@ -118,7 +118,7 @@ bool=true;
         jj_consume_token(MOVE);
         jj_consume_token(52);
         x = expr(procName);
-        moveIndirTothe(x, ejecutar, numVecesEjecucion);
+        moveIndirTothe(x, ejecutar, numVecesEjecucion, procName);
         jj_consume_token(53);
 salida = "Command: Move";
         break;
@@ -126,7 +126,7 @@ salida = "Command: Move";
       case TURN:{
         jj_consume_token(TURN);
         jj_consume_token(52);
-        turnDirections(ejecutar,numVecesEjecucion);
+        turnDirections(ejecutar,numVecesEjecucion, procName);
         jj_consume_token(53);
 salida = "Command: Turn";
         break;
@@ -202,7 +202,7 @@ if (ejecutar)
         jj_consume_token(JUMP);
         jj_consume_token(52);
         n = expr(procName);
-        jumpIndirTothe(n, ejecutar, numVecesEjecucion);
+        jumpIndirTothe(n, ejecutar, numVecesEjecucion, procName);
         jj_consume_token(53);
 salida = "Command: Jump";
         break;
@@ -461,12 +461,15 @@ numParam+=1;
          proc.paramValues.put(paramName, n);
       }
       jj_consume_token(53);
+procBodyCommands(procTok.image);
       break;
       }
     case 53:{
       jj_consume_token(53);
 if (!procedures.containsKey(procTok.image))
                         {if (true) throw new Error("No esta definido  el procedimiento " + procTok );}
+                  else
+                        procBodyCommands(procTok.image);
       break;
       }
     default:
@@ -479,40 +482,28 @@ if (!procedures.containsKey(procTok.image))
 ///
 ///MOVE Y JUMP COMMANDS
 ///
-  final public void moveDirectionLRFB(int x, boolean ejecutar, int numVeces) throws ParseException {
+  final public void moveDirectionLRFB(int x, boolean ejecutar, int numVeces, String procName) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case LEFT:{
       jj_consume_token(LEFT);
 if (ejecutar)
                 { for (int i = 0; i < numVeces; i++)
-                        {
-                              if (world.getFacing()==0)
-                                world.moveHorizontally(-x, false) ;
-                              else if (world.getFacing()==1)
-                                world.moveHorizontally(x, false) ;
-                              else if (world.getFacing()==2)
-                                world.moveVertically(-x, false) ;
-                              else
-                                world.moveVertically(x, false) ;
-                             }
+                        { instrMoveJumpLeft(x, false); }
                         }
+                        if (procedures.containsKey(procName) ){
+                        Procedure proc= procedures.get(procName);
+                        proc.body.add("move left_"+String.valueOf(x)); }
       break;
       }
     case RIGHT:{
       jj_consume_token(RIGHT);
 if (ejecutar)
                 { for (int i = 0; i < numVeces; i++)
-                        {
-                              if (world.getFacing()==0)
-                                world.moveHorizontally(x, false) ;
-                              else if (world.getFacing()==1)
-                                world.moveHorizontally(-x, false) ;
-                              else if (world.getFacing()==2)
-                                world.moveVertically(x, false) ;
-                              else
-                                world.moveVertically(-x, false) ;
-                                }
+                        { instrMoveJumpRight(x, false);}
                         }
+                        if (procedures.containsKey(procName) ){
+                        Procedure proc= procedures.get(procName);
+                        proc.body.add("move right_"+String.valueOf(x));}
       break;
       }
     case FRONT:{
@@ -521,23 +512,20 @@ if (ejecutar)
                 { for (int i = 0; i < numVeces; i++)
                         { world.moveForward(x, false) ; }
                 }
+                if (procedures.containsKey(procName) ){
+                        Procedure proc= procedures.get(procName);
+                        proc.body.add("move forward_"+String.valueOf(x)); }
       break;
       }
     case BACK:{
       jj_consume_token(BACK);
 if (ejecutar)
                 { for (int i = 0; i < numVeces; i++)
-                        {
-                              if (world.getFacing()==0)
-                                world.moveVertically(x, false) ;
-                              else if (world.getFacing()==1)
-                              world.moveVertically(-x, false) ;
-                              else if (world.getFacing()==2)
-                                world.moveHorizontally(-x, false) ;
-                              else
-                                world.moveHorizontally(x, false) ;
-                           }
+                        { instrMoveJumpBack(x,false); }
                         }
+                        if (procedures.containsKey(procName) ){
+                        Procedure proc= procedures.get(procName);
+                        proc.body.add("move back_"+String.valueOf(x)); }
       break;
       }
     default:
@@ -547,42 +535,50 @@ if (ejecutar)
     }
 }
 
-  final public void moveDirectionNESW(int x, boolean ejecutar, int numVeces) throws ParseException {
+  final public void moveDirectionNESW(int x, boolean ejecutar, int numVeces, String procName) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case EAST:{
       jj_consume_token(EAST);
 if (ejecutar)
                                 { for (int i = 0; i < numVeces; i++)
-                                        { world.moveHorizontally(x, false);
-                                        changeFace(2); }
+                                        { instrMoveEast(x); }
                                 }
+                                if (procedures.containsKey(procName) ){
+                                Procedure proc= procedures.get(procName);
+                                proc.body.add("move east_"+String.valueOf(x)); }
       break;
       }
     case WEST:{
       jj_consume_token(WEST);
 if (ejecutar)
                                 { for (int i = 0; i < numVeces; i++)
-                                        { world.moveHorizontally(-x, false);
-                                        changeFace(3); }
+                                        { instrMoveWest(x); }
                                 }
+                                if (procedures.containsKey(procName) ){
+                                Procedure proc= procedures.get(procName);
+                                proc.body.add("move west_"+String.valueOf(x)); }
       break;
       }
     case NORTH:{
       jj_consume_token(NORTH);
 if (ejecutar)
                                 { for (int i = 0; i < numVeces; i++)
-                                        {  world.moveVertically(-x, false);
-                                        changeFace(0); }
+                                        {  instrMoveNorth(x);}
                                 }
+                                if (procedures.containsKey(procName) ){
+                                Procedure proc= procedures.get(procName);
+                                proc.body.add("move north_"+String.valueOf(x)); }
       break;
       }
     case SOUTH:{
       jj_consume_token(SOUTH);
 if (ejecutar)
                                 { for (int i = 0; i < numVeces; i++)
-                                        { world.moveVertically(x, false);
-                                        changeFace(1); }
+                                        {  instrMoveSouth(x);}
                                 }
+                                if (procedures.containsKey(procName) ){
+                                Procedure proc= procedures.get(procName);
+                                proc.body.add("move south_"+String.valueOf(x)); }
       break;
       }
     default:
@@ -592,16 +588,16 @@ if (ejecutar)
     }
 }
 
-  final public void moveIndirTothe(int x, boolean ejecutar, int numVeces) throws ParseException {
+  final public void moveIndirTothe(int x, boolean ejecutar, int numVeces, String procName) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case INDIR:{
       jj_consume_token(INDIR);
-      moveDirectionNESW(x, ejecutar, numVeces);
+      moveDirectionNESW(x, ejecutar, numVeces, procName);
       break;
       }
     case TOTHE:{
       jj_consume_token(TOTHE);
-      moveDirectionLRFB(x, ejecutar, numVeces);
+      moveDirectionLRFB(x, ejecutar, numVeces, procName);
       break;
       }
     default:
@@ -610,19 +606,22 @@ if (ejecutar)
                 { for (int i = 0; i < numVeces; i++)
                         {world.moveForward(x, false); }
                 }
+                if (procedures.containsKey(procName) ){
+                Procedure proc= procedures.get(procName);
+                proc.body.add("move forward_"+String.valueOf(x)); }
     }
 }
 
-  final public void jumpIndirTothe(int x, boolean ejecutar, int numVeces) throws ParseException {
+  final public void jumpIndirTothe(int x, boolean ejecutar, int numVeces, String procName) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case INDIR:{
       jj_consume_token(INDIR);
-      jumpDirectionNESW(x,ejecutar, numVeces);
+      jumpDirectionNESW(x,ejecutar, numVeces, procName);
       break;
       }
     case TOTHE:{
       jj_consume_token(TOTHE);
-      jumpDirectionLRFB(x,ejecutar, numVeces);
+      jumpDirectionLRFB(x,ejecutar, numVeces, procName);
       break;
       }
     default:
@@ -631,45 +630,56 @@ if (ejecutar)
                 { for (int i = 0; i < numVeces; i++)
                         {world.moveForward(x, true); }
                 }
+                if (procedures.containsKey(procName) ){
+                Procedure proc= procedures.get(procName);
+                proc.body.add("jump forward_"+String.valueOf(x)); }
     }
 }
 
-  final public void jumpDirectionNESW(int x, boolean ejecutar, int numVeces) throws ParseException {
+  final public void jumpDirectionNESW(int x, boolean ejecutar, int numVeces, String procName) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case EAST:{
       jj_consume_token(EAST);
 if (ejecutar)
                         { for (int i = 0; i < numVeces; i++)
-                                { world.moveHorizontally(x, true);
-                                changeFace(2); }
+                                { instrJumpEast(x); }
                         }
+                        if (procedures.containsKey(procName) ){
+                        Procedure proc= procedures.get(procName);
+                        proc.body.add("jump east_"+String.valueOf(x)); }
       break;
       }
     case WEST:{
       jj_consume_token(WEST);
 if (ejecutar)
                                 { for (int i = 0; i < numVeces; i++)
-                                        { world.moveHorizontally(-x, true);
-                                        changeFace(3); }
+                                        { instrJumpWest(x); }
                                 }
+                        if (procedures.containsKey(procName) ){
+                        Procedure proc= procedures.get(procName);
+                        proc.body.add("jump west_"+String.valueOf(x)); }
       break;
       }
     case NORTH:{
       jj_consume_token(NORTH);
 if (ejecutar)
                                 { for (int i = 0; i < numVeces; i++)
-                                        { world.moveVertically(-x, true);
-                                        changeFace(0); }
+                                        { instrJumpNorth(x); }
                                 }
+                                if (procedures.containsKey(procName) ){
+                        Procedure proc= procedures.get(procName);
+                        proc.body.add("jump north_"+String.valueOf(x)); }
       break;
       }
     case SOUTH:{
       jj_consume_token(SOUTH);
 if (ejecutar)
                                 { for (int i = 0; i < numVeces; i++)
-                                        {  world.moveVertically(x, true);
-                                        changeFace(1); }
+                                        {  instrJumpSouth(x);}
                                 }
+                                if (procedures.containsKey(procName) ){
+                        Procedure proc= procedures.get(procName);
+                        proc.body.add("jump south_"+String.valueOf(x)); }
       break;
       }
     default:
@@ -679,36 +689,28 @@ if (ejecutar)
     }
 }
 
-  final public void jumpDirectionLRFB(int x, boolean ejecutar, int numVeces) throws ParseException {
+  final public void jumpDirectionLRFB(int x, boolean ejecutar, int numVeces, String procName) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case LEFT:{
       jj_consume_token(LEFT);
 if (ejecutar)
                 { for (int i = 0; i < numVeces; i++)
-                      { if (world.getFacing()==0)
-                        world.moveHorizontally(-x, true) ;
-                      else if (world.getFacing()==1)
-                        world.moveHorizontally(x, true) ;
-                      else if (world.getFacing()==2)
-                        world.moveVertically(-x, true) ;
-                      else
-                        world.moveVertically(x, true) ; }
+                        { instrMoveJumpLeft(x, true); }
                     }
+                    if (procedures.containsKey(procName) ){
+                        Procedure proc= procedures.get(procName);
+                        proc.body.add("jump left_"+String.valueOf(x)); }
       break;
       }
     case RIGHT:{
       jj_consume_token(RIGHT);
 if (ejecutar)
                 { for (int i = 0; i < numVeces; i++)
-                      { if (world.getFacing()==0)
-                        world.moveHorizontally(x, true) ;
-                      else if (world.getFacing()==1)
-                        world.moveHorizontally(-x, true) ;
-                      else if (world.getFacing()==2)
-                        world.moveVertically(x, true) ;
-                      else
-                        world.moveVertically(-x, true) ; }
-                   }
+                        { instrMoveJumpRight(x, true); }
+                    }
+                    if (procedures.containsKey(procName) ){
+                        Procedure proc= procedures.get(procName);
+                        proc.body.add("jump right_"+String.valueOf(x)); }
       break;
       }
     case FRONT:{
@@ -717,21 +719,20 @@ if (ejecutar)
                 { for (int i = 0; i < numVeces; i++)
                         { world.moveForward(x, true) ; }
                 }
+                if (procedures.containsKey(procName) ){
+                        Procedure proc= procedures.get(procName);
+                        proc.body.add("jump forward_"+String.valueOf(x)); }
       break;
       }
     case BACK:{
       jj_consume_token(BACK);
 if (ejecutar)
                 { for (int i = 0; i < numVeces; i++)
-                      { if (world.getFacing()==0)
-                        world.moveVertically(x, true) ;
-                      else if (world.getFacing()==1)
-                      world.moveVertically(-x, true) ;
-                      else if (world.getFacing()==2)
-                        world.moveHorizontally(-x, true) ;
-                      else
-                        world.moveHorizontally(x, true) ; }
-                        }
+                        { instrMoveJumpBack(x, true); }
+                    }
+                    if (procedures.containsKey(procName) ){
+                        Procedure proc= procedures.get(procName);
+                        proc.body.add("jump back_"+String.valueOf(x)); }
       break;
       }
     default:
@@ -1477,7 +1478,7 @@ if (ejecutar)
     }
 }
 
-  final public void turnDirections(boolean ejecutar, int numVeces) throws ParseException {
+  final public void turnDirections(boolean ejecutar, int numVeces, String procName) throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case RIGHT:{
       jj_consume_token(RIGHT);
@@ -1617,6 +1618,143 @@ Point newPos= new Point(1,1);
 
   {if ("" != null) return newPos;}
     throw new Error("Missing return statement in function");
+}
+
+//
+//BODY PROCEDURE Y WHILE INTERPRETER
+  final public void procBodyCommands(String procName) throws ParseException {Procedure proc=procedures.get(procName);
+  List<String > body = proc.body;
+  String[] instrArr;
+  int num;
+for (int i = 0; i < body.size(); i++)
+          {
+            instrArr=body.get(i).split("_");
+
+            if (instrArr[0].equals("move forward"))
+                { num=Integer.parseInt(instrArr[1]);
+                  world.moveForward(num, false); }
+            else if (instrArr[0].equals("move north"))
+                { num=Integer.parseInt(instrArr[1]);
+                instrMoveNorth(num);}
+            else if (instrArr[0].equals("move south"))
+                { num=Integer.parseInt(instrArr[1]);
+                instrMoveSouth(num);}
+            else if (instrArr[0].equals("move west"))
+                { num=Integer.parseInt(instrArr[1]);
+                instrMoveWest(num);}
+            else if (instrArr[0].equals("move east"))
+                { num=Integer.parseInt(instrArr[1]);
+                instrMoveEast(num);}
+            else if (instrArr[0].equals("move back"))
+                { num=Integer.parseInt(instrArr[1]);
+                instrMoveJumpBack(num, false);}
+            else if (instrArr[0].equals("move left"))
+                { num=Integer.parseInt(instrArr[1]);
+                instrMoveJumpLeft(num, false);}
+            else if (instrArr[0].equals("move right"))
+                { num=Integer.parseInt(instrArr[1]);
+                instrMoveJumpRight(num, false);}
+
+            else if (instrArr[0].equals("jump forward"))
+                { num=Integer.parseInt(instrArr[1]);
+                  world.moveForward(num, true); }
+            else if (instrArr[0].equals("jump north"))
+                { num=Integer.parseInt(instrArr[1]);
+                instrJumpNorth(num);}
+            else if (instrArr[0].equals("jump south"))
+                { num=Integer.parseInt(instrArr[1]);
+                instrJumpSouth(num);}
+            else if (instrArr[0].equals("jump west"))
+                { num=Integer.parseInt(instrArr[1]);
+                instrJumpWest(num);}
+            else if (instrArr[0].equals("jump east"))
+                { num=Integer.parseInt(instrArr[1]);
+                instrJumpEast(num);}
+            else if (instrArr[0].equals("jump back"))
+                {num=Integer.parseInt(instrArr[1]);
+                instrMoveJumpBack(num, true);}
+            else if (instrArr[0].equals("jump left"))
+                { num=Integer.parseInt(instrArr[1]);
+                instrMoveJumpLeft(num, true);}
+            else if (instrArr[0].equals("jump right"))
+                { num=Integer.parseInt(instrArr[1]);
+                instrMoveJumpRight(num, true);}
+          }
+}
+
+//Move instr
+  final public void instrMoveNorth(int x) throws ParseException {
+world.moveVertically(-x, false);
+        changeFace(0);
+}
+
+  final public void instrMoveSouth(int x) throws ParseException {
+world.moveVertically(x, false);
+        changeFace(1);
+}
+
+  final public void instrMoveWest(int x) throws ParseException {
+world.moveHorizontally(-x, false);
+        changeFace(3);
+}
+
+  final public void instrMoveEast(int x) throws ParseException {
+world.moveHorizontally(x, false);
+        changeFace(2);
+}
+
+//Jump instr
+  final public void instrJumpNorth(int x) throws ParseException {
+world.moveVertically(-x, true);
+        changeFace(0);
+}
+
+  final public void instrJumpSouth(int x) throws ParseException {
+world.moveVertically(x, true);
+        changeFace(1);
+}
+
+  final public void instrJumpWest(int x) throws ParseException {
+world.moveHorizontally(-x, true);
+        changeFace(3);
+}
+
+  final public void instrJumpEast(int x) throws ParseException {
+world.moveHorizontally(x, true);
+        changeFace(2);
+}
+
+  final public void instrMoveJumpLeft(int x, boolean bool) throws ParseException {
+if (world.getFacing()==0)
+        world.moveHorizontally(-x, bool) ;
+  else if (world.getFacing()==1)
+        world.moveHorizontally(x, bool) ;
+  else if (world.getFacing()==2)
+        world.moveVertically(-x, bool) ;
+  else
+        world.moveVertically(x, bool) ;
+}
+
+  final public void instrMoveJumpRight(int x, boolean bool) throws ParseException {
+if (world.getFacing()==0)
+        world.moveHorizontally(x, bool) ;
+  else if (world.getFacing()==1)
+        world.moveHorizontally(-x, bool) ;
+  else if (world.getFacing()==2)
+        world.moveVertically(x, bool) ;
+  else
+        world.moveVertically(-x, bool) ;
+}
+
+  final public void instrMoveJumpBack(int x, boolean bool) throws ParseException {
+if (world.getFacing()==0)
+        world.moveVertically(x, bool) ;
+  else if (world.getFacing()==1)
+  world.moveVertically(-x, bool) ;
+  else if (world.getFacing()==2)
+        world.moveHorizontally(-x, bool) ;
+  else
+        world.moveHorizontally(x, bool) ;
 }
 
   /** Generated Token Manager. */

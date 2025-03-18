@@ -193,9 +193,9 @@ boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, Strin
 {
 
     (
-        <MOVE> ":" x=expr(procName) moveIndirTothe(x, ejecutar, numVecesEjecucion) "." { salida = "Command: Move"; }
+        <MOVE> ":" x=expr(procName) moveIndirTothe(x, ejecutar, numVecesEjecucion, procName) "." { salida = "Command: Move"; }
         
-        | <TURN> ":" turnDirections(ejecutar,numVecesEjecucion) "." { salida = "Command: Turn"; }
+        | <TURN> ":" turnDirections(ejecutar,numVecesEjecucion, procName) "." { salida = "Command: Turn"; }
         
         | <FACE> ":" faceDirections(ejecutar,numVecesEjecucion) "." { salida = "Command: Face"; }
         
@@ -240,7 +240,7 @@ boolean interna (Console sistema, boolean ejecutar, int numVecesEjecucion, Strin
           		}
              }	
             
-        | <JUMP> ":" n=expr(procName) jumpIndirTothe(n, ejecutar, numVecesEjecucion) "." { salida = "Command: Jump"; }
+        | <JUMP> ":" n=expr(procName) jumpIndirTothe(n, ejecutar, numVecesEjecucion, procName) "." { salida = "Command: Jump"; }
         
         | <NOP> "." { salida = "Command: NOP"; }
         
@@ -394,11 +394,13 @@ void procCall(Token procTok, String procName):
     	 proc.paramValues.put(paramName, n);
 		 }
 	)*
-	"."
+	"." { procBodyCommands(procTok.image); }
 	  
 	| "."
 		{ if (!procedures.containsKey(procTok.image))
 			throw new Error("No esta definido  el procedimiento " + procTok );
+		  else
+		  	procBodyCommands(procTok.image);
 		}
 	
 }
@@ -408,206 +410,205 @@ void procCall(Token procTok, String procName):
 ///
 ///MOVE Y JUMP COMMANDS
 ///
-void moveDirectionLRFB(int x, boolean ejecutar, int numVeces):
+void moveDirectionLRFB(int x, boolean ejecutar, int numVeces, String procName):
 {
 }
 {
     <LEFT>
 	    { if (ejecutar)
 	    	{ for (int i = 0; i < numVeces; i++) 
-		    	{ 
-			      if (world.getFacing()==0)
-			      	world.moveHorizontally(-x, false) ;
-			      else if (world.getFacing()==1)
-			      	world.moveHorizontally(x, false) ;
-			      else if (world.getFacing()==2)
-			      	world.moveVertically(-x, false) ;
-			      else 
-			      	world.moveVertically(x, false) ;
-			     }
+		    	{ instrMoveJumpLeft(x, false); }
 			}
+			if (procedures.containsKey(procName) ){
+			Procedure proc= procedures.get(procName);
+			proc.body.add("move left_"+String.valueOf(x)); }
 	     }
     | <RIGHT>
 	    { if (ejecutar)
 	    	{ for (int i = 0; i < numVeces; i++) 
-		    	{ 
-			      if (world.getFacing()==0)
-			      	world.moveHorizontally(x, false) ;
-			      else if (world.getFacing()==1)
-			      	world.moveHorizontally(-x, false) ;
-			      else if (world.getFacing()==2)
-			      	world.moveVertically(x, false) ;
-			      else 
-			      	world.moveVertically(-x, false) ;
-			  	}
+		    	{ instrMoveJumpRight(x, false);}
 		 	}
+		 	if (procedures.containsKey(procName) ){ 
+			Procedure proc= procedures.get(procName);
+			proc.body.add("move right_"+String.valueOf(x));}
+		 	
 	     }
     | <FRONT>
 	     { if (ejecutar)
 	     	{ for (int i = 0; i < numVeces; i++)
 	     		{ world.moveForward(x, false) ; }
 	     	}
+	     	if (procedures.containsKey(procName) ){
+			Procedure proc= procedures.get(procName);
+			proc.body.add("move forward_"+String.valueOf(x)); }
 	     }
     | <BACK>
 	    { if (ejecutar)
 	    	{ for (int i = 0; i < numVeces; i++) 
-		    	{ 
-			      if (world.getFacing()==0)
-			      	world.moveVertically(x, false) ;
-			      else if (world.getFacing()==1)
-			      world.moveVertically(-x, false) ;
-			      else if (world.getFacing()==2)
-			      	world.moveHorizontally(-x, false) ;
-			      else 
-			      	world.moveHorizontally(x, false) ;
-			   }
+		    	{ instrMoveJumpBack(x,false); }
 			}
+			if (procedures.containsKey(procName) ){
+			Procedure proc= procedures.get(procName);
+			proc.body.add("move back_"+String.valueOf(x)); }
 	     }
 }
 
-void moveDirectionNESW(int x, boolean ejecutar, int numVeces):
+void moveDirectionNESW(int x, boolean ejecutar, int numVeces, String procName):
 {
 }
 {
 		<EAST >
 			 { if (ejecutar)
 			 	{ for (int i = 0; i < numVeces; i++) 
-				 	{ world.moveHorizontally(x, false);
-				 	changeFace(2); }
+				 	{ instrMoveEast(x); }
 				}
+				if (procedures.containsKey(procName) ){
+				Procedure proc= procedures.get(procName);
+				proc.body.add("move east_"+String.valueOf(x)); }
 			}
 		|  <WEST >
 			{ if (ejecutar)
 				{ for (int i = 0; i < numVeces; i++) 
-					{ world.moveHorizontally(-x, false);
-					changeFace(3); }
+					{ instrMoveWest(x); }
 				}
+				if (procedures.containsKey(procName) ){
+				Procedure proc= procedures.get(procName);
+				proc.body.add("move west_"+String.valueOf(x)); }
 			}
 		|  <NORTH >
 			{ if (ejecutar)
 				{ for (int i = 0; i < numVeces; i++) 
-					{  world.moveVertically(-x, false);
-					changeFace(0); }
+					{  instrMoveNorth(x);}
 				}
+				if (procedures.containsKey(procName) ){
+				Procedure proc= procedures.get(procName);
+				proc.body.add("move north_"+String.valueOf(x)); }
 			}
 		| <SOUTH >
 			{ if (ejecutar)
 				{ for (int i = 0; i < numVeces; i++) 
-					{ world.moveVertically(x, false);
-					changeFace(1); }
+					{  instrMoveSouth(x);}
 				}
+				if (procedures.containsKey(procName) ){
+				Procedure proc= procedures.get(procName);
+				proc.body.add("move south_"+String.valueOf(x)); }
 			}
 }
 
-void moveIndirTothe(int x, boolean ejecutar, int numVeces):
+void moveIndirTothe(int x, boolean ejecutar, int numVeces, String procName):
 {
 }
 {
-  < INDIR > moveDirectionNESW(x, ejecutar, numVeces)
-	| < TOTHE > moveDirectionLRFB(x, ejecutar, numVeces)
+  < INDIR > moveDirectionNESW(x, ejecutar, numVeces, procName)
+	| < TOTHE > moveDirectionLRFB(x, ejecutar, numVeces, procName)
 	| { if (ejecutar)
 		{ for (int i = 0; i < numVeces; i++)
 			{world.moveForward(x, false); }	 
 		}
+		if (procedures.containsKey(procName) ){
+		Procedure proc= procedures.get(procName);
+		proc.body.add("move forward_"+String.valueOf(x)); }
 	  }
 }
 
-void jumpIndirTothe(int x, boolean ejecutar, int numVeces):
+void jumpIndirTothe(int x, boolean ejecutar, int numVeces, String procName):
 {
 }
 {
-        < INDIR > jumpDirectionNESW(x,ejecutar, numVeces)
-	| < TOTHE > jumpDirectionLRFB(x,ejecutar, numVeces)
+        < INDIR > jumpDirectionNESW(x,ejecutar, numVeces, procName)
+	| < TOTHE > jumpDirectionLRFB(x,ejecutar, numVeces, procName)
     | { if (ejecutar)
 		{ for (int i = 0; i < numVeces; i++)
 			{world.moveForward(x, true); }	 
 		}
+		if (procedures.containsKey(procName) ){
+		Procedure proc= procedures.get(procName);
+		proc.body.add("jump forward_"+String.valueOf(x)); }
 	  }
 }
 
 
-void jumpDirectionNESW(int x, boolean ejecutar, int numVeces):
+void jumpDirectionNESW(int x, boolean ejecutar, int numVeces, String procName):
 {
 }
 {
 		 <EAST >
 		  { if (ejecutar)
 		  	{ for (int i = 0; i < numVeces; i++)
-			  	{ world.moveHorizontally(x, true);
-			  	changeFace(2); }
+			  	{ instrJumpEast(x); }
 		 	}
+		 	if (procedures.containsKey(procName) ){
+		 	Procedure proc= procedures.get(procName);
+			proc.body.add("jump east_"+String.valueOf(x)); }
 		  }
 		| <WEST >
 			{ if (ejecutar)
 				{ for (int i = 0; i < numVeces; i++)
-					{ world.moveHorizontally(-x, true);
-					changeFace(3); }
-				}	
+					{ instrJumpWest(x); }
+				}
+			if (procedures.containsKey(procName) ){
+		 	Procedure proc= procedures.get(procName);
+			proc.body.add("jump west_"+String.valueOf(x)); }
 			}
 		| <NORTH >
 			{ if (ejecutar)
 				{ for (int i = 0; i < numVeces; i++)
-					{ world.moveVertically(-x, true);
-					changeFace(0); }
+					{ instrJumpNorth(x); }
 				}
+				if (procedures.containsKey(procName) ){
+		 	Procedure proc= procedures.get(procName);
+			proc.body.add("jump north_"+String.valueOf(x)); }
 			}
 		| <SOUTH >
 			{if (ejecutar)
 				{ for (int i = 0; i < numVeces; i++)
-					{  world.moveVertically(x, true);
-					changeFace(1); }
+					{  instrJumpSouth(x);}
 				}
+				if (procedures.containsKey(procName) ){
+		 	Procedure proc= procedures.get(procName);
+			proc.body.add("jump south_"+String.valueOf(x)); }
 			}
 }
 
-void jumpDirectionLRFB(int x, boolean ejecutar, int numVeces):
+void jumpDirectionLRFB(int x, boolean ejecutar, int numVeces, String procName):
 {
 }
 {
     <LEFT>
 	    { if (ejecutar)
 	    	{ for (int i = 0; i < numVeces; i++)
-		      { if (world.getFacing()==0)
-		      	world.moveHorizontally(-x, true) ;
-		      else if (world.getFacing()==1)
-		      	world.moveHorizontally(x, true) ;
-		      else if (world.getFacing()==2)
-		      	world.moveVertically(-x, true) ;
-		      else 
-		      	world.moveVertically(x, true) ; }
+		    	{ instrMoveJumpLeft(x, true); }
 		    }
+		    if (procedures.containsKey(procName) ){
+			Procedure proc= procedures.get(procName);
+			proc.body.add("jump left_"+String.valueOf(x)); }
 	     }
     | <RIGHT>
 	    {if (ejecutar)
 	    	{ for (int i = 0; i < numVeces; i++)
-		      { if (world.getFacing()==0)
-		      	world.moveHorizontally(x, true) ;
-		      else if (world.getFacing()==1)
-		      	world.moveHorizontally(-x, true) ;
-		      else if (world.getFacing()==2)
-		      	world.moveVertically(x, true) ;
-		      else 
-		      	world.moveVertically(-x, true) ; }
-		   }
+		    	{ instrMoveJumpRight(x, true); }
+		    }
+		    if (procedures.containsKey(procName) ){
+			Procedure proc= procedures.get(procName);
+			proc.body.add("jump right_"+String.valueOf(x)); }
 	     }
     | <FRONT>
 	     {if (ejecutar)
 	     	{ for (int i = 0; i < numVeces; i++)
 	       		{ world.moveForward(x, true) ; }
 	      	}
+	      	if (procedures.containsKey(procName) ){
+			Procedure proc= procedures.get(procName);
+			proc.body.add("jump forward_"+String.valueOf(x)); }
 	     }	
     | <BACK>
 	    { if (ejecutar)
 	    	{ for (int i = 0; i < numVeces; i++)
-		      { if (world.getFacing()==0)
-		      	world.moveVertically(x, true) ;
-		      else if (world.getFacing()==1)
-		      world.moveVertically(-x, true) ;
-		      else if (world.getFacing()==2)
-		      	world.moveHorizontally(-x, true) ;
-		      else 
-		      	world.moveHorizontally(x, true) ; }
-		  	}
+		    	{ instrMoveJumpBack(x, true); }
+		    }
+		    if (procedures.containsKey(procName) ){
+			Procedure proc= procedures.get(procName);
+			proc.body.add("jump back_"+String.valueOf(x)); }
 	     }
 }
 
@@ -1081,7 +1082,7 @@ void faceDirections(boolean ejecutar, int numVeces):
 	 		 }
 }
 
-void turnDirections(boolean ejecutar, int numVeces):
+void turnDirections(boolean ejecutar, int numVeces, String procName):
 {
 }
 {
@@ -1220,5 +1221,172 @@ Point getNewPos( int steps, String dir):
 }
 }
 
+//
+//BODY PROCEDURE Y WHILE INTERPRETER
+void procBodyCommands(String procName):
+{
+  Procedure proc=procedures.get(procName);
+  List<String > body = proc.body;
+  String[] instrArr;
+  int num;
+}
+{
+	{
+	  for (int i = 0; i < body.size(); i++)
+	  {
+	    instrArr=body.get(i).split("_");
+	    
+	    if (instrArr[0].equals("move forward"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	  world.moveForward(num, false); }
+	    else if (instrArr[0].equals("move north"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	instrMoveNorth(num);}
+	    else if (instrArr[0].equals("move south"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	instrMoveSouth(num);}
+	    else if (instrArr[0].equals("move west"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	instrMoveWest(num);}
+	    else if (instrArr[0].equals("move east"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	instrMoveEast(num);}
+	    else if (instrArr[0].equals("move back"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	instrMoveJumpBack(num, false);}
+	    else if (instrArr[0].equals("move left"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	instrMoveJumpLeft(num, false);}
+	    else if (instrArr[0].equals("move right"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	instrMoveJumpRight(num, false);}
 
-  
+	    else if (instrArr[0].equals("jump forward"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	  world.moveForward(num, true); }
+	    else if (instrArr[0].equals("jump north"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	instrJumpNorth(num);}
+	    else if (instrArr[0].equals("jump south"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	instrJumpSouth(num);}
+	    else if (instrArr[0].equals("jump west"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	instrJumpWest(num);}
+	    else if (instrArr[0].equals("jump east"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	instrJumpEast(num);}
+	    else if (instrArr[0].equals("jump back"))
+	    	{num=Integer.parseInt(instrArr[1]);
+	    	instrMoveJumpBack(num, true);}
+	    else if (instrArr[0].equals("jump left"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	instrMoveJumpLeft(num, true);}
+	    else if (instrArr[0].equals("jump right"))
+	    	{ num=Integer.parseInt(instrArr[1]);
+	    	instrMoveJumpRight(num, true);}
+	  }
+	}
+}
+
+//Move instr
+void instrMoveNorth(int x):
+{}
+{
+  { world.moveVertically(-x, false);
+	changeFace(0); }
+}
+
+void instrMoveSouth(int x):
+{}
+{
+  { world.moveVertically(x, false);
+	changeFace(1); }
+}
+
+void instrMoveWest(int x):
+{}
+{
+  { world.moveHorizontally(-x, false);
+	changeFace(3); }
+}
+
+void instrMoveEast(int x):
+{}
+{
+  { world.moveHorizontally(x, false);
+	changeFace(2); }
+}
+
+//Jump instr
+void instrJumpNorth(int x):
+{}
+{
+  { world.moveVertically(-x, true);
+	changeFace(0); }
+}
+
+void instrJumpSouth(int x):
+{}
+{
+  { world.moveVertically(x, true);
+	changeFace(1); }
+}
+
+void instrJumpWest(int x):
+{}
+{
+  { world.moveHorizontally(-x, true);
+	changeFace(3); }
+}
+
+void instrJumpEast(int x):
+{}
+{
+  { world.moveHorizontally(x, true);
+	changeFace(2); }
+}
+
+void instrMoveJumpLeft(int x, boolean bool):
+{}
+{
+  {
+    if (world.getFacing()==0)
+  	world.moveHorizontally(-x, bool) ;
+  else if (world.getFacing()==1)
+  	world.moveHorizontally(x, bool) ;
+  else if (world.getFacing()==2)
+  	world.moveVertically(-x, bool) ;
+  else 
+  	world.moveVertically(x, bool) ;
+ }
+}
+
+void instrMoveJumpRight(int x, boolean bool):
+{}
+{
+  {
+    if (world.getFacing()==0)
+  	world.moveHorizontally(x, bool) ;
+  else if (world.getFacing()==1)
+  	world.moveHorizontally(-x, bool) ;
+  else if (world.getFacing()==2)
+  	world.moveVertically(x, bool) ;
+  else 
+  	world.moveVertically(-x, bool) ; }
+}
+
+void instrMoveJumpBack(int x, boolean bool):
+{}
+{
+  {
+    if (world.getFacing()==0)
+  	world.moveVertically(x, bool) ;
+  else if (world.getFacing()==1)
+  world.moveVertically(-x, bool) ;
+  else if (world.getFacing()==2)
+  	world.moveHorizontally(-x, bool) ;
+  else 
+  	world.moveHorizontally(x, bool) ; }
+}
+
